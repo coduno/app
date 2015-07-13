@@ -119,6 +119,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <h2 class="paper-font-display2">Web IDE</h2>
               </paper-material>
             </section>
+
+            <section data-route="unauthorized">
+              <paper-material elevation="1">
+                <h2 class="paper-font-display2">You are unauthorized to see this page.</h2>
+              </paper-material>
+            </section>
           </iron-pages>
         </div>
       </paper-header-panel>
@@ -129,14 +135,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                  text="Caching complete! This app will work offline.">
     </paper-toast>
 
-    <platinum-sw-register auto-register
+    <!-- TODO(victorbalan): enable cache in production -->
+    <!-- <platinum-sw-register auto-register
                           clients-claim
                           skip-waiting
                           on-service-worker-installed="displayInstalledToast">
       <platinum-sw-cache default-cache-strategy="networkFirst"
                          precache-file="precache.json">
       </platinum-sw-cache>
-    </platinum-sw-register>
+    </platinum-sw-register> -->
 
   </template>
 
