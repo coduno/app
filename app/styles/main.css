@@ -11,8 +11,10 @@ body {
   background: #fafafa;
   font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   color: #333;
+  height: 100%;
 }
 :root {
+  height: 100%;
   --dark-primary-color: #303F9F;
   --default-primary-color: #3F51B5;
   --light-primary-color: #C5CAE9;
@@ -38,6 +40,12 @@ body {
 
 /* General styles */
 
+.header{
+  font-size: 3.2vh;
+  text-align: center !important;
+  height: 6.5% !important;
+}
+
 #drawerToolbar {
   color: var(--secondary-text-color);
   background-color: var(--drawer-menu-color);
@@ -45,9 +53,12 @@ body {
   height: 64px;
 }
 
+paper-header-panel #mainContainer{
+    height: 100%;
+}
+
 paper-material {
   border-radius: 2px;
-  height: 100%;
   padding: 16px 0 16px 0;
   width: calc(98.66% - 16px);
   margin: 16px auto;
@@ -97,7 +108,15 @@ paper-menu a {
 
 /* Height of the scroll area */
 .content {
-  height: 900px;
+  height: 93.5%;
+}
+
+.content iron-pages{
+  height: 100%;
+}
+
+.content iron-pages section{
+  height: 100%;
 }
 
 /* Breakpoints */
@@ -149,7 +168,6 @@ paper-menu a {
   }
 
   iron-pages {
-    padding: 48px 62px;
   }
 
 }

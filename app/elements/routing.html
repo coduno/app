@@ -3,9 +3,9 @@
 <script>
   window.addEventListener('WebComponentsReady', function() {
     page('/', function () {
-      checkLoggedIn()
+      checkLoggedIn();
       app.route = 'home';
-      document.getElementById("main-page-header").innerHTML = "<home-header></home-header>"
+      document.getElementById('main-page-header').innerHTML = '<home-header></home-header>';
     });
 
     page('/token/:token', function(context){
@@ -15,7 +15,7 @@
       xmlhttp.onreadystatechange = function() {
         if (xmlhttp.readyState == XMLHttpRequest.DONE ) {
           if(xmlhttp.status == 200){
-            document.cookie = "loggedIn=true"
+            document.cookie = "loggedIn=true";
             page.redirect("/")
           }else if(xmlhttp.status == 401){
             page.redirect("/unauthorized")
@@ -23,22 +23,22 @@
             page.redirect("/error")
           }
         }
-      }
+      };
 
       xmlhttp.withCredentials = true;
       xmlhttp.open("GET","http://localhost:8080/api/token/check/" + token,true);
       xmlhttp.send();
-    })
+    });
 
     page('/codingGround', function () {
-      checkLoggedIn()
+      checkLoggedIn();
       app.route = 'codingGround';
-      document.getElementById("main-page-header").innerHTML = "<editor-header></editor-header>"
+      document.getElementById('main-page-header').innerHTML = '<editor-header></editor-header>';
     });
 
     page('/unauthorized', function(){
       app.route = 'unauthorized';
-    })
+    });
 
     // add #! before urls
     page({

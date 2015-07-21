@@ -1,27 +1,23 @@
 <link rel="import" href="../../../bower_components/polymer/polymer.html">
 
 <dom-module id="editor-header">
+  <style>
+    paper-toolbar{
+      height: 100%;
+    }
+  </style>
   <template>
     <!-- Main Toolbar -->
-    <paper-toolbar id="mainToolbar" >
-      <paper-icon-button id="paperToggle" icon="menu"></paper-icon-button>
-      <span class="flex"></span>
-
-      <!-- Toolbar icons -->
-      <paper-icon-button icon="refresh"></paper-icon-button>
-      <paper-icon-button icon="search"></paper-icon-button>
-
-      <!-- Application name -->
-      <div class="middle paper-font-display2 app-name">Coding Ground</div>
+    <paper-toolbar id="mainToolbar">
+      <div>Coding Ground</div>
 
     </paper-toolbar>
   </template>
 
   <script>
     Polymer({
-      is:"editor-header"
-    })
+      is:'editor-header'
+    });
 
   </script>
-
 </dom-module>

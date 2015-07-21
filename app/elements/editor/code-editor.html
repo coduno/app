@@ -1,104 +1,42 @@
 <link rel="import" href="../../../bower_components/polymer/polymer.html">
-<link rel="import" href="../../../bower_components/iron-ajax/iron-ajax.html">
-<link rel="import" href="../../../bower_components/iron-autogrow-textarea/iron-autogrow-textarea.html">
-<link rel="import" href="../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../editor-console/editor-console.html">
+
 
 <dom-module id="code-editor">
   <style>
-    #editor {
-      position: absolute;
-      top: 65px;
-      right: 0;
-      left: 0;
-      bottom: 25%;
+    #code-container{
+      height: 78%;
     }
-    paper-toolbar{
-      position: absolute;
-      top: 75%;
-      left: 0;
-      right: 0;
-      height: 7%;
-      background-color: #66b8da;
-    }
-
-    iron-autogrow-textarea{
-      border: none;
-      position: absolute;
-      width: 100%;
-      top: 82%;
-      height: 16.6%;
-      max-height: 16.6%;
-      left: 0;
-      right: 0;
+    #editor{
+      height: 100%;
     }
 
   </style>
 
   <template>
 
-    <iron-ajax
-      id="ajaxRequest"
-      handle-as="json"
-      on-response="onresponse"
-      debounce-duration="1000"
-      content-type="application/json"
-      >
-    </iron-ajax>
-
-    <div class="vertical layout" style="display: block">
-
-      <div id="editor">function foo(){return bar;}</div>
-
-      <paper-toolbar>
-        <div class="horizontal layout">
-
-          <button id="runCode" on-click="runcode" >Test</button>
-
-          <select id="programmingLanguage">
-            <option>Javascript</option>
-            <option>Java</option>
-            <option>C#</option>
-            <option></option>
-          </select>
-
-        </div>
-      </paper-toolbar>
-
-      <iron-autogrow-textarea id="console" readonly></iron-autogrow-textarea>
-
-
+    <div id="code-container" class="flex">
+      <div id="editor"></div>
     </div>
 
+    <editor-console editor="{{editor}}"></editor-console>
 
   </template>
 
-  <script src="../../scripts/ace_editor/src-min/ace.js" type="application/javascript"></script>
-
+  <script src="../../../bower_components/ace-min-noconflict/ace.js" type="application/javascript"></script>
   <script>
     Polymer({
-        is: "code-editor",
-        properties: {
-          editor: Object
-        },
-        ready: function(){
-          //initialize the code editor
-          this.editor = ace.edit(this.$.editor);
-          this.editor.setTheme("ace/theme/iplastic");
-          //TODO: un-hardcode the programming language
-          this.editor.getSession().setMode("ace/mode/java");
-        },
-        runcode: function(){
-          var code = this.editor.getValue();
-          this.$.ajaxRequest.method='POST';
-          this.$.ajaxRequest.body = JSON.stringify({'code': code, 'language': 'javascript'});
-          this.$.ajaxRequest.url='http://localhost:8080/testRoute';
-          this.$.ajaxRequest.generateRequest();
-        },
-        onresponse: function(request){
-          console.log(request.detail.response);
-          //TODO: dont forget to actually update this when i get a real response
-          this.$.console.textarea.value = request.detail.response.code;
-        }
-      });
+      is: 'code-editor',
+      properties: {
+        editor: Object
+      },
+      ready: function(){
+        //initialize the code editor
+        this.editor = ace.edit(this.$.editor);
+        this.editor.setTheme('ace/theme/chrome');
+      }
+    });
+
   </script>
 </dom-module>
+

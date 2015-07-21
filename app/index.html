@@ -31,6 +31,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <!-- Add to homescreen for Chrome on Android -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="application-name" content="Coduno Coding Ground">
+
   <link rel="icon" sizes="192x192" href="images/touch/chrome-touch-icon-192x192.png">
 
   <!-- Add to homescreen for Safari on iOS -->
@@ -42,13 +43,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <!-- Tile icon for Win8 (144x144) -->
   <meta name="msapplication-TileImage" content="images/touch/ms-touch-icon-144x144-precomposed.png">
 
+  <link rel="stylesheet" href="../bower_components/codemirror/lib/codemirror.css">
   <!-- build:css styles/main.css -->
   <link rel="stylesheet" href="styles/main.css">
   <!-- endbuild-->
 
   <!-- build:js bower_components/webcomponentsjs/webcomponents-lite.min.js -->
-  <script src="bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+  <script src="../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
   <!-- endbuild -->
+
+
 
   <!-- will be replaced with elements/elements.vulcanized.html -->
   <link rel="import" href="elements/elements.html">
@@ -63,13 +67,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <div drawer>
 
         <!-- Drawer Toolbar -->
-        <paper-toolbar id="drawerToolbar">
+        <paper-toolbar id="drawerToolbar" class="header">
           <!--TODO: logo goes here, before Coduno-->
-          <span class="paper-font-title">Coduno</span>
+          <span>Coduno</span>
         </paper-toolbar>
 
         <!-- Drawer Content -->
-          <paper-menu class="list" attr-for-selected="data-route" selected="{{route}}" on-iron-select="onMenuSelect">
+          <paper-menu class="list content" attr-for-selected="data-route" selected="{{route}}" on-iron-select="onMenuSelect">
               <a data-route="home" href="/">
                 <iron-icon icon="home"></iron-icon>
                 <span>Home</span>
@@ -81,10 +85,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               </a>
           </paper-menu>
       </div>
-      <paper-header-panel main >
+      <paper-header-panel main>
 
         <!-- Main Toolbar -->
-        <div id="main-page-header"></div>
+        <div id="main-page-header" class="header"></div>
 
         <!-- Main Content -->
         <div class="content">
