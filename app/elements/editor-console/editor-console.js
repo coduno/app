@@ -8,6 +8,17 @@ Polymer({
       type: Object,
       reflectToAttribute: true,
       notify: true
+    },
+    selectedConsole:{
+      type: String
+    },
+    availableLanguages:{
+      type: Array,
+      notify: true
+    },
+    runOutput:{
+      type: Object,
+      notify: true
     }
   },
   observers: [
@@ -17,54 +28,59 @@ Polymer({
     this.setLanguage();
   },
   ready: function(){
-    this.$.console.textarea.value = 'Console';
+    var NORMAL_RUN = "simple";
+    var UNIT_TEST_RUN = "unittest";
+    this.selectedConsole = "0";
+    this.toSelect = "0";
+    this.languageModes = getAceLanguageConfig();
+    this.cachedCode = {};
+
+    // TODO(victorbalan): Get these from the server
+    this.availableLanguages = [
+      createLanguage("Java", "java", NORMAL_RUN),
+      createLanguage("Python", "py", NORMAL_RUN),
+      createLanguage("C++", "cpp", NORMAL_RUN),
+      createLanguage("C", "c", NORMAL_RUN),
+      createLanguage("Java UT", "javaut", UNIT_TEST_RUN)
+    ];
+
+    function createLanguage(name, tag, type){
+      return {name: name, tag: tag, type: type};
+    }
   },
   runCode: function(){
+    this.$.language.disabled = true;
+    var lang = this.getSelectedLanguage()
     this.$.ajaxRequest.method='POST';
-    this.$.ajaxRequest.body = JSON.stringify({'codeBase': this.getCode(), 'language': this.getSelectedLanguage()});
-    this.$.ajaxRequest.url='/api/run/start/simple';
+    this.$.ajaxRequest.body = JSON.stringify({'codeBase': this.getCode(), 'language': lang.tag});
+    this.$.ajaxRequest.url = engine_url + '/api/run/start/' + lang.type;
     this.$.ajaxRequest.generateRequest();
-    this.$.console.textarea.value = '...';
+    switch (lang.type){
+      case "simple":
+        this.toSelect = "1";
+        break;
+      case "unittest":
+        this.toSelect = "2";
+        break;
+    }
+    this.selectedConsole = "3";
   },
   onResponse: function(request){
-    if(request.detail.response!=undefined){
-      var codeRun = request.detail.response;
-      if(codeRun.run==undefined || codeRun.run==""){
-        this.$.console.textarea.value = codeRun.err;
-      }else{
-        this.$.console.textarea.value = codeRun.run;
-      }
-    }
+    this.$.language.disabled = false;
+    this.selectedConsole = this.toSelect;
+    this.runOutput = request.detail.response;
   },
   getCode: function(){
     return this.editor.getValue();
   },
   getSelectedLanguage: function(){
-    return this.$.language.options[this.$.language.selectedIndex].value;
+    if(this.$.language.selectedIndex!=-1){
+      return this.availableLanguages[this.$.language.selectedIndex];
+    }
   },
   setLanguage: function(){
-    console.log('Setting language to ' + this.getSelectedLanguage());
-    switch(this.getSelectedLanguage()){
-      case 'py':
-        this.setMode('ace/mode/python');
-        this.setDefaultCodeTemplate();
-        break;
-      case 'java':
-        this.setMode('ace/mode/java');
-        this.setDefaultCodeTemplate();
-        break;
-      case 'c':
-        this.setMode('ace/mode/c_cpp');
-        this.setDefaultCodeTemplate();
-        break;
-      case 'cpp':
-        this.setMode('ace/mode/c_cpp');
-        this.setDefaultCodeTemplate();
-        break;
-      case 'js':
-        this.setMode('ace/mode/javascript');
-        this.setDefaultCodeTemplate();
-        break;
+    if(this.getSelectedLanguage()!=undefined){
+      this.setMode(this.languageModes[this.getSelectedLanguage().tag])
     }
   },
   setMode: function(mode){
@@ -72,9 +88,15 @@ Polymer({
       path: mode,
       v: Date.now()
     });
-  },
-  setDefaultCodeTemplate: function(template){
-    //the code template will always come from the server
-      this.editor.setValue('printf(\'Hi\')');
   }
 });
+
+function getAceLanguageConfig(){
+  languageModes = {}
+  languageModes["py"]= "ace/mode/python"
+  languageModes["java"]= "ace/mode/java"
+  languageModes["javaut"]= "ace/mode/java"
+  languageModes["cpp"]= "ace/mode/c_cpp"
+  languageModes["c"]= "ace/mode/c_cpp"
+  return languageModes;
+}

@@ -1,0 +1,45 @@
+<dom-module id="simple-output">
+  <style>
+    iron-autogrow-textarea{
+      border: none;
+      position: relative;
+      width: 100%;
+      height: 150px;
+      max-height: 80%;
+      left: 0;
+      right: 0;
+    }
+  </style>
+  <template>
+    <iron-autogrow-textarea id="console" readonly>
+    </iron-autogrow-textarea>
+  </template>
+
+  <script>
+    Polymer({
+      is:'simple-output',
+      properties:{
+        runOutput:{
+          type: String,
+          notify: true,
+          reflectToAttribute: true
+        }
+      },
+      attributeChanged: function(name, type){
+        console.log(name)
+        console.log(type)
+        this.update(this.runOutput)
+      },
+      update: function(runResults){
+        var output = ""
+        if(runResults!=undefined){
+          output = runResults.err !="" && runResults.err!=undefined ? runResults.err : runResults.run
+        }else{
+          output = "Bad request"
+        }
+        this.$.console.textarea.value = output;
+      }
+    });
+
+  </script>
+</dom-module>
