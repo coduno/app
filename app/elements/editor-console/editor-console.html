@@ -2,6 +2,8 @@
 <link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../../bower_components/iron-autogrow-textarea/iron-autogrow-textarea.html">
 <link rel="import" href="../../bower_components/paper-toolbar/paper-toolbar.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/iron-dropdown/iron-dropdown.html">
 
 <dom-module id="editor-console">
 
@@ -11,7 +13,7 @@
       height: 20%;
     }
 
-    iron-autogrow-textarea{
+    #console-output{
       border: none;
       position: relative;
       width: 100%;
@@ -21,12 +23,21 @@
       right: 0;
     }
 
-    paper-toolbar{
+    paper-toolbar button, select, paper-icon-button{
+      height: 80%;
+    }
+
+    .button-toolbar{
+      background-color: #3f51b5;
       height: 20%;
     }
 
-    paper-toolbar button, select, paper-icon-button{
-      height: 80%;
+    #languageContainer{
+      padding-top: 10px;
+      padding-left: 1%;
+    }
+    paper-icon-button{
+      padding-left: 1%;
     }
   </style>
 
@@ -42,23 +53,30 @@
 
     <div id="console-container">
 
-      <paper-toolbar>
-        <div class="horizontal layout">
-
-          <button id="runCode" on-click="runCode">Run code</button>
-
+      <div class="button-toolbar horizontal layout">
+        <paper-icon-button src="../../images/start.png" on-click="runCode">Run code</paper-icon-button>
+        <div id="languageContainer">
           <select id="language" on-change="setLanguage">
-            <option value="java">Java</option>
-            <option value="py">Python</option>
-            <option value="c">C</option>
-            <option value="cpp">C++</option>
+            <template is="dom-repeat" items="{{availableLanguages}}">
+              <option value="{{item.tag}}">{{item.name}}</option>
+            </template>
           </select>
         </div>
-      </paper-toolbar>
+      </div>
 
-      <iron-autogrow-textarea id="console" readonly></iron-autogrow-textarea>
+      <iron-pages id="console-output" selected="{{selectedConsole}}">
+        <div>
+          <p>Console output</p>
+        </div>
+        <div><simple-output id="simpleConsole" run-output="{{runOutput}}"></simple-output></div>
+        <div><unit-test-output id="unitTestConsole" run-output="{{runOutput}}"></unit-test-output></div>
+          <div>
+            <p>Loading ...</p>
+          </div>
+      </iron-pages>
     </div>
 
   </template>
+  <script src="../../scripts/util.js" type="application/javascript"></script>
   <script src="editor-console.js" type="application/javascript"></script>
 </dom-module>
