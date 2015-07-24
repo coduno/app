@@ -62,6 +62,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <body unresolved class="fullbleed layout vertical">
   <span id="browser-sync-binding"></span>
   <template is="dom-bind" id="app">
+    <iron-ajax
+      id="challengeRequest"
+      handle-as="json"
+      on-response="onChallengeResponse"
+      debounce-duration="1000"
+      content-type="application/json"
+      >
+    </iron-ajax>
 
     <paper-drawer-panel id="paperDrawerPanel">
       <div drawer>
@@ -95,11 +103,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <iron-pages attr-for-selected="data-route" selected="{{route}}">
 
             <section data-route="home">
-              <home-page></home-page>
+              <home-page challenge="{{challenge}}"></home-page>
             </section>
 
             <section data-route="codingGround">
-              <code-editor></code-editor>
+              <code-editor challenge="{{challenge}}"></code-editor>
             </section>
 
             <section data-route="unauthorized">

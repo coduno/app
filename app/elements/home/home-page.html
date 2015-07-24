@@ -5,15 +5,26 @@
       <p>To start coding for your fingerprint go to "Coding ground". Good luck!</p>
     </paper-material>
     <paper-material elevation="1">
-      <h1 class="paper-font-body5">Some more info</h1>
-      <p>Info about the task/company or things like that.</p>
+      <h1 class="paper-font-body5">{{challenge.name}}</h1>
+      <p>{{challenge.instructions}}</p>
     </paper-material>
 
   </template>
 
   <script>
     Polymer({
-      is: 'home-page'
+      is: 'home-page',
+      properties: {
+        challenge:{
+          type: Object,
+          notify: true,
+          reflectToAttribute: true
+        }
+      },
+      ready: function(){
+        // this.challenge  = app.store
+        // console.log(app.store)
+      }
     });
   </script>
 </dom-module>

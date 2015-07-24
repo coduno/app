@@ -1,0 +1,92 @@
+<link rel="import" href="../../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../../bower_components/iron-autogrow-textarea/iron-autogrow-textarea.html">
+<link rel="import" href="../../../bower_components/paper-toolbar/paper-toolbar.html">
+<link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../bower_components/iron-dropdown/iron-dropdown.html">
+
+<dom-module id="simple-console">
+
+  <style>
+
+    #console-container{
+      height: 20%;
+    }
+
+    #console-output{
+      border: none;
+      position: relative;
+      width: 100%;
+      height: 80%;
+      max-height: 80%;
+      left: 0;
+      right: 0;
+    }
+
+    paper-toolbar button, select, paper-icon-button{
+      height: 80%;
+    }
+
+    .button-toolbar{
+      background-color: #3f51b5;
+      height: 20%;
+    }
+
+    #languageContainer{
+      padding-top: 10px;
+      padding-left: 1%;
+    }
+    paper-icon-button{
+      padding-left: 1%;
+    }
+    iron-autogrow-textarea{
+      border: none;
+      position: relative;
+      width: 100%;
+      height: 150px;
+      max-height: 80%;
+      left: 0;
+      right: 0;
+    }
+  </style>
+
+  <template>
+    <iron-ajax
+      id="ajaxRequest"
+      handle-as="json"
+      on-response="onResponse"
+      debounce-duration="1000"
+      content-type="application/json"
+      >
+    </iron-ajax>
+
+    <div id="console-container">
+
+      <div class="button-toolbar horizontal layout">
+        <paper-icon-button src="../../images/start.png" on-click="runCode">Run code</paper-icon-button>
+        <div id="languageContainer">
+          <select id="language" on-change="setLanguage">
+            <template is="dom-repeat" items="{{availableLanguages}}">
+              <option value="{{item.tag}}">{{item.name}}</option>
+            </template>
+          </select>
+        </div>
+      </div>
+
+      <iron-pages id="console-output" selected="{{selectedConsole}}">
+        <div>
+          <p>Console output</p>
+        </div>
+        <div>
+          <p>Loading ...</p>
+        </div>
+        <div>
+          <iron-autogrow-textarea id="output" readonly>
+          </iron-autogrow-textarea>
+        </div>
+      </iron-pages>
+    </div>
+
+  </template>
+  <script src="../../../scripts/util.js" type="application/javascript"></script>
+  <script src="simple-console.js" type="application/javascript"></script>
+</dom-module>
