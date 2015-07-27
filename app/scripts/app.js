@@ -15,6 +15,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   // Learn more about auto-binding templates at http://goo.gl/Dx1u2g
   var app = document.querySelector('#app');
 
+  app.properties = {
+    challenge: {
+      type: Object,
+      notify: true
+    }
+  };
+
   app.displayInstalledToast = function() {
     document.querySelector('#caching-complete').show();
   };
@@ -23,6 +30,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   // have resolved and content has been stamped to the page
   app.addEventListener('dom-change', function() {
     console.log('Our app is ready to rock!');
+    var challengeId = getCookie("challengeId")
+    if(challengeId!="" && challengeId!= undefined){
+      app.$.challengeRequest.url = "/api/challenge/" + challengeId;
+      app.$.challengeRequest.generateRequest();
+    }
   });
 
   // See https://github.com/Polymer/polymer/issues/1381
@@ -37,5 +49,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       drawerPanel.closeDrawer();
     }
   };
+
+  app.persistChallenge = function(challenge){
+    app.challenge = challenge;
+    document.cookie = "challengeId="+challenge.id;
+  }
+
+  app.onChallengeResponse = function(r){
+    var challenge = r.detail.response;
+    challenge.id = getCookie("challengeId");
+    app.challenge = challenge;
+  }
 
 })(document);

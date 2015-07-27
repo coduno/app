@@ -15,7 +15,7 @@
       xmlhttp.onreadystatechange = function() {
         if (xmlhttp.readyState == XMLHttpRequest.DONE ) {
           if(xmlhttp.status == 200){
-            document.cookie = "loggedIn=true";
+            app.persistChallenge(JSON.parse(xmlhttp.response))
             page.redirect("/home")
           }else if(xmlhttp.status == 401){
             page.redirect("/unauthorized")
@@ -46,8 +46,8 @@
     });
 
     function checkLoggedIn(){
-      var loggedIn = getCookie("loggedIn")
-      if(loggedIn=="" || loggedIn=="false"){
+      var challengeId = getCookie("challengeId")
+      if(challengeId=="" || challengeId==undefined){
         page.redirect("/unauthorized")
       }
     }

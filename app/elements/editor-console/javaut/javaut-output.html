@@ -1,0 +1,47 @@
+<dom-module id="javaut-output">
+
+    <style>
+      .inline{
+        display: inline;
+      }
+    </style>
+  <template>
+    <p>{{runOutput.err}}</p>
+    <p>Number of tests <span>{{runOutput.tests.Tests}}</span></p>
+    <p>Number of failures <span>{{runOutput.tests.Failures}}</span></p>
+    <p>Number of errors <span>{{runOutput.tests.Errors}}</span></p>
+    <template id="testCases" is="dom-repeat" items="{{runOutput.tests.TestCase}}">
+      <div>
+        <iron-icon src="{{getIcon(item)}}"></iron-icon>
+        <p class="inline"><span>{{getText(item)}}</span></p>
+      </div>
+    </template>
+  </template>
+
+  <script>
+    Polymer({
+      is:'javaut-output',
+      properties:{
+        runOutput:{
+          type: Object,
+          notify: true,
+          reflectToAttribute: true
+        }
+      },
+      getText: function(testCase){
+        if(testCase.Failure.Message != ""){
+          return testCase.Name + " failed on " + testCase.Failure.Message;
+        }
+        return testCase.Name;
+      },
+      getIcon: function(testCase){
+        if(testCase.Failure.Message != ""){
+          return "images/not-ok.png";
+        }else{
+          return "images/ok.png";
+        }
+      }
+  });
+
+  </script>
+</dom-module>

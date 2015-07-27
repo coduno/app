@@ -1,5 +1,5 @@
-<link rel="import" href="../editor-console/editor-console.html">
-
+<link rel="import" href="../editor-console/simple/simple-console.html">
+<link rel="import" href="../editor-console/javaut/javaut-console.html">
 
 <dom-module id="code-editor">
   <style>
@@ -13,26 +13,45 @@
   </style>
 
   <template>
-
     <div id="code-container" class="flex">
       <div id="editor"></div>
     </div>
 
-    <editor-console editor="{{editor}}"></editor-console>
-
+    <div id="console"></div>
   </template>
 
   <script src="../../bower_components/ace-min-noconflict/ace.js" type="application/javascript"></script>
+  <script src="../../bower_components/ace-min-noconflict/ext-language_tools.js" type="application/javascript"></script>
   <script>
     Polymer({
       is: 'code-editor',
       properties: {
-        editor: Object
+        editor: Object,
+        challenge: {
+          type: Object,
+          notify: true,
+          reflectToAttribute: true
+        }
       },
       ready: function(){
         //initialize the code editor
+        ace.require("ace/ext/language_tools");
         this.editor = ace.edit(this.$.editor);
         this.editor.setTheme('ace/theme/chrome');
+        this.editor.setOptions({
+          enableBasicAutocompletion: true
+        });
+      },
+      attributeChanged: function(name, old){
+        switch(name){
+          case "challenge":
+            var webInterface = document.createElement(this.challenge.webInterface);
+            webInterface.editor = this.editor;
+            webInterface.challenge = this.challenge;
+            this.$.console.innerHTML = "";
+            this.$.console.appendChild(webInterface);
+            break;
+        }
       }
     });
 
