@@ -1,7 +1,22 @@
-var BASE_URL = "http://localhost:8080";
+var BASE_URL = "https://api.cod.uno";
 
-if (location.origin.indexOf("localhost") == -1) {
-  BASE_URL = "https://api.cod.uno";
+if (location.origin.indexOf("localhost") !== -1) {
+  BASE_URL = "http://localhost:8080";
+}
+
+var accessToken = undefined;
+if (localStorage.accessToken !== undefined) {
+        accessToken = JSON.parse(localStorage.accessToken);
+}
+
+var company = undefined;
+if (localStorage.company !== undefined) {
+        accessToken = JSON.parse(localStorage.company);
+}
+
+var user = undefined;
+if (localStorage.user !== undefined) {
+        accessToken = JSON.parse(localStorage.user);
 }
 
 function get(ajaxRequest, route, authorization, responseCallback){
@@ -10,8 +25,8 @@ function get(ajaxRequest, route, authorization, responseCallback){
   if (authorization){
     ajaxRequest.headers = {"Authorization": authorization};
   }
-  else{
-    ajaxRequest.headers = {"Authorization": localStorage.getItem("authorization")};
+  else {
+    ajaxRequest.headers = {"Authorization": 'Token ' + accessToken.Value };
   }
   ajaxRequest.generateRequest();
 }
@@ -19,7 +34,7 @@ function get(ajaxRequest, route, authorization, responseCallback){
 function post(ajaxRequest, route, body){
   ajaxRequest.url = BASE_URL + route;
   ajaxRequest.method = "POST";
-  ajaxRequest.headers = {"Authorization": localStorage.getItem("authorization")};
+  ajaxRequest.headers = { "Authorization": 'Token ' + accessToken.Value };
   ajaxRequest.body = JSON.stringify(body);
   ajaxRequest.generateRequest();
 }
@@ -57,7 +72,7 @@ function getLanguageForTag(tag){
 function put(ajaxRequest, route, body){
   ajaxRequest.url = BASE_URL + route;
   ajaxRequest.method = "PUT";
-  ajaxRequest.headers = {"Authorization": localStorage.getItem("authorization")};
+  ajaxRequest.headers = {"Authorization": 'Token ' + accessToken};
   ajaxRequest.body = JSON.stringify(body);
   ajaxRequest.generateRequest();
 }

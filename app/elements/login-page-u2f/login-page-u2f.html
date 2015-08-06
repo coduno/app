@@ -1,0 +1,76 @@
+<dom-module id="login-page-u2f">
+	<style type="text/css">
+:host {
+	/* layout properties for the host element */
+	@apply(--layout-vertical);
+}
+
+iron-icon.huge {
+	--iron-icon-height: 144px;
+	--iron-icon-width: 144px;
+}
+
+paper-material {
+	width: 30%;
+	background-color: white;
+
+	/* three times the width of iron-icon.huge */
+	max-width: 432px;
+
+	/* places this in the middle */
+	margin: auto;
+}
+
+paper-material > div:first-child {
+	height: 248px; /* 2*iron-icon.huge(width) - 2 * padding */
+	max-height: 50%;
+	background: #424b4b;
+	color: white;
+
+	@apply(--layout-horizontal);
+	@apply(--layout-center);
+}
+
+paper-material > div:first-child > div {
+	width: 100%;
+
+	@apply(--layout-vertical);
+	@apply(--layout-center);
+}
+
+paper-material > div {
+	padding: 24px;
+}
+
+paper-material > div > paper-button {
+	width: 100%;
+
+	margin: 0 !important;
+	margin-top: 12px !important;
+}
+	</style>
+	<template>
+		<paper-material elevation="1">
+			<div>
+				<div>
+					<iron-icon class="huge" icon="lock-outline"></iron-icon>
+				</div>
+			</div>
+			<div>
+				<p>Please insert your security key.</p>
+				<paper-button flat colorful on-click="next">Next</paper-button>
+			</div>
+		</paper-material>
+	</template>
+</dom-module>
+<script>
+Polymer({
+	is: 'login-page-u2f',
+	behaviors: [
+		Polymer.NeonAnimatableBehavior
+	],
+	next: function() {
+		this.fire('next');
+	}
+});
+</script>

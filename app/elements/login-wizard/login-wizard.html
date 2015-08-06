@@ -1,0 +1,146 @@
+<dom-module id="login-wizard">
+	<template>
+		<neon-animated-pages id="pages" class="flex" selected="[[selected]]" entry-animation="[[entryAnimation]]" exit-animation="[[exitAnimation]]">
+			<login-page-email email="{{email}}" on-next="next"></login-page-email>
+			<login-page-password password="{{password}}" on-next="next" on-prev="prev"></login-page-password>
+			<login-page-u2f on-next="next"></login-page-u2f>
+			<login-page-final id="loginPageFinal"></login-page-final>
+		</neon-animated-pages>
+		<iron-ajax id="tokenRequest"
+			handle-as="json"
+			on-response="onToken"
+			on-error="onTokenError"
+			debounce-duration="1000"
+			with-credentials="true"
+			url$="{{getTokenUrl()}}"
+			method="POST"
+			lastResponse="{{tokenResponse}}"
+			body='{"Description": "login"}'
+		>
+		</iron-ajax>
+		<iron-ajax id="userRequest"
+			handle-as="json"
+			on-response="onUser"
+			with-credentials="true"
+			url$="{{getUserUrl()}}"
+		>
+		</iron-ajax>
+		<iron-ajax id="companyRequest"
+			handle-as="json"
+			on-response="onCompany"
+			on-error="onCompanyError"
+			with-credentials="true"
+			url$="{{getCompanyUrl()}}"
+		>
+		</iron-ajax>
+	</template>
+</dom-module>
+<script>
+// Not dynamically set until API implements this.
+var u2fRequired = false;
+
+// Page indexes.
+var pageEmail = 0, pagePassword = 1, pageU2f = 2, pageFinal = 3;
+
+Polymer({
+	is: 'login-wizard',
+	behaviors: [
+		Polymer.NeonAnimatableBehavior
+	],
+	properties: {
+		selected: {
+			type: Number,
+			value: 0
+		},
+		entryAnimation: String,
+		exitAnimation: String,
+		u2fRequired: {
+			type: Boolean,
+			value: false,
+		},
+		email: {
+			type: String,
+			notify: true,
+		},
+		password: {
+			type: String,
+			notify: true
+		},
+		tokenResponse: {
+			type: Object,
+			notify: true
+		}
+	},
+	listeners: {
+		'neon-animation-finish': '_afterNeon'
+	},
+	prev: function() {
+		// Can not get before e-mail.
+		if (this.selected == pageEmail) {
+			return;
+		}
+		// Do not allow to go back after U2F, as e-mail and
+		// password already match.
+		if (this.selected == pageU2f) {
+			return;
+		}
+		this.entryAnimation = 'slide-from-left-animation';
+		this.exitAnimation = 'slide-right-animation';
+		this.selected--;
+	},
+	next: function() {
+		if (this.selected == pagePassword && !u2fRequired) {
+			this.requestToken();
+			return;
+		}
+		// Can not get further than U2F.
+		if (this.selected == pageU2f) {
+			return
+		}
+		this.entryAnimation = 'slide-from-right-animation';
+		this.exitAnimation = 'slide-left-animation';
+		this.selected++;
+	},
+	requestToken: function() {
+		this.entryAnimation = 'slide-from-right-animation';
+		this.exitAnimation = 'slide-left-animation';
+		this.selected = pageFinal;
+		this.$.tokenRequest.headers = { 'Authorization': 'Basic ' + btoa(this.email + ':' + this.password)};
+		this.$.tokenRequest.generateRequest();
+	},
+	onToken: function() {
+		accessToken = this.$.tokenRequest.lastResponse;
+		localStorage.accessToken = JSON.stringify(accessToken);
+		this.$.loginPageFinal.icon = "lock-open";
+		var h = { 'Authorization': 'Token ' + accessToken.Value};
+		this.$.userRequest.headers = h;
+		this.$.companyRequest.headers = h;
+		this.$.userRequest.generateRequest();
+		this.$.companyRequest.generateRequest();
+	},
+	onTokenError: function() {
+		console.log(this.$.tokenRequest.lastError);
+	},
+	onCompany: function() {
+		company = this.$.companyRequest.lastResponse;
+		localStorage.company = JSON.stringify(company);
+		app.login();
+	},
+	onCompanyError: function() {
+		app.login();
+	},
+	onUser: function() {
+		user = this.$.userRequest.lastResponse;
+		localStorage.user = JSON.stringify(user);
+	},
+	getTokenUrl: function() {
+		return BASE_URL + '/accessTokens';
+	},
+	getUserUrl: function() {
+		return BASE_URL + '/user';
+	},
+	getCompanyUrl: function() {
+		return this.getUserUrl() + '/company';
+	}
+});
+</script>

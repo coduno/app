@@ -1,115 +1,110 @@
 <script src="../bower_components/page/page.js"></script>
 <script>
-  window.addEventListener('WebComponentsReady', function() {
-    page('/', function(){
-      checkAuthorization();
-      if(localStorage.getItem("role")==="COMPANY"){
-        page('/candidates');
-      }else{
-        page('/challenge')
-      }
-    });
+window.addEventListener('WebComponentsReady', function() {
+	page('/', function() {
+		checkAuthorization();
+		if (company) {
+			page('/candidates');
+		} else {
+			page('/challenge')
+		}
+	});
 
-    page('/token/:token', function(context) {
-      var token = context.params.token;
-      var decodedToken = atob(token).split(':');
-      localStorage.setItem("authorization", 'Token ' + decodedToken[1]);
-      app.requestData(decodedToken[0]);
-      app.login("CODER")
-    });
+	page('/token/:token', function(context) {
+		var token = context.params.token;
+		var decodedToken = atob(token).split(':');
+		accessToken = { Value: decodedToken[1] };
+		localStorage.accessToken = JSON.stringify(accessToken);
+		app.requestData(decodedToken[0]);
+		// TODO(flowlo): Request /user to set localStorage.user, but
+		// this is currently not needed.
+		app.login()
+	});
 
-    page('/challenge', function() {
-      checkAuthorization();
-      app.route = 'challenge';
-      app.header = "Challenge"
-    });
+	page('/challenge', function() {
+		checkAuthorization();
+		app.route = 'challenge';
+		app.header = "Challenge"
+	});
 
-    page('/challenges', function () {
-      checkAuthorization();
-      app.$.challengeList.getChallenges();
-      app.route = 'challenges';
-      app.header = 'Challenges';
-    });
+	page('/challenges', function () {
+		checkAuthorization();
+		app.$.challengeList.getChallenges();
+		app.route = 'challenges';
+		app.header = 'Challenges';
+	});
 
-    page('/challenges/:challengeKey', function(data){
-      checkAuthorization();
-      app.$.challengeDetail.challengeKey = data.params.challengeKey;
-      app.route = 'challenge-detail';
-      app.header = 'Challenges';
-    });
+	page('/challenges/:challengeKey', function(data){
+		checkAuthorization();
+		app.$.challengeDetail.challengeKey = data.params.challengeKey;
+		app.route = 'challenge-detail';
+		app.header = 'Challenges';
+	});
 
-    page('/unauthorized', function() {
-      app.route = 'unauthorized';
-      app.header = "Unauthorized"
-    });
+	page('/unauthorized', function() {
+		app.route = 'unauthorized';
+		app.header = "Unauthorized"
+	});
 
-    // DASHBOARD
-    page('/coders/:id', function(data) {
-      checkAuthorization();
-      checkIsCompany();
-      app.route = 'coder-info';
-      app.params = data.params;
-    });
+	page('/coders/:id', function(data) {
+		checkAuthorization();
+		checkIsCompany();
+		app.route = 'coder-info';
+		app.params = data.params;
+	});
 
-    page('/candidates', function() {
-      checkAuthorization();
-      checkIsCompany();
-      app.route = 'candidate';
-      app.$.candidatePage.getChallenges();
-      app.$.candidatePage.getCandidates();
-      app.header = 'Candidates';
-    });
+	page('/candidates', function() {
+		checkAuthorization();
+		checkIsCompany();
+		app.route = 'candidate';
+		app.$.candidatePage.getChallenges();
+		app.$.candidatePage.getCandidates();
+		app.header = 'Candidates';
+	});
 
-    page('/tasks', function(){
-      checkAuthorization();
-      checkIsCompany();
-      app.$.taskList.getTasks();
-      app.header = 'Tasks';
-      app.route = 'tasks';
-    });
+	page('/tasks', function() {
+		checkAuthorization();
+		checkIsCompany();
+		app.$.taskList.getTasks();
+		app.header = 'Tasks';
+		app.route = 'tasks';
+	});
 
-    page('/login', function() {
-      if(hasAuthorization()){
-        if(localStorage.getItem("role")==="COMPANY"){
-          page('/candidates');
-        }else{
-          page('/challenge')
-        }
-      }else{
-        app.route = 'login';
-        app.header = "Login";
-      }
-    });
+	page('/login', function() {
+		if (hasAuthorization()) {
+			if (localStorage.company) {
+				page('/candidates');
+			} else {
+				page('/challenge')
+			}
+		} else {
+			app.route = 'login';
+			app.header = "Login";
+		}
+	});
 
-    //################################## ERROR PAGES
+	page('/error', function() {
+		var lastError = getLastError();
+		console.log(lastError);
+		app.$.error500.initialError = lastError;
+		app.header = 'Oops...';
+		app.route = '500';
+	});
 
-    page('/500', function(){
-      var lastError = getLastError();
-      console.log(lastError);
-      app.$.error500.initialError = lastError;
-      app.header = 'Oops...';
-      app.route = '500';
-    });
+	page({
+		hashbang: true
+	});
 
-    page({
-      // Add '#!' before page paths
-      hashbang: true
-    });
+	function checkAuthorization() {
+		!!localStorage.accessToken || page.redirect("/login");
+	}
 
-    function checkAuthorization(){
-      if(!hasAuthorization()){
-        page.redirect("/login");
-      }
-    }
-    function hasAuthorization() {
-      return !!localStorage.getItem("authorization");
-    }
+	function hasAuthorization() {
+		return !!localStorage.accessToken;
+	}
 
-    function checkIsCompany() {
-      var role = localStorage.getItem("role");
-      if (role === undefined || role === "" || role !== "COMPANY") {
-        page.redirect("/login");
-      }
-    }
-  });
+	function checkIsCompany() {
+		(!!localStorage.accessToken && !!localStorage.company) || page.redirect("/login");
+	}
+});
 </script>

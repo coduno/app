@@ -36,7 +36,7 @@
                 }
             },
             getChallenges: function(){
-                get(this.$.getChallengesAjax, '/companies/' + localStorage.getItem("companyKey") + '/challenges');
+                get(this.$.getChallengesAjax, '/companies/' + localStorage.company.Key + '/challenges');
             },
             onResponse: function(req){
                 this.challenges = req.detail.response;
