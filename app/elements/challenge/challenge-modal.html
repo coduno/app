@@ -3,6 +3,7 @@
 <link rel="import" href="/bower_components/paper-input/paper-input.html">
 <link rel="import" href="/bower_components/paper-button/paper-button.html">
 <link rel="import" href="/bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="/bower_components/paper-toast/paper-toast.html">
 
 <dom-module id="challenge-modal">
 	<template>
@@ -12,6 +13,8 @@
 			on-response="onChallengeResponse"
 			on-error="onError">
 		</iron-ajax>
+
+		<paper-toast id="toastInvalid" text="Challenge details are not valid."></paper-toast>
 
 		<paper-dialog id="dialog" modal>
 			<h2>These are the challenges tou selected: </h2>
@@ -30,7 +33,7 @@
 										 value="{{Duration}}"></paper-input>
 				<div style="float: right;">
 					<paper-button dialog-dismiss class="margined">Cancel</paper-button>
-					<paper-button dialog-confirm class="colorful margined" raised on-click="saveChallenge">Create
+					<paper-button class="colorful margined" raised on-click="saveChallenge">Create
 					</paper-button>
 				</div>
 			</form>
@@ -55,17 +58,41 @@
 			},
 			saveChallenge: function () {
 				var taskKeys = [];
+
 				for (var i = 0; i < this.selectedTasks.length; i++) {
 					taskKeys.push(this.selectedTasks[i].Key);
 				}
-				util.post(this.$.postChallengeAjax, '/challenges', {
-					'Tasks': taskKeys,
-					'Description': this.Description,
-					'Name': this.Name,
-					'Instructions': this.Instructions,
-					'Duration': 6 * 1e10 * parseInt(this.Duration),
-					'Endpoints': {'WebInterface': 'sequential-challenge'}
-				});
+
+				if (!this.isChallengeValid()) {
+					this.$.toastInvalid.show();
+				} else {
+					util.post(this.$.postChallengeAjax, '/challenges', {
+						'Tasks': taskKeys,
+						'Description': this.Description,
+						'Name': this.Name,
+						'Instructions': this.Instructions,
+						'Duration': 6 * 1e10 * parseInt(this.Duration),
+						'Endpoints': {'WebInterface': 'sequential-challenge'}
+					});
+
+					this.$.dialog.close();
+				}
+
+			},
+			isChallengeValid: function () {
+				if (this.Description === '') {
+					return false;
+				}
+
+				if (this.Name === '') {
+					return false;
+				}
+
+				if (this.Instructions === '') {
+					return false;
+				}
+
+				return true;
 			},
 			onChallengeResponse: function (res) {
 				this.fire('challengeCreated');
