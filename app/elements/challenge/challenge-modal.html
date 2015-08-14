@@ -97,6 +97,18 @@
 					return false;
 				}
 
+				var tasksTotalDuration = 0;
+
+				for (var i = 0; i < this.selectedTasks.length; ++i) {
+					tasksTotalDuration += this.selectedTasks[i].Duration;
+				}
+
+				tasksTotalDuration = tasksTotalDuration / 6 / 1e10;
+
+				if (this.Duration < tasksTotalDuration) {
+					return false;
+				}
+
 				return true;
 			},
 			onChallengeResponse: function (res) {
