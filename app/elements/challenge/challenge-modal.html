@@ -6,6 +6,11 @@
 <link rel="import" href="/bower_components/paper-toast/paper-toast.html">
 
 <dom-module id="challenge-modal">
+	<style>
+		paper-toast {
+			z-index: 999999;
+		}
+	</style>
 	<template>
 		<iron-ajax
 			id="postChallengeAjax"
