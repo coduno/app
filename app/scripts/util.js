@@ -71,6 +71,24 @@ var util = {
 		}
 		return minutes + ' minutes';
 	},
+	validateEmail: function(email) {
+		if (!email){
+			return false;
+		}
+		email = email.trim();
+		var lt = email.indexOf('<');
+		var gt = email.indexOf('>');
+
+		if (lt === -1 || gt === -1){
+			return false;
+		}
+		if (lt === 0){
+			return false;
+		}
+		var address = email.substring(lt + 1, gt);
+		var regxp = new RegExp(this.emailRegex);
+		return regxp.test(address);
+	},
 	error: function(error) {
 		if (this.initialError !== undefined) {
 			// TODO(flowlo): Do not disregard further errors,
@@ -85,6 +103,7 @@ var util = {
 		}
 		page.redirect('/error');
 	},
+	emailRegex: '[a-z0-9!#$%&\'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&\'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?',
 	initialError: undefined,
 	skillNames: [
 		'Algorithmics',

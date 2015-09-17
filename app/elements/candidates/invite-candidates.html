@@ -33,6 +33,7 @@
 			<h2>Invite candidates</h2>
 
 			<p>The address format must be: Name (first and last name or a combination) &lt;email address&gt;</p>
+			<p>Example: John Doe &lt;john.doe@gmail.com&gt;</p>
 
 			<form is="iron-form" id="form">
 				<div id="candidates"></div>
@@ -42,7 +43,7 @@
 				</div>
 				<div class="buttonGroup">
 					<paper-button class="primary" dialog-dismiss>Cancel</paper-button>
-					<paper-button class="primary" raised on-click="inviteCandidates" dialog-confirm>Invite
+					<paper-button class="primary" raised on-click="inviteCandidates">Invite
 					</paper-button>
 				</div>
 			</form>
@@ -63,20 +64,24 @@
 					value: []
 				}
 			},
+			listeners: {
+				'removeCandidate': '_removeCandidate'
+			},
 			toggle: function () {
 				this._clearDialog();
 				this._addCandidate();
 				this.$.dialog.toggle();
 			},
 			inviteCandidates: function () {
-				for (var i = 0; i < this.candidates.length; i++) {
-					var candidate = this.candidates[i];
-					if (!candidate.Removed && candidate.Address !== '' && candidate.Challenge !== undefined) {
+				if (this.$.form.validate()) {
+					for (var i = 0; i < this.candidates.length; i++) {
+						var candidate = this.candidates[i];
 						util.post(this.$.inviteCandidate, '/invitations', {
 							'Address': candidate.Address,
 							'Challenge': candidate.Challenge
 						});
 					}
+					this.toggle();
 				}
 			},
 			_addCandidate: function () {
@@ -88,7 +93,13 @@
 				var newInput = document.createElement('invite-candidate-input');
 				newInput.challenges = this.challenges;
 				newInput.candidate = this.candidates[this.candidates.length - 1];
+				newInput.required = true;
+				newInput.name = 'inviteCandidateInput';
 				this.$.candidates.appendChild(newInput);
+			},
+			_removeCandidate: function(event){
+				var index = this.candidates.indexOf(event.detail);
+				this.splice('candidates', index, 1);
 			},
 			_clearDialog: function () {
 				var el;

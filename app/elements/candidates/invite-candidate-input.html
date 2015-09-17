@@ -1,4 +1,6 @@
 <link rel="import" href="/bower_components/paper-input/all-imports.html">
+<link rel="import" href="/bower_components/iron-form-element-behavior/iron-form-element-behavior.html">
+<link rel="import" href="/bower_components/iron-validatable-behavior/iron-validatable-behavior.html">
 
 <dom-module id="invite-candidate-input">
 	<style>
@@ -37,6 +39,9 @@
 			margin-left: 25px;
 			cursor: pointer;
 		}
+		.invalid{
+			border-color: red;
+		}
 	</style>
 	<template>
 		<div id="inputContainer">
@@ -45,8 +50,8 @@
 				<p>{{challenges.0.Name}}</p>
 			</template>
 			<template is="dom-if" if="{{!isSingleChallenge}}">
-				<select id="challenges" on-change="_setChallenge">
-					<option selected disabled>Please select a challenge</option>
+				<select id="challenges" class$={{selectClass}} on-change="_setChallenge">
+					<option selected disabled value="">Please select a challenge</option>
 					<template is="dom-repeat" items="{{challenges}}">
 						<option value="{{item.Key}}">{{item.Name}}</option>
 					</template>
@@ -59,6 +64,10 @@
 	<script>
 		Polymer({
 			is: 'invite-candidate-input',
+			behaviors: [
+				Polymer.IronFormElementBehavior,
+				Polymer.IronValidatableBehavior
+			],
 			properties: {
 				challenges: {
 					type: Array
@@ -71,7 +80,25 @@
 				isSingleChallenge: {
 					type: Boolean,
 					computed: '_isSingleChallenge(challenges)'
+				},
+				selectClass: {
+					type: String,
 				}
+			},
+			validate: function(){
+				var valid = true;
+				this.$.address.invalid = false;
+				this.selectClass = '';
+				if (this.candidate.Challenge === undefined || this.candidate.Challenge === ''){
+					this.selectClass = 'invalid';
+					valid = false;
+				}
+				if (!util.validateEmail(this.candidate.Address)){
+					this.$.address.invalid = true;
+					this.$.address.errorMessage = 'Please input an address according to the format above';
+					valid = false;
+				}
+				return valid;
 			},
 			_isSingleChallenge: function(challenges){
 				return challenges.length === 1;
@@ -80,7 +107,7 @@
 				this.candidate.Challenge = this.$$('#challenges').options[this.$$('#challenges').selectedIndex].value;
 			},
 			_removeItem: function () {
-				this.candidate.Removed = true;
+				this.fire('removeCandidate', this.candidate);
 				this.remove();
 			}
 		});
