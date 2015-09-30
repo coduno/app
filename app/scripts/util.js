@@ -88,6 +88,7 @@ var util = {
 	initialError: undefined,
 	languages: [
 		'java',
+		'javaut',
 		'py',
 		'c',
 		'js'
