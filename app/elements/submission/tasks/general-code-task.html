@@ -154,16 +154,14 @@
 					}
 					this.push('languages', lang);
 				}
-				this.$.codeEditor.setMode(this.languages[0].tag);
 				this.getTemplate(this.languages[0].tag);
-
 			},
 			languageChanged: function(){
 				var languageTag = this.$.languageSelector.getSelectedLanguage().tag;
-				this.$.codeEditor.setMode(languageTag);
 				this.getTemplate(languageTag);
 			},
 			getTemplate: function(language){
+				this.$.codeEditor.setMode(language);
 				util.get(this.$.getTemplatesAjax,'/tasks/' + this.task.Key + '/templates?language=' + language);
 			},
 			onTemplatesResponse: function(request){
@@ -180,6 +178,10 @@
 				var that = this;
 				var xhr = new XMLHttpRequest();
 				xhr.onload = function() {
+					var contentDisposition = xhr.getResponseHeader('content-disposition');
+					if (contentDisposition !== null && contentDisposition.split('filename=').length > 1){
+						that.$.codeEditor.setFilename(contentDisposition.split('filename=')[1]);
+					}
 					that.$.codeEditor.setText(xhr.responseText);
 				};
 				xhr.open('GET', url);
