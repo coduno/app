@@ -1,5 +1,5 @@
 (function(document) {
-	'use strict';
+	// 'use strict';
 
 	// Grab a reference to our auto-binding template
 	// and give it some initial binding values
@@ -130,6 +130,7 @@
 	// See https://github.com/Polymer/polymer/issues/1381
 	window.addEventListener('WebComponentsReady', function() {
 		// imports are loaded and elements have been registered
+		app.progressStyle = 'display: none;'
 	});
 
 	// Close drawer after menu item is selected if drawerPanel is narrow
