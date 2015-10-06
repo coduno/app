@@ -4,9 +4,8 @@
 <link rel="import" href="/bower_components/paper-material/paper-material.html">
 <link rel="import" href="/elements/submission/challenge-display.html">
 <link rel="import" href="/elements/submission/countdown-timer.html">
-<!-- TODO(victorbalan): Import this exactly when the challenge has finished -->
-<link rel="import" href="/elements/submission/challenge-finished.html">
 <link rel="import" href="/elements/submission/challenge-nav.html">
+<link rel="import" href="/elements/services/task-service.html">
 
 <dom-module id="sequential-challenge">
 	<style>
@@ -31,8 +30,10 @@
 		}
 	</style>
 	<template>
+		<task-service id="taskService" task="{{task}}"></task-service>
 		<challenge-nav id="coolNav" task-index="{{taskIndex}}" total-tasks="{{totalTasks}}"
-		task-duration="{{taskDuration}}" challenge-duration="{{challenge.Duration}}"></challenge-nav>
+		task-duration="{{taskDuration}}" challenge-duration="{{challenge.Duration}}"
+		task-offset="{{taskOffset}}" challenge-offset="{{challengeOffset}}"></challenge-nav>
 
 		<div id="content" style$="{{contentStyle}}">
 			<paper-material id="startChallengeCard" elevation="1" class="card">
@@ -45,29 +46,7 @@
 		<iron-ajax
 			id="getResultRequest"
 			handle-as="json"
-			on-response="onResultResponse"
-			on-error="onResultError"
 			method="GET"
-			with-credentials="true"
-			>
-		</iron-ajax>
-		<iron-ajax
-			id="loadTaskRequest"
-			handle-as="json"
-			on-response="onTaskResponse"
-			debounce-duration="1000"
-			method="GET"
-			with-credentials="true"
-			>
-		</iron-ajax>
-		<iron-ajax
-			id="finishTaskRequest"
-			handle-as="json"
-			debounce-duration="1000"
-			content-type="application/json"
-			on-response="onFinishTaskResponse"
-			on-error="onFinishTaskError"
-			method="POST"
 			with-credentials="true"
 			>
 		</iron-ajax>
@@ -90,7 +69,8 @@
 				},
 				task: {
 					type: Object,
-					notify: true
+					notify: true,
+					observer: '_taskChanged'
 				},
 				taskIndex: {
 					type: Number,
@@ -105,6 +85,14 @@
 				taskDuration: {
 					type: Number,
 					notify: true
+				},
+				challengeOffset: {
+					type: Number,
+					value: 0
+				},
+				taskOffset: {
+					type: Number,
+					value: 0
 				}
 			},
 			observers: [
@@ -112,7 +100,8 @@
 			],
 			listeners: {
 				'task-timeout': '_taskTimeout',
-				'challenge-timeout': '_challengeTimeout'
+				'challenge-timeout': '_challengeTimeout',
+				'server-finished-task': '_serverFinishedTask'
 			},
 			afterPropertiesSet: function(){
 				var currentTask = '';
@@ -124,8 +113,9 @@
 					}
 				}
 				if(currentTask !== '' && this.taskIndex >= 0){
-					localStorage.setItem('challengeTimer', new Date(this.result.StartTimes[0]).getTime());
-					localStorage.setItem('taskTimer', new Date(this.result.StartTimes[this.taskIndex]).getTime());
+					this.challengeOffset = new Date(this.result.StartTimes[0]).getTime();
+					this.taskOffset = new Date(this.result.StartTimes[this.taskIndex]).getTime();
+
 					this.loadTaskById(currentTask);
 					this.$.coolNav.start();
 				}else{
@@ -133,82 +123,69 @@
 				}
 			},
 			startChallenge: function() {
-				this.$.content.innerHTML = '';
-				localStorage.setItem('challengeTimer', Date.now());
 				this.loadTaskById(this.challenge.Tasks[this.taskIndex]);
 				this.$.coolNav.start();
 			},
 			loadTaskById: function(key){
-				this.$.loadTaskRequest.url = util.build('/tasks/' + key + '?result=' + localStorage.getItem('result'));
-				this.$.loadTaskRequest.generateRequest();
+				this.$.taskService.getByIdAndUpdateResult(key, this.result.Key);
 			},
-			onTaskResponse: function(r){
-				if(!localStorage.getItem('taskTimer')){
-					localStorage.setItem('taskTimer', Date.now());
-				}
-				var task = r.detail.response;
-				this.task = task;
+			_serverFinishedTask: function(){
+				this._nextTask();
+			},
+			_taskChanged: function(){
 				// TODO(victorbalan): Replace this taskDuration with task.Assignment.Duration
 				// after investigating why Assignment has 2 fields: Duration and Duration} wich is NaN
 				this.taskDuration = this.task.Assignment.Duration;
 				this.$.coolNav.refreshTaskTimer();
-				this.importHref('/elements/submission/tasks/' + task.Assignment.Endpoints.WebInterface + '.html', function(){
-					var webInterface = document.createElement(task.Assignment.Endpoints.WebInterface);
-					webInterface.task = task;
-					var component = this;
+				this.importHref('/elements/submission/tasks/' + this.task.Assignment.Endpoints.WebInterface + '.html', function(){
+					var webInterface = document.createElement(this.task.Assignment.Endpoints.WebInterface);
+					webInterface.task = this.task;
+
+					var element = this;
 					webInterface.addEventListener('task-finished', function(){
-						component.finishTask();
+						var msg = 'Are you sure you want to finish this task? You will not able to come back again and change it.';
+						if (!window.confirm(msg)) {
+							return;
+						}
+						// TODO(victorbalan): Do we really need this lastSubmission param?
+						element.$.taskService.finishTask(element.result.Key, element.taskIndex, localStorage.getItem('lastSubmission'));
 					});
-					this.$.content.innerHTML = '';
-					this.$.content.appendChild(webInterface);
-					this.contentStyle = '';
+
+					this._replaceContent(webInterface);
 				});
 			},
-			finishTask: function(){
-				this.$.finishTaskRequest.url = util.build(
-					'/results/'+ localStorage.getItem('result') +
-					'/finalSubmissions/' + this.taskIndex +
-					'?submissionKey' + localStorage.getItem('lastSubmission')
-				);
-				this.$.finishTaskRequest.body = {};
-				this.$.finishTaskRequest.generateRequest();
-			},
-			onFinishTaskResponse: function(){
-				this._nextTask();
-			},
 			_nextTask: function(){
-				localStorage.removeItem('taskTimer');
+				this.taskOffset = 0;
+
 				this.taskIndex++;
 				if(this.taskIndex < this.challenge.Tasks.length){
 					this.loadTaskById(this.challenge.Tasks[this.taskIndex]);
-				}else{
-					this.$.coolNav.stop();
-					this.$.getResultRequest.url = util.build('/results/' + localStorage.getItem('result'));
-					this.$.getResultRequest.generateRequest();
-					var finished = document.createElement('challenge-finished');
-					this.$.content.innerHTML = '';
-					this.$.content.appendChild(finished);
-					app.finishChallenge();
+					return;
 				}
-			},
-			onFinishTaskError: function(err) {
-				util.error(err);
-			},
-			onResultResponse: function(r){
-				console.log(r);
-			},
-			onResultError: function(err){
-				console.log(err);
+				this.$.coolNav.stop();
+				// This starts the result computing
+				this.$.getResultRequest.url = util.build('/results/' + this.result.Key);
+				this.$.getResultRequest.generateRequest();
+
+				this._importAndReplaceContent('/elements/submission/challenge-finished.html', 'challenge-finished');
+
+				app.finishChallenge();
 			},
 			_taskTimeout: function(){
+				this.taskOffset = 0;
 				this._nextTask();
 			},
 			_challengeTimeout: function(){
-				this.importHref('/elements/submission/challenge-timeout.html', function(){
-					var webInterface = document.createElement('challenge-timeout');
-					this.$.content.innerHTML = '';
-					this.$.content.appendChild(webInterface);
-					this.contentStyle = '';
+				this._importAndReplaceContent('/elements/submission/challenge-timeout.html', 'challenge-timeout');
+			},
+			_replaceContent: function(element){
+				this.contentStyle = '';
+				this.$.content.innerHTML = '';
+				this.$.content.appendChild(element);
+			},
+			_importAndReplaceContent: function(importPath, elementName){
+				this.importHref(importPath, function(){
+					this._replaceContent(document.createElement(elementName));
 				});
 			}
 		});
