@@ -1,0 +1,273 @@
+<link rel="import" href="/elements/elements.html">
+
+<dom-module id="app-element">
+	<style>
+		:host {
+			display: block;
+			height: 100%;
+			width: 100%;
+			margin: 0;
+			padding: 0;
+		}
+	</style>
+	<template>
+		<iron-ajax
+			id="resultRequest"
+			method="POST"
+			handle-as="json"
+			on-response="onResultResponse"
+			debounce-duration="1000"
+			content-type="application/json"
+			with-credentials="true"
+			on-error="onResultError"
+			>
+		</iron-ajax>
+
+		<iron-ajax
+			id="challengeRequest"
+			handle-as="json"
+			on-response="onChallengeResponse"
+			debounce-duration="1000"
+			content-type="application/json"
+			with-credentials="true"
+			>
+		</iron-ajax>
+
+		<cookie-service id="cookieService"></cookie-service>
+
+		<paper-header-panel class="fullHeight">
+			<template is="dom-if" if="{{isLoggedIn}}">
+				<paper-toolbar>
+					<paper-icon-button icon="code"></paper-icon-button>
+					<div>CODUNO</div>
+					<div class="flex">
+						<paper-tabs id="bottomTabs" class="bottom indent" selected="{{selected}}" noink no-slide>
+							<span class="flex-5"></span>
+							<template is="dom-if" if="{{isCompany}}">
+								<paper-tab link><a href="/candidates" class="center-center horizontal layout">Candidates</a></paper-tab>
+								<paper-tab link><a href="/challenges" class="center-center horizontal layout">Challenges</a></paper-tab>
+								<paper-tab link><a href="/tasks" class="center-center horizontal layout fullHeight">Tasks</a></paper-tab>
+							</template>
+							<template is="dom-if" if="{{isCoder}}">
+								<paper-tab link><a href="/challenge" class="center-center horizontal layout fullHeight">Challenge</a></paper-tab>
+							</template>
+							<span class="flex-5"></span>
+						</paper-tabs>
+					</div>
+					<paper-menu-button horizontal-align="right">
+						<paper-icon-button icon="supervisor-account" class="dropdown-trigger"></paper-icon-button>
+						<paper-menu class="dropdown-content">
+							<paper-item><a href="/" style="color: #444444; text-decoration: none;">Settings</a></paper-item>
+							<paper-item><a href="/logout" style="color: #444444; text-decoration: none;">Logout</a></paper-item>
+						</paper-menu>
+					</paper-menu-button>
+					<paper-progress class="secnav bottom fit" indeterminate style$="{{progressStyle}}"></paper-progress>
+				</paper-toolbar>
+			</template>
+			<div id="sections" class="content">
+				<iron-pages attr-for-selected="data-route" selected="{{route}}" class="fullHeight" style$="{{ironPagesStyle}}">
+					<section data-route="login">
+						<login-wizard id="loginWizard"></login-wizard>
+					</section>
+
+					<section data-route="register">
+						<register-page></register-page>
+					</section>
+
+					<section data-route="candidate">
+						<candidate-page id="candidatePage"></candidate-page>
+					</section>
+
+					<section data-route="challenges">
+						<challenge-list id="challengeList"></challenge-list>
+					</section>
+
+					<section data-route="challenge-detail">
+						<challenge-detail id="challengeDetail"></challenge-detail>
+					</section>
+
+					<section data-route="challenge" class="fullHeight">
+						<challenge-page challenge="{{challenge}}" result="{{result}}"></challenge-page>
+					</section>
+
+					<section data-route="tasks">
+						<task-list id="taskList"></task-list>
+					</section>
+
+					<section data-route="task-detail">
+						<task-detail id="taskDetail"></task-detail>
+					</section>
+
+					<section data-route="task-create">
+						<task-form id="taskForm"></task-form>
+					</section>
+
+					<section data-route="user" class="fullHeight">
+						<user-detail id="userDetail"></user-detail>
+					</section>
+
+					<section data-route="userChallenge" class="fullHeight">
+						<user-challenge-detail id="userChallengeDetail"></user-challenge-detail>
+					</section>
+
+					<section data-route="unauthorized">
+						<paper-material elevation="1">
+							<h2 class="paper-font-display2">You are not authorized to see this page.</h2>
+						</paper-material>
+					</section>
+					<section data-route="error">
+						<error-page id="error" error="{{error}}"></error-page>
+					</section>
+				</iron-pages>
+			</div>
+		</paper-header-panel>
+
+		<!-- TODO(victorbalan): enable cache in production -->
+		<!--
+		<platinum-sw-register
+			auto-register
+			clients-claim
+			skip-waiting
+			on-service-worker-installed="displayInstalledToast"
+		>
+			<platinum-sw-cache default-cache-strategy="networkFirst" precache-file="precache.json"></platinum-sw-cache>
+		</platinum-sw-register>
+		-->
+	</template>
+	<script>
+		Polymer({
+			is: 'app-element',
+			properties: {
+				challenge: {
+					type: Object,
+					notify: true
+				},
+				isCompany: {
+					type: Boolean,
+					notify: true
+				},
+				isCoder: {
+					type: Boolean,
+					notify: true
+				},
+				isLoggedIn: {
+					type: Boolean,
+					notify: true,
+					value: true
+				},
+				selected: {
+					type: String,
+					notify: true,
+					value: -1
+				},
+				ironPagesStyle: {
+					type: String,
+					notify: true
+				},
+				progressStyle: {
+					notify: true,
+					value: 'display: none;'
+				},
+				error: {
+					type: Object,
+					notify: true
+				},
+				pendingRequests: {
+					type: Number,
+					value: 0
+				}
+			},
+			ready: function(){
+				var element = this;
+				// See https://github.com/Polymer/polymer/issues/1381
+				window.addEventListener('WebComponentsReady', function() {
+					// imports are loaded and elements have been registered
+					element.progressStyle = 'display: none;';
+					element.$.cookieService.addEventListener('cookie-user-changed', function (e) {
+						localStorage.user = JSON.stringify(e.detail);
+						element.login();
+					});
+
+					element.$.cookieService.addEventListener('cookie-error', function (e) {
+						util.error(e.detail);
+					});
+					element.refreshMenu(true);
+				});
+			},
+			startLoading: function(){
+				if(this.pendingRequests === 0){
+					this._showProgress();
+				}
+				this.pendingRequests ++;
+			},
+			stopLoading: function(){
+				this.pendingRequests --;
+				if(this.pendingRequests === 0){
+					this._hideProgress();
+				}
+			},
+			_showProgress: function(){
+				this.progressStyle = '';
+				this.ironPagesStyle = 'display: none;';
+			},
+			_hideProgress: function(){
+				this.progressStyle = 'display: none;';
+				this.ironPagesStyle = '';
+			},
+			finishChallenge: function() {
+				localStorage.removeItem('challenge');
+				localStorage.removeItem('result');
+			},
+			login: function() {
+				this.refreshMenu(true);
+				if (localStorage.company) {
+					return page.redirect('/candidates');
+				}
+				page.redirect('/challenge');
+			},
+			logout: function() {
+				localStorage.clear();
+				this.refreshMenu(false);
+				page.redirect('/login');
+			},
+			refreshMenu: function(loggedIn) {
+				this.isCompany = !!localStorage.company;
+				this.isCoder = !this.isCompany;
+				this.isLoggedIn = loggedIn;
+			},
+			displayInstalledToast: function() {
+				console.log('Caching complete.');
+			},
+			startChallenge: function() {
+				// TODO(@flowlo): This deliberately does not check whether
+				// challengeKey is meaningful or even present, because if
+				// it is not, the XHR will fail and redirect to login.
+				var challengeKey = localStorage.getItem('challenge');
+				this.$.resultRequest.url = util.build('/results');
+				this.$.resultRequest.body = { ChallengeKey: challengeKey };
+				this.$.resultRequest.generateRequest();
+			},
+			onChallengeResponse: function(r) {
+				var challenge = r.detail.response;
+				this.challenge = challenge;
+			},
+			onResultResponse: function(r) {
+				var result = r.detail.response;
+				localStorage.setItem('result', result.Key);
+				this.result = result;
+				this.$.challengeRequest.url = util.build('/challenges/' + localStorage.getItem('challenge'));
+				this.$.challengeRequest.generateRequest();
+			},
+			createChallenge: function() {
+				this.$.taskList.createChallenge();
+			},
+			onResultError: function(e) {
+				if(e.detail.request.xhr.status === 403){
+					page.redirect('/user/' + JSON.parse(localStorage.getItem('user')).Key + '/challenge/' + localStorage.getItem('challenge'));
+					return;
+				}
+				util.error(e);
+			}
+		});
+	</script>
+</dom-module>

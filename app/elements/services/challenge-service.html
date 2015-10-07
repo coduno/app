@@ -53,33 +53,36 @@
 					reflectToAttribute: true
 				}
 			},
+			ready: function(){
+				this.app = document.querySelector('app-element');
+			},
 			save: function(challenge){
-				app.startLoading();
+				this.app.startLoading();
 				this.$.postChallenge.url = util.build('/challenges');
 				this.$.postChallenge.body = challenge;
 				this.$.postChallenge.generateRequest();
 			},
 			getById: function(key){
-				app.startLoading();
+				this.app.startLoading();
 				this.$.getSingleChallenge.url = util.build('/challenges/' + key);
 				this.$.getSingleChallenge.generateRequest();
 			},
 			getLatestChallengesByProfileId: function(profileKey){
-				app.startLoading();
+				this.app.startLoading();
 				// TODO(victorbalan): Refactor the way we deal with query params.
 				this.$.getMultiChallenges.url = util.build('/profiles/' + profileKey + '/challenges?finished=true&limit=10&order=-Finished');
 				this.$.getMultiChallenges.generateRequest();
 			},
 			getByCompanyId: function(companyKey){
-				app.startLoading();
+				this.app.startLoading();
 				this.$.getMultiChallenges.url = util.build('/companies/' + companyKey + '/challenges');
 				this.$.getMultiChallenges.generateRequest();
 			},
 			_onResponse: function(){
-				app.stopLoading();
+				this.app.stopLoading();
 			},
 			_onError: function(err){
-				app.stopLoading();
+				this.app.stopLoading();
 				util.error(err);
 			}
 		});

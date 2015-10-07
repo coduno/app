@@ -40,8 +40,11 @@
 					type: Number
 				}
 			},
+			ready: function(){
+				this.app = document.querySelector('app-element');
+			},
 			getTemplates: function(language) {
-				app.startLoading();
+				this.app.startLoading();
 				this.templates = [];
 				this.$.getTemplateList.url = util.build('/tasks/' + this.task.Key + '/templates' + (language ? '?language=' + language : ''));
 				this.$.getTemplateList.generateRequest();
@@ -50,7 +53,7 @@
 				var urls = e.detail.response;
 				if (!urls || urls.length === 0) {
 					// No template available.
-					app.stopLoading();
+					this.app.stopLoading();
 					return;
 				}
 				this.templateCount = urls.length;
@@ -79,12 +82,12 @@
 				e.detail.response.name = match[1];
 				this.templates.push(e.detail.response);
 				if (this.templateCount <= this.templates.length) {
-					app.stopLoading();
+					this.app.stopLoading();
 					this.fire('templates', this.templates);
 				}
 			},
 			_onError: function(err) {
-				app.stopLoading();
+				this.app.stopLoading();
 				util.error(err);
 			}
 		});

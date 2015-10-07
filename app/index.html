@@ -36,143 +36,17 @@
 	<script src="bower_components/webcomponentsjs/webcomponents-lite.js"></script>
 	<!-- endbuild -->
 
-	<link rel="import" href="elements/elements.html">
+	<link rel="import" href="/elements/app-element.html">
 	<link rel="stylesheet" href="styles/technology.css">
 	<link rel="import" href="styles/technology.html">
 	<link rel="stylesheet" href="styles/main.css">
 </head>
 
 <body unresolved class="fullbleed layout vertical fullHeight">
-<span id="browser-sync-binding"></span>
-	<template is="dom-bind" id="app" class="fullHeight">
-	<iron-ajax
-		id="resultRequest"
-		method="POST"
-		handle-as="json"
-		on-response="onResultResponse"
-		debounce-duration="1000"
-		content-type="application/json"
-		with-credentials="true"
-		on-error="onResultError"
-		>
-	</iron-ajax>
-
-	<iron-ajax
-		id="challengeRequest"
-		handle-as="json"
-		on-response="onChallengeResponse"
-		debounce-duration="1000"
-		content-type="application/json"
-		with-credentials="true"
-		>
-	</iron-ajax>
-
-	<cookie-service id="cookieService"></cookie-service>
-	<paper-header-panel class="fullHeight">
-		<template is="dom-if" if="{{isLoggedIn}}">
-			<paper-toolbar>
-				<paper-icon-button icon="code"></paper-icon-button>
-				<div>CODUNO</div>
-				<div class="flex">
-					<paper-tabs id="bottomTabs" class="bottom indent" selected="{{selected}}" noink no-slide>
-						<span class="flex-5"></span>
-						<template is="dom-if" if="{{isCompany}}">
-							<paper-tab link><a href="/candidates" class="center-center horizontal layout">Candidates</a></paper-tab>
-							<paper-tab link><a href="/challenges" class="center-center horizontal layout">Challenges</a></paper-tab>
-							<paper-tab link><a href="/tasks" class="center-center horizontal layout fullHeight">Tasks</a></paper-tab>
-						</template>
-						<template is="dom-if" if="{{isCoder}}">
-							<paper-tab link><a href="/challenge" class="center-center horizontal layout fullHeight">Challenge</a></paper-tab>
-						</template>
-						<span class="flex-5"></span>
-					</paper-tabs>
-				</div>
-				<paper-menu-button horizontal-align="right">
-					<paper-icon-button icon="supervisor-account" class="dropdown-trigger"></paper-icon-button>
-					<paper-menu class="dropdown-content">
-							<paper-item><a href="/" style="color: #444444; text-decoration: none;">Settings</a></paper-item>
-							<paper-item><a href="/logout" style="color: #444444; text-decoration: none;">Logout</a></paper-item>
-					</paper-menu>
-				</paper-menu-button>
-				<paper-progress class="secnav bottom fit" indeterminate style$="{{progressStyle}}"></paper-progress>
-			</paper-toolbar>
-		</template>
-		<div id="sections" class="content">
-			<iron-pages attr-for-selected="data-route" selected="{{route}}" class="fullHeight" style$="{{ironPagesStyle}}">
-				<section data-route="login">
-					<login-wizard id="loginWizard"></login-wizard>
-				</section>
-
-				<section data-route="register">
-					<register-page></register-page>
-				</section>
-
-				<section data-route="candidate">
-					<candidate-page id="candidatePage"></candidate-page>
-				</section>
-
-				<section data-route="challenges">
-					<challenge-list id="challengeList"></challenge-list>
-				</section>
-
-				<section data-route="challenge-detail">
-					<challenge-detail id="challengeDetail"></challenge-detail>
-				</section>
-
-				<section data-route="challenge" class="fullHeight">
-					<challenge-page challenge="{{challenge}}" result="{{result}}"></challenge-page>
-				</section>
-
-				<section data-route="tasks">
-					<task-list id="taskList"></task-list>
-				</section>
-
-				<section data-route="task-detail">
-					<task-detail id="taskDetail"></task-detail>
-				</section>
-
-				<section data-route="task-create">
-					<task-form id="taskForm"></task-form>
-				</section>
-
-				<section data-route="user" class="fullHeight">
-					<user-detail id="userDetail"></user-detail>
-				</section>
-
-				<section data-route="userChallenge" class="fullHeight">
-					<user-challenge-detail id="userChallengeDetail"></user-challenge-detail>
-				</section>
-
-				<section data-route="unauthorized">
-					<paper-material elevation="1">
-						<h2 class="paper-font-display2">You are not authorized to see this page.</h2>
-					</paper-material>
-				</section>
-				<section data-route="error">
-					<error-page id="error" error="{{error}}"></error-page>
-				</section>
-			</iron-pages>
-		</div>
-	</paper-header-panel>
-
-	<!-- TODO(victorbalan): enable cache in production -->
-	<!--
-	<platinum-sw-register
-		auto-register
-		clients-claim
-		skip-waiting
-		on-service-worker-installed="displayInstalledToast"
-	>
-		<platinum-sw-cache default-cache-strategy="networkFirst" precache-file="precache.json"></platinum-sw-cache>
-	</platinum-sw-register>
-	-->
-</template>
-
-<!-- build:js scripts/app.js -->
-<script src="scripts/app.js"></script>
-<!-- endbuild-->
-<!-- build:js scripts/util.js -->
-<script src="scripts/util.js"></script>
-<!-- endbuild-->
+	<span id="browser-sync-binding"></span>
+	<app-element id="app"></app-element>
+	<!-- build:js scripts/util.js -->
+	<script src="scripts/util.js"></script>
+	<!-- endbuild-->
 </body>
 </html>

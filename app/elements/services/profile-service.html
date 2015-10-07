@@ -28,16 +28,19 @@
 					reflectToAttribute: true
 				}
 			},
+			ready: function(){
+				this.app = document.querySelector('app-element');
+			},
 			getByUserId: function(key){
-				app.startLoading();
+				this.app.startLoading();
 				this.$.getSingleProfile.url = util.build('/users/' + key + '/profile');
 				this.$.getSingleProfile.generateRequest();
 			},
 			_onResponse: function(){
-				app.stopLoading();
+				this.app.stopLoading();
 			},
 			_onError: function(err){
-				app.stopLoading();
+				this.app.stopLoading();
 				util.error(err);
 			}
 		});

@@ -62,7 +62,7 @@
 					notify: true,
 					reflectToAttribute: true
 				},
-				taskOffset: {
+				taskStartTime: {
 					type: Number,
 					reflectToAttribute: true
 				},
@@ -70,7 +70,7 @@
 					type: Number,
 					reflectToAttribute: true
 				},
-				challengeOffset: {
+				challengeStartTime: {
 					type: Number,
 					reflectToAttribute: true
 				},
@@ -96,7 +96,7 @@
 			],
 			start: function(){
 				this._show();
-				this.$.challengeTimer.startWithOffset(this.challengeOffset);
+				this.$.challengeTimer.startWithOffset(this.challengeStartTime);
 				this._displayArrows();
 
 				var element = this;
@@ -116,7 +116,7 @@
 				this.$.taskTimer.stop();
 			},
 			refreshTaskTimer: function(){
-				this.$.taskTimer.startWithOffset(this.taskOffset);
+				this.$.taskTimer.startWithOffset(this.taskStartTime);
 			},
 			_taskDataChanged: function(){
 				this.taskNavTitle = 'Task ' + (this.taskIndex+1) +' of ' + (this.totalTasks);

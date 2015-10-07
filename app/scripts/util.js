@@ -47,6 +47,7 @@ var util = {
 		return minutes + ' minutes';
 	},
 	error: function(error) {
+		var app = document.querySelector('app-elemment');
 		if (error.detail.request.xhr.status === 401) {
 			app.isLoggedIn = false;
 			return page.redirect('/login');
