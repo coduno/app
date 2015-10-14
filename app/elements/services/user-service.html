@@ -62,42 +62,45 @@
 					reflectToAttribute: true
 				}
 			},
+			ready: function(){
+				this.app = document.querySelector('app-element');
+			},
 			save: function(user){
-				app.startLoading();
+				this.app.startLoading();
 				this.$.postUser.body = user;
 				this.$.postUser.url = util.build('/users');
 				this.$.postUser.generateRequest();
 			},
 			whoAmI: function(){
-				app.startLoading();
+				this.app.startLoading();
 				this.$.getSingleUser.url = util.build('/user');
 				this.$.getSingleUser.generateRequest();
 			},
 			getById: function(key){
-				app.startLoading();
+				this.app.startLoading();
 				this.$.getSingleUser.url = util.build('/users/' + key);
 				this.$.getSingleUser.generateRequest();
 			},
 			getAll: function(){
-				app.startLoading();
+				this.app.startLoading();
 				this.$.getMultiUsers.url = util.build('/users');
 				this.$.getMultiUsers.generateRequest();
 			},
 			invite: function(user){
-				app.startLoading();
+				this.app.startLoading();
 				this.$.inviteUser.url = util.build('/invitations');
 				this.$.inviteUser.body = user;
 				this.$.inviteUser.generateRequest();
 			},
 			_userInvited: function(){
-				app.stopLoading();
+				this.app.stopLoading();
 				this.fire('user-invited');
 			},
 			_onResponse: function(){
-				app.stopLoading();
+				this.app.stopLoading();
 			},
 			_onError: function(err){
-				app.stopLoading();
+				this.app.stopLoading();
 				util.error(err);
 			}
 		});

@@ -62,7 +62,15 @@
 					notify: true,
 					reflectToAttribute: true
 				},
+				taskStartTime: {
+					type: Number,
+					reflectToAttribute: true
+				},
 				challengeDuration: {
+					type: Number,
+					reflectToAttribute: true
+				},
+				challengeStartTime: {
 					type: Number,
 					reflectToAttribute: true
 				},
@@ -88,23 +96,16 @@
 			],
 			start: function(){
 				this._show();
-				var challengeTimer = localStorage.getItem('challengeTimer');
-				if(challengeTimer !== null){
-					this.$.challengeTimer.startWithOffset(Number(challengeTimer));
-				}else{
-					this.$.challengeTimer.start();
-				}
+				this.$.challengeTimer.startWithOffset(this.challengeStartTime);
 				this._displayArrows();
 
 				var element = this;
 				this.$.taskTimer.addEventListener('timeout', function(){
-					localStorage.removeItem('taskTimer');
 					element.fire('task-timeout');
 				});
 
 				this.$.challengeTimer.addEventListener('timeout', function(){
 					element._hide();
-					localStorage.removeItem('challengeTimer');
 					element.$.challengeTimer.stop();
 					element.fire('challenge-timeout');
 				});
@@ -115,12 +116,7 @@
 				this.$.taskTimer.stop();
 			},
 			refreshTaskTimer: function(){
-				var taskTimer = localStorage.getItem('taskTimer');
-				if(taskTimer !== null){
-					this.$.taskTimer.startWithOffset(Number(taskTimer));
-				}else{
-					this.$.taskTimer.start();
-				}
+				this.$.taskTimer.startWithOffset(this.taskStartTime);
 			},
 			_taskDataChanged: function(){
 				this.taskNavTitle = 'Task ' + (this.taskIndex+1) +' of ' + (this.totalTasks);

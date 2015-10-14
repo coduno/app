@@ -22,9 +22,8 @@
 			method="GET"
 			handle-as="json"
 			content-type="application/json"
-			last-response="{{task}}"
 			with-credentials="true"
-			on-response="_onResponse"
+			on-response="_onTaskResponse"
 			on-error="_onError">
 		</iron-ajax>
 		<iron-ajax
@@ -36,6 +35,15 @@
 			with-credentials="true"
 			on-response="_onResponse"
 			on-error="_onError">
+		</iron-ajax>
+		<iron-ajax
+			id="finishTaskRequest"
+			method="POST"
+			content-type="application/json"
+			with-credentials="true"
+			on-response="_onFinishTaskResponse"
+			on-error="_onError"
+			>
 		</iron-ajax>
 	</template>
 	<script>
@@ -53,27 +61,52 @@
 					reflectToAttribute: true
 				}
 			},
+			ready: function(){
+				this.app = document.querySelector('app-element');
+			},
 			save: function(task){
-				app.startLoading();
+				this.app.startLoading();
 				this.$.postTask.body = task;
 				this.$.postTask.url = util.build('/tasks');
 				this.$.postTask.generateRequest();
 			},
 			getById: function(key){
-				app.startLoading();
+				this.app.startLoading();
 				this.$.getSingleTask.url = util.build('/tasks/' + key);
 				this.$.getSingleTask.generateRequest();
 			},
+			getByIdAndUpdateResult: function(key, resultKey){
+				// TODO(victorbalan): Refactor the use of query params
+				this.app.startLoading();
+				this.$.getSingleTask.url = util.build('/tasks/' + key + '?result=' + resultKey);
+				this.$.getSingleTask.generateRequest();
+			},
 			getAll: function(){
-				app.startLoading();
+				this.app.startLoading();
 				this.$.getMultiTasks.url = util.build('/tasks');
 				this.$.getMultiTasks.generateRequest();
 			},
+			finishTask: function(resultKey, taskIndex, lastSubmissionKey){
+				this.$.finishTaskRequest.url = util.build(
+					'/results/'+ resultKey +
+					'/finalSubmissions/' + taskIndex +
+					'?submissionKey' + lastSubmissionKey
+				);
+				this.$.finishTaskRequest.body = {};
+				this.$.finishTaskRequest.generateRequest();
+			},
+			_onFinishTaskResponse: function(){
+				this.fire('server-finished-task');
+			},
+			_onTaskResponse: function(r){
+				this.task = r.detail.response;
+				this.app.stopLoading();
+			},
 			_onResponse: function(){
-				app.stopLoading();
+				this.app.stopLoading();
 			},
 			_onError: function(err){
-				app.stopLoading();
+				this.app.stopLoading();
 				util.error(err);
 			}
 		});

@@ -41,21 +41,24 @@
 					reflectToAttribute: true
 				}
 			},
+			ready: function(){
+				this.app = document.querySelector('app-element');
+			},
 			getById: function(key){
-				app.startLoading();
+				this.app.startLoading();
 				this.$.getSingleSubmission.url = util.build('/submissions/' + key);
 				this.$.getSingleSubmission.generateRequest();
 			},
 			getByResultAndTaskId: function(resultKey, taskKey){
-				app.startLoading();
+				this.app.startLoading();
 				this.$.getMultiSubmissions.url = util.build('/results/' + resultKey + '/task/' + taskKey +'/submissions');
 				this.$.getMultiSubmissions.generateRequest();
 			},
 			_onResponse: function(){
-				app.stopLoading();
+				this.app.stopLoading();
 			},
 			_onError: function(err){
-				app.stopLoading();
+				this.app.stopLoading();
 				util.error(err);
 			}
 		});

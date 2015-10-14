@@ -164,10 +164,6 @@
 				this.control.loading();
 			},
 			finishTask: function(){
-				var msg = 'Are you sure to finish this task? You will not able to change come back again.';
-				if (!window.confirm(msg)) {
-					return;
-				}
 				this.fire('task-finished');
 			},
 			onTemplates: function(e) {

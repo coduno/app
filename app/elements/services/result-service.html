@@ -17,6 +17,16 @@
 			on-response="_onResponse"
 			on-error="_onError">
 		</iron-ajax>
+			<iron-ajax
+				id="getMultiResults"
+				method="GET"
+				handle-as="json"
+				content-type="application/json"
+				last-response="{{results}}"
+				with-credentials="true"
+				on-response="_onResponse"
+				on-error="_onError">
+			</iron-ajax>
 	</template>
 	<script>
 		Polymer({
@@ -26,18 +36,31 @@
 					type: Object,
 					notify: true,
 					reflectToAttribute: true
+				},
+				results: {
+					type: Array,
+					notify: true,
+					reflectToAttribute: true
 				}
 			},
+			ready: function(){
+				this.app = document.querySelector('app-element');
+			},
 			getByUserAndChallengeId: function(userKey, challengeKey){
-				app.startLoading();
+				this.app.startLoading();
 				this.$.getSingleResult.url = util.build('/results/user/' + userKey + '/challenge/' + challengeKey);
 				this.$.getSingleResult.generateRequest();
 			},
+			getByChallengeId: function(challengeKey){
+				this.app.startLoading();
+				this.$.getMultiResults.url = util.build('/challenges/' + challengeKey + '/results');
+				this.$.getMultiResults.generateRequest();
+			},
 			_onResponse: function(){
-				app.stopLoading();
+				this.app.stopLoading();
 			},
 			_onError: function(err){
-				app.stopLoading();
+				this.app.stopLoading();
 				util.error(err);
 			}
 		});

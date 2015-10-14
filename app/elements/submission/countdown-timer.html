@@ -43,7 +43,9 @@
 				}
 			},
 			startWithOffset: function(offset) {
-				this.duration -= (Date.now() - offset) * 1e6;
+				if(offset > 0){
+					this.duration -= (Date.now() - offset) * 1e6;
+				}
 				this.start();
 			},
 			stop: function(){
