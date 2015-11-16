@@ -36,7 +36,7 @@
 			font-size: 25px;
 		}
 
-		paper-material > .cardTop > .cardTopTitle > iron-icon{
+		paper-material > .cardTop > .cardTopTitle > #states{
 			position: absolute;
 			bottom: 5px;
 			right: 15px;
@@ -56,7 +56,11 @@
 					</div>
 					<div class="cardTopTitle">
 						<p>{{getTitle(user)}}</p>
-						<iron-icon icon="{{getIcon(user.State)}}"></iron-icon>
+						<div id="states">
+							<template is="dom-repeat" items="{{user.States}}">
+								<iron-icon icon="{{getIcon(item)}}"></iron-icon>
+							</template>
+						</div>
 					</div>
 				</div>
 			</paper-material>

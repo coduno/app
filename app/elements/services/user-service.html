@@ -86,6 +86,11 @@
 				this.$.getMultiUsers.url = util.build('/users');
 				this.$.getMultiUsers.generateRequest();
 			},
+			getCandidates: function(){
+				app.startLoading();
+				this.$.getMultiUsers.url = util.build('/invitations');
+				this.$.getMultiUsers.generateRequest();
+			},
 			invite: function(user){
 				this.app.startLoading();
 				this.$.inviteUser.url = util.build('/invitations');
