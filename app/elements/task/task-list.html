@@ -47,8 +47,9 @@
 				<paper-icon-button class="self-center" icon="done" on-click="createChallenge"></paper-icon-button>
 			</div>
 		</template>
-
-		<paper-fab id="createTaskButton" on-click="_createTask" icon="create"></paper-fab>
+		<template is="dom-if" if="{{!showAllButtons}}">
+			<paper-fab id="createTaskButton" on-click="_createTask" icon="create"></paper-fab>
+		</template>
 		<div class="horizontal layout wrap task-list">
 			<template is="dom-repeat" items="{{tasks}}" as="task">
 				<task-card task="{{task}}" selection-view="{{showAllButtons}}">
@@ -78,6 +79,11 @@
 					type: Boolean,
 					value: false,
 					notify: true
+				},
+				header: {
+					type: String,
+					notify: true,
+					computed: '_computeHeader(selectedTasks.length)'
 				}
 			},
 			listeners: {
@@ -91,6 +97,13 @@
 			},
 			getTasks: function () {
 				this.$.taskService.getAll();
+			},
+			startChallengeCreation: function(){
+				this.showAllButtons = true;
+				this.displayHeader = true;
+			},
+			_computeHeader: function(length){
+				return length + ' SELECTED';
 			},
 			_addTask: function(event){
 				this.push('selectedTasks', event.detail);
@@ -113,7 +126,6 @@
 			_taskSelectionLogic: function(){
 				if(this.selectedTasks.length > 0){
 					this.showAllButtons = true;
-					this.header = this.selectedTasks.length + ' SELECTED';
 					this.displayHeader = true;
 				}else{
 					this.showAllButtons = false;

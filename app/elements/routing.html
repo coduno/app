@@ -36,6 +36,14 @@ window.addEventListener('WebComponentsReady', function() {
 		});
 	});
 
+	page('/challenge/create', function() {
+		app.route = 'tasks';
+		Polymer.Base.importHref('/elements/task/task-list.html', function(){
+			app.$.taskList.getTasks();
+			app.$.taskList.startChallengeCreation();
+		});
+	});
+
 	page('/challenges', function () {
 		app.route = 'challenges';
 		Polymer.Base.importHref('/elements/challenge/challenge-list.html', function(){

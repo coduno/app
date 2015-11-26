@@ -8,6 +8,11 @@
 		.challenge-list {
 			padding: 10px;
 		}
+		#createChallengeButton {
+			position: fixed;
+			right: 2%;
+			bottom: 5%;
+		}
 	</style>
 	<template>
 		<challenge-service id="challengeService" challenges="{{challenges}}"></challenge-service>
@@ -20,6 +25,7 @@
 				<challenge-card challenge="{{item}}"></challenge-card>
 			</template>
 		</div>
+		<paper-fab id="createChallengeButton" on-click="_createChallenge" icon="create"></paper-fab>
 	</template>
 	<script>
 		Polymer({
@@ -35,6 +41,9 @@
 			},
 			challengeInfo: function (e) {
 				page.redirect('/challenges/' + e.model.challenge.Key);
+			},
+			_createChallenge: function(){
+				page.redirect('/challenge/create');
 			}
 		});
 	</script>

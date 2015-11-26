@@ -34,13 +34,13 @@
 			</template>
 
 			<form is="iron-form" id="form">
-				<paper-input id="name" class="margined" label="Name" value="{{challengeToSave.Name}}"></paper-input>
-				<paper-input id="description" class="margined" label="Description" value="{{challengeToSave.Description}}"></paper-input>
-				<paper-input id="instructions" class="margined" label="Instructions" value="{{challengeToSave.Instructions}}"></paper-input>
-				<paper-input id="duration" class="margined" label="Duration(minutes)" value="{{challengeDuration}}"></paper-input>
+				<paper-input id="name" class="margined" label="Name" value="{{challengeToSave.Name}}" required></paper-input>
+				<paper-input id="description" class="margined" label="Description" value="{{challengeToSave.Description}}" required></paper-input>
+				<paper-input id="instructions" class="margined" label="Instructions" value="{{challengeToSave.Instructions}}" required></paper-input>
+				<paper-input id="duration" class="margined" label="Duration(minutes)" value="{{challengeDuration}}" required pattern="^[1-9][0-9]*$" auto-validate></paper-input>
 				<div class="buttonGroup">
 					<paper-button dialog-dismiss>Cancel</paper-button>
-					<paper-button class="primary" dialog-confirm raised on-click="saveChallenge">Create
+					<paper-button class="primary" raised on-click="saveChallenge">Create
 					</paper-button>
 				</div>
 			</form>
@@ -71,10 +71,14 @@
 				page.redirect('/challenges/' + this.challenge.Key);
 			},
 			toggle: function () {
+				this._clearChallenge();
 				this._computeDuration();
 				this.$.dialog.toggle();
 			},
 			saveChallenge: function () {
+				if (!this.$.form.validate()){
+					return;
+				}
 				var taskKeys = [];
 				for (var i = 0; i < this.selectedTasks.length; i++) {
 					taskKeys.push(this.selectedTasks[i].Key);
@@ -85,6 +89,10 @@
 
 				this.$.challengeService.save(this.challengeToSave);
 				this.fire('challenge-created');
+				this.$.dialog.close();
+			},
+			_clearChallenge: function(){
+				this.challengeToSave = {};
 			},
 			_computeDuration: function () {
 				var duration = 0;
