@@ -1,33 +1,51 @@
+<link rel="import" href="/bower_components/chart-elements/chart-radar.html">
+
 <dom-module id="skill-polygon">
 	<style>
 		:host {
 			display: block;
-			padding: 2.5%;
-			height: 95%;
-			width: 95%;
+            min-height: 400px;
 		}
-		canvas {
-			height: 100%;
-			min-height: 250px;
-			width: 100%;
-		}
+        #chartContainer {
+            padding: 5%;
+            width: 90%;
+            height: 90%;
+        }
+
+        chart-radar {
+            height: 350px;
+            width: 500px;
+        }
 	</style>
 
 	<template>
-		<canvas id="polygonCanvas"></canvas>
+		<template is="dom-if" if="{{dataExists}}">
+            <div id="chartContainer" class="horizontal layout">
+                <chart-radar id="radar" class="self-center" data="{{chartData}}" options="{{options}}"></chart-radar>
+            </div>
+		</template>
 	</template>
-	<script type="application/javascript" src="/bower_components/Chart.js/Chart.js"></script>
 	<script>
 		Polymer({
 			is: 'skill-polygon',
 			properties: {
 				skills: {
-					type: Object
+					type: Object,
+					notify: true,
+					observer: '_updateChart',
+                    value: null
 				},
-				chart: {
-					type: Object
+				chartData: {
+					type: Object,
+					notify: true,
+					value: null
 				},
-				_options: {
+				dataExists: {
+					type: Boolean,
+                    notify: true,
+					computed: '_isData(chartData)'
+				},
+				options: {
 					type: Object,
 					value: {
 						scaleOverride: true,
@@ -37,11 +55,11 @@
 					}
 				}
 			},
-			buildChart: function(){
-				if (this.chart !== undefined){
-					this.chart.destroy();
-				}
-				var ctx = this.$.polygonCanvas.getContext('2d');
+			_isData: function(chartData){
+				return !!chartData;
+			},
+			_updateChart: function(){
+				console.log('Doing stufdf with data');
 				var labels = [];
 				var values = [];
 				for(var key in this.skills){
@@ -49,7 +67,7 @@
 					values.push(this.skills[key] * 100);
 				}
 
-				var data = {
+				var chartData = {
 					labels: labels,
 					datasets: [
 						{
@@ -64,7 +82,10 @@
 						}
 					]
 				};
-				this.chart = new Chart(ctx).Radar(data, this._options);
+				this.set('chartData', chartData);
+                console.log(this.$$('chart-radar'));
+                console.log(this.dataExists);
+//                this.$$('#radarChart').updateChart();
 			}
 		});
 	</script>

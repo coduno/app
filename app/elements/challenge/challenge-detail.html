@@ -54,12 +54,10 @@
 						<dd>{{challenge.Instructions}}</dd>
 					</dl>
 				</paper-material>
-
 				<paper-material class="card grid-element">
 					<skill-polygon id="skillPolygon" skills="{{mockedSkills}}"></skill-polygon>
 				</paper-material>
 			</div>
-
 			<paper-material class="card grid-row">
 				<div id="inviteCandidates" on-click="_inviteCandidates">
 					<iron-icon icon="mail"></iron-icon>
@@ -133,7 +131,6 @@
 				}
 			},
 			_challengeChanged: function(){
-				this.$.skillPolygon.buildChart();
 				this.tasks = [];
 				for (var i = 0; i < this.challenge.Tasks.length; i++) {
 					this.$.taskService.getById(this.challenge.Tasks[i]);
