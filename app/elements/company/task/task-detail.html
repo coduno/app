@@ -30,9 +30,9 @@
 						<dd>{{task.description}}</dd>
 					</dl>
 				</paper-material>
-				<!--<paper-material class="card grid-element">-->
-					<!--<skill-polygon id="skillPolygon" skills="{{task.SkillWeights}}"></skill-polygon>-->
-				<!--</paper-material>-->
+				<paper-material class="card grid-element">
+					<skill-polygon id="skillPolygon" skills="{{task.skillMap}}"></skill-polygon>
+				</paper-material>
 			</div>
 			<paper-material	class="card grid-row">
 				<h4>Instructions</h4>
@@ -47,7 +47,6 @@
 			properties: {
 				task: {
 					type: Object,
-					observer: '_taskSet',
 					notify: true
 				},
 				duration: {
@@ -60,9 +59,6 @@
 			},
 			_computeDuration: function (task) {
 				return util.computeDuration(task.duration);
-			},
-			_taskSet: function() {
-				this.$.skillPolygon.buildChart();
 			}
 		});
 	</script>

@@ -10,6 +10,7 @@
 			height: 100%;
 			min-height: 250px;
 			width: 100%;
+			margin: auto;
 		}
 	</style>
 
@@ -22,10 +23,15 @@
 			is: 'skill-polygon',
 			properties: {
 				skills: {
-					type: Object
+					type: Object,
+					observer: '_skillsUpdated'
 				},
 				chart: {
 					type: Object
+				},
+				ctx: {
+					type: Object,
+					notify: true
 				},
 				_options: {
 					type: Object,
@@ -35,36 +41,50 @@
 						scaleStepWidth: 20,
 						scaleStartValue: 0
 					}
+				},
+				_data: {
+					type: Object,
+					value: {
+						datasets: [
+							{
+								label: 'Skills',
+								fillColor: 'rgba(151,187,205,0.2)',
+								strokeColor: 'rgba(151,187,205,1)',
+								pointColor: 'rgba(151,187,205,1)',
+								pointStrokeColor: '#fff',
+								pointHighlightFill: '#fff',
+								pointHighlightStroke: 'rgba(151,187,205,1)'
+							}
+						]
+					}
 				}
 			},
-			buildChart: function(){
-				if (this.chart !== undefined){
-					this.chart.destroy();
+			ready: function(){
+				this.ctx = this.$.polygonCanvas.getContext('2d');
+			},
+			_skillsUpdated: function(){
+				if (!this.skills){
+					return;
 				}
-				var ctx = this.$.polygonCanvas.getContext('2d');
 				var labels = [];
 				var values = [];
 				for(var key in this.skills){
-					labels.push(key);
-					values.push(this.skills[key] * 100);
+					if (this.skills.hasOwnProperty(key)){
+						labels.push(key);
+						values.push(this.skills[key] * 100);
+					}
 				}
+				this._data.labels = labels;
+				this._data.datasets[0].data = values;
 
-				var data = {
-					labels: labels,
-					datasets: [
-						{
-							label: 'Skills',
-							data: values,
-							fillColor: 'rgba(151,187,205,0.2)',
-							strokeColor: 'rgba(151,187,205,1)',
-							pointColor: 'rgba(151,187,205,1)',
-							pointStrokeColor: '#fff',
-							pointHighlightFill: '#fff',
-							pointHighlightStroke: 'rgba(151,187,205,1)'
-						}
-					]
-				};
-				this.chart = new Chart(ctx).Radar(data, this._options);
+				this.async(function () {
+					if (this.chart) {
+						this.chart.destroy();
+					}
+					this.async(function() {
+						this.chart = new Chart(this.ctx).Radar(this._data, this._options);
+					}, null, 0);
+				}, null, 0);
 			}
 		});
 	</script>

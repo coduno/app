@@ -114,16 +114,7 @@
 			},
 			_resultChanged: function(result){
 				this.skills = result.Skills;
-				if(Object.keys(this.skills) === 0){
-					this.displaySkillInfo = false;
-				}else{
-					this.displaySkillInfo = true;
-					// TODO: Investigate why we need a timeout of 1 ms.
-					var element = this;
-					window.setTimeout(function(){
-						element.$$('#skillPolygon').buildChart();
-					}, 1);
-				}
+				this.displaySkillInfo = !this.skills;
 				this.$.taskDetails.innerHTML = '';
 				for(var i=0;i<this.challenge.Tasks.length;i++){
 					var userTaskDetail = document.createElement('user-task-detail');

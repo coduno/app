@@ -83,6 +83,7 @@
 					</div>
 					<div id="topRight">
 						<div id="skillPolygonWrapper">
+							<skill-polygon id="skillPolygon" skills="{{mockedSkills}}"></skill-polygon>
 						</div>
 						<template is="dom-if" if="{{!hasCompletedChallenges}}">
 							<h3 id="noActivity">User has no activity yet</h3>
@@ -191,12 +192,6 @@
 			},
 			_profileChanged: function(profile){
 				this.$.challengeService.getLatestChallengesByProfileId(profile.Key);
-
-				this.chart = document.createElement('skill-polygon');
-				this.chart.skills = this.mockedSkills;
-				this.chart.id='skillPolygon';
-				this.$.skillPolygonWrapper.appendChild(this.chart);
-				this.chart.buildChart();
 			}
 		});
 	</script>

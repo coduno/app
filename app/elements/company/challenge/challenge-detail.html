@@ -128,9 +128,6 @@
 					computed: '_challengeAsList(challenge)'
 				}
 			},
-			_challengeChanged: function(){
-				this.$.skillPolygon.buildChart();
-			},
 			_taskChanged: function(){
 				this.push('tasks', this.task);
 			},
