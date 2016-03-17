@@ -11,10 +11,10 @@ var util = {
 		return prefix + suffix;
 	},
 	getWSUrl: function(suffix){
-		var prefix = 'wss://ws.cod.uno:8090';
+		var prefix = 'wss://ws.cod.uno:8080';
 
 		if (location.origin.indexOf('localhost') !== -1) {
-			prefix = 'ws://localhost:8090';
+			prefix = 'ws://localhost:8080';
 		}
 
 		return prefix + suffix;
@@ -68,6 +68,21 @@ var util = {
 		var m = Math.floor(d / 60 % 60);
 		var s = Math.floor(d % 60);
 		return ('0' + h).slice(-2) + ':' + ('0' + m).slice(-2) + ':' + ('0' + s).slice(-2);
+	},
+	formatDate: function(date, ommitTime){
+		var month = Number(date.getMonth()) + 1;
+		var formattedDate = date.getDate() + '-' + month + '-' + date.getFullYear();
+		if (!ommitTime){
+			formattedDate = formattedDate + ' ' + this.formatTime(date.getHours()) + ':' + this.formatTime(date.getMinutes());
+		}
+		return formattedDate;
+	},
+	formatTime: function(timeField){
+		if (timeField < 10){
+			return '0' + timeField;
+		}
+		return timeField;
+
 	},
 	initialError: undefined,
 	languages: [

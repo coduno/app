@@ -17,26 +17,6 @@
 			on-response="_onResponse"
 			on-error="_onError">
 		</iron-ajax>
-		<iron-ajax
-			id="getSingleChallenge"
-			method="GET"
-			handle-as="json"
-			content-type="application/json"
-			last-response="{{challenge}}"
-			with-credentials="true"
-			on-response="_onResponse"
-			on-error="_onError">
-		</iron-ajax>
-		<iron-ajax
-			id="getMultiChallenges"
-			method="GET"
-			handle-as="json"
-			content-type="application/json"
-			last-response="{{challenges}}"
-			with-credentials="true"
-			on-response="_onResponse"
-			on-error="_onError">
-		</iron-ajax>
 	</template>
 	<script type="application/javascript" src="/scripts/behaviors/service-behavior.js"></script>
 	<script>
@@ -50,39 +30,13 @@
 					type: Object,
 					notify: true,
 					reflectToAttribute: true
-				},
-				challenges: {
-					type: Array,
-					notify: true,
-					reflectToAttribute: true
 				}
 			},
-			save: function(challenge){
+			save: function(templateId, challenge){
 				this.app.startLoading();
-				this.$.postChallenge.url = util.build('/challenges');
+				this.$.postChallenge.url = util.build('/template/' + templateId + '/challenges');
 				this.$.postChallenge.body = challenge;
 				this.$.postChallenge.generateRequest();
-			},
-			getById: function(id){
-				this.app.startLoading();
-				this.$.getSingleChallenge.url = util.build('/challenges/' + id);
-				this.$.getSingleChallenge.generateRequest();
-			},
-			getLatestChallengesByProfileId: function(profileKey){
-				this.app.startLoading();
-				// TODO(victorbalan): Refactor the way we deal with query params.
-				this.$.getMultiChallenges.url = util.build('/profiles/' + profileKey + '/challenges?finished=true&limit=10&order=-Finished');
-				this.$.getMultiChallenges.generateRequest();
-			},
-			getByCompanyId: function(companyKey){
-				this.app.startLoading();
-				this.$.getMultiChallenges.url = util.build('/companies/' + companyKey + '/challenges');
-				this.$.getMultiChallenges.generateRequest();
-			},
-			getAll: function(){
-				this.app.startLoading();
-				this.$.getMultiChallenges.url = util.build('/challenges?organization=' + util.organization().id);
-				this.$.getMultiChallenges.generateRequest();
 			},
 			_onResponse: function(){
 				this.app.stopLoading();

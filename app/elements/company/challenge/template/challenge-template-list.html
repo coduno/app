@@ -1,0 +1,35 @@
+<link rel="import" href="challenge-template-card.html">
+<link rel="import" href="/elements/common/services/challenge-template-service.html">
+<link rel="import" href="/bower_components/iron-flex-layout/classes/iron-flex-layout.html">
+<link rel="import" href="/bower_components/iron-ajax/iron-ajax.html">
+
+<dom-module id="challenge-template-list">
+	<style>
+		.challenge-template-list {
+			padding: 10px;
+		}
+	</style>
+	<template>
+		<challenge-template-service id="challengeTemplateService" challenge-templates="{{challengeTemplates}}"></challenge-template-service>
+
+		<div class="horizontal layout wrap challenge-template-list ">
+			<template is="dom-repeat" items="{{challengeTemplates}}">
+				<challenge-template-card challenge-template="{{item}}"></challenge-template-card>
+			</template>
+		</div>
+	</template>
+	<script>
+		Polymer({
+			is: 'challenge-template-list',
+			properties: {
+				challengeTemplates: {
+					type: Array,
+					notify: true,
+				}
+			},
+			getChallenges: function () {
+				this.$.challengeTemplateService.getAll();
+			}
+		});
+	</script>
+</dom-module>

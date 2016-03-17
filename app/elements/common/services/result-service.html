@@ -57,6 +57,10 @@
 				this.$.getMultiResults.url = util.build('/challenges/' + challengeKey + '/results');
 				this.$.getMultiResults.generateRequest();
 			},
+			getMyResultByChallengeId: function(challengeId){
+				this.$.getSingleResult.url = util.build('/results/challenge/' + challengeId + '/my');
+				this.$.getSingleResult.generateRequest();
+			},
 			_onResponse: function(){
 				this.app.stopLoading();
 			}

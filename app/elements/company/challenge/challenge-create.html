@@ -1,0 +1,71 @@
+<link rel="import" href="/elements/common/services/challenge-service.html">
+<link rel="import" href="/elements/common/datepicker/date-time-picker.html">
+<link rel="import" href="/elements/common/services/endpoint-service.html">
+<link rel="import" href="/bower_components/iron-form/iron-form.html">
+<link rel="import" href="/bower_components/paper-input/all-imports.html">
+<link rel="import" href="/bower_components/paper-button/paper-button.html">
+<link rel="import" href="/bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="/bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="/bower_components/paper-menu/paper-menu.html">
+<link rel="import" href="/bower_components/paper-checkbox/paper-checkbox.html">
+
+<dom-module id="challenge-create">
+	<style>
+		:host {
+			width: 100%;
+			height: 100%;
+		}
+
+		.buttonGroup {
+			margin: 16px;
+			float: right;
+		}
+	</style>
+	<template>
+		<challenge-service id="challengeService" challenge="{{savedChallenge}}"></challenge-service>
+		<div class="mainContent">
+			<paper-material class="card" elevation="1">
+				<form is="iron-form" id="challengeForm">
+					<paper-input id="name" class="margined" label="Name" value="{{challenge.name}}" required></paper-input>
+					<paper-input id="canonicalName" class="margined" label="Canonical name*" value="{{challenge.canonicalName}}" required></paper-input>
+					<paper-checkbox id="inviteOnly" value="{{challenge.inviteOnly}}" checked>Invite only</paper-checkbox>
+					<date-time-picker id="startDate" label="Fixed start date" date-time="{{challenge.startDate}}"></date-time-picker>
+				</form>
+				<paper-button raised on-click="_saveChallenge">Save</paper-button>
+			</paper-material>
+		</div>
+	</template>
+	<script>
+		Polymer({
+			is: 'challenge-create',
+			properties: {
+				challengeTemplate: {
+					type: Number
+				},
+				challenge: {
+					type: Object,
+					value: {}
+				},
+				savedChallenge: {
+					type: Object,
+					observer: '_savedChallengeChanged'
+				}
+			},
+			_saveChallenge: function () {
+				this.challenge.inviteOnly = this.$.inviteOnly.checked;
+				if (!this.$.challengeForm.validate()){
+					console.log('invalid');
+					return;
+				}
+				this.$.challengeService.save(this.challengeTemplate, this.challenge);
+			},
+			_clearChallenge: function(){
+				this.challengeTemplateToSave = {};
+			},
+			_savedChallengeChanged: function(){
+				this.challenge = {};
+				page('/challenges/' + this.challengeTemplate);
+			}
+		});
+	</script>
+</dom-module>

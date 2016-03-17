@@ -1,0 +1,97 @@
+<link rel="import" href="/bower_components/iron-ajax/iron-ajax.html">
+
+<dom-module id="challenge-template-service">
+	<style>
+		:host {
+			display: none;
+		}
+	</style>
+	<template>
+		<iron-ajax
+			id="postChallengeTemplate"
+			method="POST"
+			handle-as="json"
+			content-type="application/json"
+			last-response="{{challengeTemplate}}"
+			with-credentials="true"
+			on-response="_onResponse"
+			on-error="_onError">
+		</iron-ajax>
+		<iron-ajax
+			id="getSingleChallengeTemplate"
+			method="GET"
+			handle-as="json"
+			content-type="application/json"
+			last-response="{{challengeTemplate}}"
+			with-credentials="true"
+			on-response="_onResponse"
+			on-error="_onError">
+		</iron-ajax>
+		<iron-ajax
+			id="getMultiChallengeTemplates"
+			method="GET"
+			handle-as="json"
+			content-type="application/json"
+			last-response="{{challengeTemplates}}"
+			with-credentials="true"
+			on-response="_onResponse"
+			on-error="_onError">
+		</iron-ajax>
+	</template>
+	<script type="application/javascript" src="/scripts/behaviors/service-behavior.js"></script>
+	<script>
+		Polymer({
+			is: 'challenge-template-service',
+			behaviors: [
+				Behaviors.ServiceBehavior
+			],
+			properties: {
+				challengeTemplate: {
+					type: Object,
+					notify: true,
+					reflectToAttribute: true
+				},
+				challengeTemplates: {
+					type: Array,
+					notify: true,
+					reflectToAttribute: true
+				}
+			},
+			save: function(challengeTemplate){
+				this.app.startLoading();
+				this.$.postChallengeTemplate.url = util.build('/challenges/templates');
+				this.$.postChallengeTemplate.body = challengeTemplate;
+				this.$.postChallengeTemplate.generateRequest();
+			},
+			getByScheduledChallengeId: function(id){
+				this.app.startLoading();
+				this.$.getSingleChallengeTemplate.url = util.build('/challenges/' + id);
+				this.$.getSingleChallengeTemplate.generateRequest();
+			},
+			getById: function(id){
+				this.app.startLoading();
+				this.$.getSingleChallengeTemplate.url = util.build('/challenges/templates/' + id);
+				this.$.getSingleChallengeTemplate.generateRequest();
+			},
+			getLatestChallengeTemplatesByProfileId: function(profileKey){
+				this.app.startLoading();
+				// TODO(victorbalan): Refactor the way we deal with query params.
+				this.$.getMultiChallengeTemplates.url = util.build('/profiles/' + profileKey + '/challenges?finished=true&limit=10&order=-Finished');
+				this.$.getMultiChallengeTemplates.generateRequest();
+			},
+			getByCompanyId: function(companyKey){
+				this.app.startLoading();
+				this.$.getMultiChallengeTemplates.url = util.build('/companies/' + companyKey + '/challenges');
+				this.$.getMultiChallengeTemplates.generateRequest();
+			},
+			getAll: function(){
+				this.app.startLoading();
+				this.$.getMultiChallengeTemplates.url = util.build('/challenges/templates?organization=' + util.organization().id);
+				this.$.getMultiChallengeTemplates.generateRequest();
+			},
+			_onResponse: function(){
+				this.app.stopLoading();
+			}
+		});
+	</script>
+</dom-module>

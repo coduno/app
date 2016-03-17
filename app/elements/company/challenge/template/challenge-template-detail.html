@@ -1,17 +1,17 @@
 <link rel="import" href="/elements/company/candidate/invite/invite-candidates.html">
-<link rel="import" href="/elements/common/services/challenge-service.html">
+<link rel="import" href="/elements/common/services/challenge-template-service.html">
 <link rel="import" href="/elements/common/services/task-service.html">
 <link rel="import" href="/elements/common/skill/skill-polygon.html">
 <link rel="import" href="/elements/company/task/task-card.html">
 <link rel="import" href="/bower_components/iron-flex-layout/classes/iron-flex-layout.html">
+<link rel="import" href="/bower_components/paper-button/paper-button.html">
 
 <link rel="import" href="/bower_components/paper-material/paper-material.html">
 
-<dom-module id="challenge-detail">
+<dom-module id="challenge-template-detail">
 	<style>
-		#inviteCandidates {
+		.inviteCandidates {
 			cursor: pointer;
-			float: right;
 		}
 
 		#inviteCandidates:active {
@@ -37,21 +37,21 @@
 		}
 	</style>
 	<template>
-		<challenge-service id="challengeService" challenge="{{challenge}}"></challenge-service>
+		<challenge-template-service id="challengeTemplateService" challenge-template="{{challengeTemplate}}"></challenge-template-service>
 		<task-service id="taskService" task="{{task}}"></task-service>
 
-		<invite-candidates id="inviteCandidatesModal" challenges="{{challengeAsList}}"></invite-candidates>
+		<invite-candidates id="inviteCandidatesModal"></invite-candidates>
 		<div class="grid vertical layout mainContent">
 			<div class="horizontal layout">
 				<paper-material class="card grid-element" elevation="1">
-					<h1>{{challenge.name}}</h1>
+					<h1>{{challengeTemplate.name}}</h1>
 					<dl class="dl-horizontal">
 						<dt>Duration</dt>
 						<dd>{{duration}}</dd>
 						<dt>Description</dt>
-						<dd>{{challenge.description}}</dd>
+						<dd>{{challengeTemplate.description}}</dd>
 						<dt>Instructions</dt>
-						<dd>{{challenge.instructions}}</dd>
+						<dd>{{challengeTemplate.instructions}}</dd>
 					</dl>
 				</paper-material>
 				<!--TODO: skills?-->
@@ -61,10 +61,22 @@
 			</div>
 
 			<paper-material class="card grid-row">
-				<div id="inviteCandidates" on-click="_inviteCandidates">
-					<iron-icon icon="mail"></iron-icon>
-					<span>Invite candidates</span>
+				<h4>Challenges for this template</h4>
+				<div class="layout vertical">
+					<template is="dom-repeat" items="{{challengeTemplate.challenges}}">
+						<div class="layout horizontal">
+							<div class="flex">{{item.name}}</div>
+							<div class="inviteCandidates" on-click="_inviteCandidates">
+								<iron-icon icon="mail"></iron-icon>
+								<span>Invite candidates</span>
+							</div>
+						</div>
+					</template>
 				</div>
+				<paper-button on-click="_createChallenge">New challenge</paper-button>
+			</paper-material>
+
+			<paper-material class="card grid-row">
 				<h4>Leaderboard</h4>
 				<table>
 					<tr>
@@ -80,7 +92,7 @@
 				</table>
 			</paper-material>
 			<div class="grid-row horizontal layout wrap">
-				<template is="dom-repeat" items="{{challenge.tasks}}">
+				<template is="dom-repeat" items="{{challengeTemplate.tasks}}">
 					<task-card task="{{item}}" no-select></task-card>
 				</template>
 			</div>
@@ -88,12 +100,11 @@
 	</template>
 	<script>
 		Polymer({
-			is: 'challenge-detail',
+			is: 'challenge-template-detail',
 			properties: {
-				challenge: {
+				challengeTemplate: {
 					type: Object,
-					notify: true,
-					observer: '_challengeChanged'
+					notify: true
 				},
 				mockedSkills: {
 					type: Object,
@@ -110,7 +121,7 @@
 					notify: true,
 					observer: '_taskChanged'
 				},
-				challengeKey: {
+				challengeTemplateId: {
 					type: String
 				},
 				coders: {
@@ -120,38 +131,38 @@
 				},
 				duration: {
 					type: String,
-					computed: 'computeDuration(challenge)'
+					computed: 'computeDuration(challengeTemplate)'
 				},
-				challengeAsList: {
+				challengeTemplateAsList: {
 					type: Array,
 					notify: true,
-					computed: '_challengeAsList(challenge)'
+					computed: '_challengeTemplateAsList(challengeTemplate)'
 				}
-			},
-			_challengeChanged: function(){
-				this.$.skillPolygon.buildChart();
 			},
 			_taskChanged: function(){
 				this.push('tasks', this.task);
 			},
-			loadData: function (challengeKey) {
-				if (this.challengeKey === challengeKey) {
-					return;
-				}
-				this.challengeKey = challengeKey;
-				this.$.challengeService.getById(challengeKey);
+			loadData: function (challengeTemplateId) {
+				this.challengeTemplateId = challengeTemplateId;
+				this.$.challengeTemplateService.getById(challengeTemplateId);
 			},
-			computeDuration: function (challenge) {
-				return util.computeDuration(challenge.duration);
+			computeDuration: function (challengeTemplate) {
+				if (!!challengeTemplate){
+					return util.computeDuration(challengeTemplate.duration);
+				}
 			},
 			computeIndex: function (index) {
 				return index + 1;
 			},
-			_inviteCandidates: function () {
+			_inviteCandidates: function (e) {
+				this.$.inviteCandidatesModal.challenges = [e.model.__data__.item];
 				this.$.inviteCandidatesModal.toggle();
 			},
-			_challengeAsList: function (challenge) {
-				return [challenge];
+			_challengeTemplateAsList: function (challengeTemplate) {
+				return [challengeTemplate];
+			},
+			_createChallenge: function(){
+				page('/challenge/template/'+ this.challengeTemplate.id + '/create')
 			}
 		});
 	</script>

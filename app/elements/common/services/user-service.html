@@ -89,7 +89,7 @@
 			},
 			invite: function(user){
 				this.app.startLoading();
-				this.$.inviteUser.url = util.build('/invite');
+				this.$.inviteUser.url = util.build('/invite?organization=' + user.organizationId);
 				this.$.inviteUser.body = user;
 				this.$.inviteUser.generateRequest();
 			},

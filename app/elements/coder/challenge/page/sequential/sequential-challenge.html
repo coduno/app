@@ -37,12 +37,6 @@
 		</challenge-nav>
 
 		<div id="content" style$="{{contentStyle}}">
-			<paper-material id="startChallengeCard" elevation="1" class="card">
-				<div class="flex">
-					<challenge-display challenge="{{challenge}}"></challenge-display>
-					<paper-button raised on-click="startChallenge">Go</paper-button>
-				</div>
-			</paper-material>
 		</div>
 		<iron-ajax
 			id="getResultRequest"
@@ -54,7 +48,7 @@
 	</template>
 	<script>
 		Polymer({
-			// TODO(victorbalan): Refactor component and split logic and refactor requests.
+			// TODO(victorbalan): Refactor component and split logic and refactor requests. Remove duplicate code from ccc-challenge
 			is: 'sequential-challenge',
 			properties: {
 				challenge: {
@@ -99,7 +93,8 @@
 				'challenge-timeout': '_challengeTimeout',
 				'server-finished-task': '_serverFinishedTask'
 			},
-			afterPropertiesSet: function(){
+			afterPropertiesSet: function
+				this.contentStyle = '';
 				var currentTask = '';
 				if(this.result.startTimes){
 					for(var i=0; i<this.challenge.tasks.length; i++){
@@ -116,7 +111,7 @@
 					this.task = currentTask;
 					this.$.coolNav.start();
 				}else{
-					this.contentStyle = '';
+					this.startChallenge();
 				}
 			},
 			startChallenge: function() {

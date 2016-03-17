@@ -13,26 +13,12 @@
 		}
 	</style>
 	<template>
-		<challenge-service id="challengeService" challenge="{{challenge}}"></challenge-service>
-		<coduno-iron-ajax
-			id="resultRequest"
-			method="POST"
-			handle-as="json"
-			on-response="onResultResponse"
-			debounce-duration="1000"
-			content-type="application/json"
-			on-error="onResultError"
-			>
-		</coduno-iron-ajax>
-
 		<coduno-iron-ajax
 			id="invitationRequest"
 			on-response="onInvitationResponse"
 			debounce-duration="1000"
 			>
 		</coduno-iron-ajax>
-
-		<cookie-service id="cookieService"></cookie-service>
 
 		<paper-header-panel class="fullHeight">
 			<template is="dom-if" if="{{isLoggedIn}}">
@@ -73,15 +59,19 @@
 					</section>
 
 					<section data-route="challenges">
-						<challenge-list id="challengeList"></challenge-list>
+						<challenge-template-list id="challengeList"></challenge-template-list>
 					</section>
 
 					<section data-route="challenge-detail">
-						<challenge-detail id="challengeDetail"></challenge-detail>
+						<challenge-template-detail id="challengeTemplateDetail"></challenge-template-detail>
 					</section>
 
 					<section data-route="challenge" class="fullHeight">
-						<challenge-page challenge="{{challenge}}" result="{{result}}"></challenge-page>
+						<challenge-page challenge-id="{{challenge}}"></challenge-page>
+					</section>
+
+					<section data-route="challenge-create" class="fullHeight">
+						<challenge-create id="challengeCreate"></challenge-create>
 					</section>
 
 					<section data-route="tasks">
@@ -132,10 +122,6 @@
 		Polymer({
 			is: 'app-element',
 			properties: {
-				challenge: {
-					type: Object,
-					notify: true
-				},
 				isCompany: {
 					type: Boolean,
 					notify: true
@@ -177,14 +163,6 @@
 				window.addEventListener('WebComponentsReady', function() {
 					// imports are loaded and elements have been registered
 					element.progressStyle = 'display: none;';
-					element.$.cookieService.addEventListener('cookie-user-changed', function (e) {
-						localStorage.user = JSON.stringify(e.detail);
-						element.login();
-					});
-
-					element.$.cookieService.addEventListener('cookie-error', function (e) {
-						util.error(e.detail);
-					});
 					element.refreshMenu(element.isLoggedIn);
 				});
 			},
@@ -209,7 +187,6 @@
 				this.ironPagesStyle = '';
 			},
 			finishChallenge: function() {
-				localStorage.removeItem('challenge');
 				localStorage.removeItem('result');
 			},
 			login: function() {
@@ -232,41 +209,15 @@
 			displayInstalledToast: function() {
 				console.log('Caching complete.');
 			},
-			startChallenge: function() {
-				// TODO(@flowlo): This deliberately does not check whether
-				// challengeKey is meaningful or even present, because if
-				// it is not, the XHR will fail and redirect to login.
-				if (!!localStorage.getItem('challenge')) {
-					this.$.resultRequest.url = util.build('/results');
-					this.$.resultRequest.body = localStorage.getItem('challenge');
-					this.$.resultRequest.generateRequest();
-				}
-			},
-			onResultResponse: function(r) {
-				var result = r.detail.detail.response;
-				localStorage.setItem('result', result.id);
-				this.result = result;
-				this.$.challengeService.getById(localStorage.getItem('challenge'));
-			},
 			createChallenge: function() {
 				this.$.taskList.createChallenge();
-			},
-			onResultError: function(e) {
-				if(e.detail.request.xhr.status === 403){
-					page.redirect('/user/' + JSON.parse(localStorage.getItem('user')).Key + '/challenge/' + localStorage.getItem('challenge'));
-					return;
-				}
-				util.error(e);
 			},
 			inviteByToken: function(token){
 				this.$.invitationRequest.url = util.build('/invite/auth/' + token);
 				this.$.invitationRequest.generateRequest();
 			},
 			onInvitationResponse: function(r){
-				var response = r.detail.detail.response;
-
-				localStorage.setItem('challenge', response);
-				page('/challenge');
+				page('/challenge/' + r.detail.detail.response);
 			}
 		});
 	</script>

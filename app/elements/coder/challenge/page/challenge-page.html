@@ -1,6 +1,7 @@
 <link rel="import" href="sequential/sequential-challenge.html">
 <link rel="import" href="ccc/ccc-challenge.html">
-<!--TODO: Show something meaningful on this page if there is no active challenge for the logged in user.-->
+<link rel="import" href="/elements/common/services/challenge-template-service.html">
+<link rel="import" href="/elements/common/services/result-service.html">
 <dom-module id="challenge-page">
 	<style>
 		:host {
@@ -10,35 +11,96 @@
 		#challenge {
 			height: 100%;
 		}
+
+		#startChallengeCard{
+			margin-top: 60px;
+			width:35%;
+		}
 	</style>
 	<template>
-		<div id="challenge">
+		<challenge-template-service id="challengeTemplateService" challenge-template="{{challengeTemplate}}"></challenge-template-service>
+		<result-service id="resultService" result="{{result}}"></result-service>
+		<coduno-iron-ajax
+			id="resultRequest"
+			method="POST"
+			handle-as="json"
+			on-response="onResultResponse"
+			debounce-duration="1000"
+			content-type="application/json"
+			on-error="onResultError"
+			>
+		</coduno-iron-ajax>
+		<div id="challenge" style$="{{contentStyle}}">
+			<paper-material id="startChallengeCard" elevation="1" class="card">
+				<div class="flex">
+					<challenge-display challenge="{{challengeTemplate}}"></challenge-display>
+					<paper-button raised on-click="startChallenge">Go</paper-button>
+				</div>
+			</paper-material>
 		</div>
 	</template>
 	<script>
 		Polymer({
 			is: 'challenge-page',
 			properties: {
-				challenge: {
+				challengeId: {
 					type: Object,
-					notify: true,
 					reflectToAttribute: true
 				},
 				result: {
 					type: Object,
-					notify: true,
-					reflectToAttribute: true
+					observer: '_resultLoaded'
+				},
+				challengeTemplate: {
+					type: Object,
+					observer: '_challengeTemplateLoaded'
+				},
+				contentStyle:{
+					type: String,
+					value: 'display: none;'
 				}
 			},
 			observers: [
-				'afterPropertiesSet(challenge, result)'
+				'afterPropertiesSet(challengeId)'
 			],
+			_resultLoaded: function(){
+				if(this.result){
+					localStorage.result = this.result.id;
+					this.replaceContent();
+				}else{
+					this.contentStyle = '';
+				}
+			},
+			_challengeTemplateLoaded: function(){
+				this.$.resultService.getMyResultByChallengeId(this.challengeId);
+			},
 			afterPropertiesSet: function(){
-				var webInterface = document.createElement(this.challenge.endpoint.component);
-				webInterface.challenge = this.challenge;
+				this.$.challengeTemplateService.getByScheduledChallengeId(this.challengeId);
+				return;
+			},
+			startChallenge: function() {
+				this.$.resultRequest.url = util.build('/results');
+				this.$.resultRequest.body = this.challengeId;
+				this.$.resultRequest.generateRequest();
+			},
+			onResultResponse: function(r) {
+				this.result = r.detail.detail.response;
+				this.replaceContent();
+			},
+			onResultError: function(e) {
+				if(e.detail.request.xhr.status === 403){
+					page.redirect('/user/' + JSON.parse(localStorage.getItem('user')).Key + '/challenge/' + localStorage.getItem('challenge'));
+					return;
+				}
+				util.error(e);
+			},
+			replaceContent: function(){
+				var webInterface = document.createElement(this.challengeTemplate.endpoint.component);
+				webInterface.challenge = this.challengeTemplate;
 				webInterface.result = this.result;
 				this.$.challenge.innerHTML = '';
 				this.$.challenge.appendChild(webInterface);
+				this.contentStyle = '';
 			}
 		});
 	</script>

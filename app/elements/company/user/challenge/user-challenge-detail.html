@@ -1,5 +1,5 @@
 <link rel="import" href="user-task-detail.html">
-<link rel="import" href="/elements/common/services/challenge-service.html">
+<link rel="import" href="/elements/common/services/challenge-template-service.html">
 <link rel="import" href="/elements/common/services/result-service.html">
 <link rel="import" href="/elements/common/services/user-service.html">
 <link rel="import" href="/elements/common/skill/skill-polygon.html">
@@ -41,7 +41,7 @@
 		}
 	</style>
 	<template>
-		<challenge-service id="challengeService" challenge="{{challenge}}"></challenge-service>
+		<challenge-template-service id="challengeTemplateService" challenge-template="{{challenge}}"></challenge-template-service>
 		<result-service id="resultService" result="{{result}}"></result-service>
 		<user-service id="userService" user="{{user}}"></user-service>
 		<iron-ajax
@@ -107,23 +107,14 @@
 				this.previousChallenges = undefined;
 
 				this.$.userService.getById(userKey);
-				this.$.challengeService.getById(challengeKey);
+				this.$.challengeTemplateService.getById(challengeKey);
 			},
 			_challengeChanged: function(){
 				this.$.resultService.getByUserAndChallengeId(this.userKey, this.challengeKey);
 			},
 			_resultChanged: function(result){
 				this.skills = result.Skills;
-				if(Object.keys(this.skills) === 0){
-					this.displaySkillInfo = false;
-				}else{
-					this.displaySkillInfo = true;
-					// TODO: Investigate why we need a timeout of 1 ms.
-					var element = this;
-					window.setTimeout(function(){
-						element.$$('#skillPolygon').buildChart();
-					}, 1);
-				}
+				this.displaySkillInfo = !this.skills;
 				this.$.taskDetails.innerHTML = '';
 				for(var i=0;i<this.challenge.Tasks.length;i++){
 					var userTaskDetail = document.createElement('user-task-detail');

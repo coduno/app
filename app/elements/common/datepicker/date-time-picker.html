@@ -1,0 +1,97 @@
+<link rel="import" href="/bower_components/paper-input/paper-input.html">
+<link rel="import" href="/bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="/bower_components/paper-input/paper-input.html">
+
+<link rel="import" href="/bower_components/paper-time-picker/paper-time-picker.html">
+<link rel="import" href="/bower_components/paper-time-picker/paper-time-picker-dialog-style.html">
+
+<link rel="import" href="/bower_components/paper-date-picker/paper-date-picker.html">
+<link rel="import" href="/bower_components/paper-date-picker/paper-date-picker-dialog-style.html">
+
+<dom-module id="date-time-picker">
+	<template>
+		<style is="custom-style" include="paper-date-picker-dialog-style"></style>
+		<style is="custom-style" include="paper-time-picker-dialog-style"></style>
+
+		<paper-input type="text" id="textInput" readonly label="{{label}}" on-click="_showPicker">
+			<iron-icon prefix icon="receipt"></iron-icon>
+		</paper-input>
+		<paper-dialog id="dialog" class$="{{modalClass}}"modal>
+			<iron-pages selected="{{step}}">
+				<paper-date-picker id="datePicker"></paper-date-picker>
+				<paper-time-picker id="timePicker"></paper-time-picker>
+			</iron-pages>
+			<div class="buttons">
+				<paper-button dialog-dismiss>Cancel</paper-button>
+				<paper-button on-click="_nextStep">{{message}}</paper-button>
+			</div>
+		</paper-dialog>
+
+	</template>
+	<script>
+		Polymer({
+			is: 'date-time-picker',
+			properties: {
+				dateTime: {
+					type: Object,
+					notify: true,
+					reflectToAtribute: true,
+					observer: '_dateTimeSet'
+				},
+				label: {
+					type: String,
+					notify: true
+				},
+				step: {
+					type: Number,
+					notify: true,
+					value: 0
+				},
+				message: {
+					type: String,
+					notify: true,
+					value: 'Next'
+				}
+			},
+			_dateTimeSet: function(){
+				if (!(this.dateTime instanceof Date)){
+					var date = new Date(this.dateTime);
+					this.$.datePicker.date = date;
+					this.$.timePicker.hour = date.getHours();
+					this.$.timePicker.minute = date.getMinutes();
+					this._confirm();
+				}
+			},
+			_showPicker: function() {
+				this.step = 0;
+				this.message = 'Next';
+				this.$.dialog.open();
+			},
+			_nextStep: function(){
+				if (this.step === 1){
+					this._confirm();
+					return;
+				}
+				this.message = 'Ok';
+				this.step = 1;
+
+			},
+			_confirm: function(){
+				var date = this.$.datePicker.date;
+				this.dateTime = new Date(date.getFullYear(), date.getMonth(), date.getDate(), this.$.timePicker.hour, this.$.timePicker.minute, 0, 0);
+				this._setDate(this.dateTime);
+				this.$.dialog.close();
+			},
+			_setDate: function(date){
+				this.$.textInput.value = util.formatDate(date);
+			},
+			validate: function(){
+				if (this.dateTime === undefined){
+					this.$.textInput.invalid = true;
+					return false;
+				}
+				return true;
+			}
+		});
+	</script>
+</dom-module>

@@ -37,12 +37,6 @@
 		</ccc-nav>
 
 		<div id="content" style$="{{contentStyle}}">
-			<paper-material id="startChallengeCard" elevation="1" class="card">
-				<div class="flex">
-					<challenge-display challenge="{{challenge}}"></challenge-display>
-					<paper-button raised on-click="startChallenge">Go</paper-button>
-				</div>
-			</paper-material>
 		</div>
 		<iron-ajax
 			id="getResultRequest"
@@ -102,6 +96,7 @@
 				}
 			},
 			afterPropertiesSet: function(){
+				this.contentStyle = '';
 				this.taskIndex = 0;
 				var currentTask = '';
 				if(this.result.startTimes){
@@ -118,7 +113,7 @@
 					this.task = currentTask;
 					this.$.coolNav.start();
 				}else{
-					this.contentStyle = '';
+					this.startChallenge();
 				}
 			},
 			startChallenge: function() {
@@ -128,7 +123,7 @@
 				this.$.coolNav.start();
 			},
 			startTask: function(taskId){
-				this.$.taskService.startTask(localStorage.result, taskId);
+				this.$.taskService.startTask(this.result.id, taskId);
 			},
 			_serverFinishedTask: function(){
 				this._nextTask();

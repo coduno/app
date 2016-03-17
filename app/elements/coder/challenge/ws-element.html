@@ -23,13 +23,14 @@
 				this.socket.onmessage = this.onMessage.bind(this);
 			},
 			onError: function (error) {
-				this.fire('ws-onerror', error);
+				this.fire('ws-error', error);
 			},
 			onOpen: function (event) {
-				this.fire('ws-onopen', event);
+				this.fire('ws-open', event);
+				this.send('open_connection');
 			},
 			onMessage: function (event) {
-				this.fire('ws-onmessage', event.data);
+				this.fire('ws-message', event.data);
 			},
 			send: function (message) {
 				this.socket.send(message);

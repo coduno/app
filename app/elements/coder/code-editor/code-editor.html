@@ -1,4 +1,5 @@
 <link rel="import" href="/elements/coder/challenge/sock-ws-element.html">
+<link rel="import" href="/elements/coder/challenge/ws-element.html">
 
 <dom-module id="code-editor">
 	<style>
@@ -13,7 +14,7 @@
 		}
 	</style>
 	<template>
-		<sock-ws-element url="{{wsUrl}}"></sock-ws-element>
+		<ws-element url="{{wsUrl}}"></ws-element>
 		<div id="editor"></div>
 	</template>
 	<script src="/bower_components/ace-min-noconflict/ace.js" type="application/javascript"></script>
@@ -45,7 +46,7 @@
 			},
 			// TODO refactor component. remove duplicate code
 			ready: function(){
-				this.wsUrl = util.getSockWSUrl('/ws');
+				this.wsUrl = util.getWSUrl('/ws');
 				ace.require('ace/ext/language_tools');
 				this.$.editor = ace.edit(this.$.editor);
 				this.$.editor.setTheme('ace/theme/chrome');

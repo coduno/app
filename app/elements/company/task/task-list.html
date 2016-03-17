@@ -1,5 +1,5 @@
 <link rel="import" href="task-card.html">
-<link rel="import" href="/elements/company/challenge/challenge-modal.html">
+<link rel="import" href="/elements/company/challenge/template/challenge-template-modal.html">
 <link rel="import" href="/elements/company/task/task-detail.html">
 <link rel="import" href="/elements/common/services/task-service.html">
 <link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
@@ -56,7 +56,7 @@
 				</task-card>
 			</template>
 		</div>
-		<challenge-modal id="challengeModal" selected-tasks="{{selectedTasks}}"></challenge-modal>
+		<challenge-template-modal id="challengeModal" selected-tasks="{{selectedTasks}}"></challenge-template-modal>
 	</template>
 	<script>
 		Polymer({
@@ -87,7 +87,7 @@
 				}
 			},
 			listeners: {
-				'challenge-created': '_resetSelected',
+				'challenge-template-created': '_resetSelected',
 				'taskDetail': '_taskDetail',
 				'task-removed': '_removeTask',
 				'task-added': '_addTask'

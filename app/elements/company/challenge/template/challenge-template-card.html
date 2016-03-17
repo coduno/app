@@ -2,7 +2,7 @@
 <link rel="import" href="/bower_components/paper-material/paper-material.html">
 <link rel="import" href="/bower_components/iron-icon/iron-icon.html">
 
-<dom-module id="challenge-card">
+<dom-module id="challenge-template-card">
 	<style>
 		:host {
 			width: 350px;
@@ -48,43 +48,39 @@
 		}
 	</style>
 	<template>
-		<paper-material	animated id="challenge" elevation="{{elevation}}" class="card">
-			<div id="content" on-click="_viewChallengeDetail">
-				<h2>{{challenge.name}}</h2>
+		<paper-material	animated id="challengeTemplate" elevation="{{elevation}}" class="card">
+			<div id="content" on-click="_viewChallengeTemplateDetail">
+				<h2>{{challengeTemplate.name}}</h2>
 
 				<div class="duration">
 					<iron-icon icon="alarm"></iron-icon>
 					<span>{{duration}}</span>
 				</div>
-				<div>{{challenge.description}}</div>
+				<div>{{challengeTemplate.description}}</div>
 			</div>
 		</paper-material>
 	</template>
 	<script type="application/javascript" src="/scripts/behaviors/card-behavior.js"></script>
 	<script>
 		Polymer({
-			is: 'challenge-card',
+			is: 'challenge-template-card',
 			behaviors: [
 				Behaviors.CardBehavior
 			],
 			properties: {
-				challenge: {
+				challengeTemplate: {
 					type: Object
 				},
 				duration: {
 					type: String,
-					computed: 'computeDuration(challenge)'
+					computed: 'computeDuration(challengeTemplate)'
 				}
 			},
-			ready: function () {
-				console.log(this.challenge);
-				this.goTo = '/challenges/' + this.challenge.id;
+			computeDuration: function (challengeTemplate) {
+				return util.computeDuration(challengeTemplate.duration);
 			},
-			computeDuration: function (challenge) {
-				return util.computeDuration(challenge.duration);
-			},
-			_viewChallengeDetail: function () {
-				page.redirect('/challenges/' + this.challenge.id);
+			_viewChallengeTemplateDetail: function () {
+				page.redirect('/challenges/' + this.challengeTemplate.id);
 			}
 		});
 	</script>
