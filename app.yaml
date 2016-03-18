@@ -6,7 +6,7 @@ threadsafe: yes
 handlers:
   - url: /bower_components/(.+)
     static_files: bower_components/\1
-    upload: bower_components
+    upload: bower_components/(.+)
     secure: always
     expiration: 4d
     http_headers:
@@ -14,7 +14,7 @@ handlers:
 
   - url: /
     static_files: app/index.html
-    upload: app
+    upload: app/index.html
     secure: always
     expiration: 4d
     http_headers:
@@ -22,7 +22,7 @@ handlers:
 
   - url: /(.+)
     static_files: app/\1
-    upload: app
+    upload: app/(.+)
     secure: always
     expiration: 4d
     http_headers:
