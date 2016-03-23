@@ -1,0 +1,94 @@
+<link rel="import" href="/bower_components/iron-flex-layout/classes/iron-flex-layout.html">
+<link rel="import" href="/bower_components/paper-button/paper-button.html">
+<link rel="import" href="/bower_components/paper-material/paper-material.html">
+
+<link rel="import" href="/elements/common/services/challenge-template-service.html">
+<link rel="import" href="/elements/common/services/task-service.html">
+<link rel="import" href="/elements/common/skill/skill-polygon.html">
+<link rel="import" href="/elements/company/task/task-card.html">
+<link rel="import" href="/elements/company/challenge/challenge-list.html">
+
+<dom-module id="challenge-template-detail">
+	<style>
+		.card h1 {
+			padding: 20px 0;
+		}
+
+		.card h4 {
+			padding: 20px 0;
+		}
+
+		.grid-element {
+			margin: 16px;
+			width: calc(50% - 64px);
+		}
+
+		.grid-row {
+			margin: 16px;
+			width: calc(100% - 64px);
+		}
+	</style>
+	<template>
+		<challenge-template-service id="challengeTemplateService" challenge-template="{{challengeTemplate}}"></challenge-template-service>
+		<task-service id="taskService" task="{{task}}"></task-service>
+
+		<div class="grid vertical layout mainContent">
+			<div class="horizontal layout">
+				<paper-material class="card grid-element" elevation="1">
+					<h1>{{challengeTemplate.name}}</h1>
+					<dl class="dl-horizontal">
+						<dt>Duration</dt>
+						<dd>{{duration}}</dd>
+						<dt>Description</dt>
+						<dd>{{challengeTemplate.description}}</dd>
+						<dt>Instructions</dt>
+						<dd>{{challengeTemplate.instructions}}</dd>
+					</dl>
+				</paper-material>
+				<!--TODO: skills?-->
+				<!--<paper-material class="card grid-element">-->
+					<!--<skill-polygon id="skillPolygon" skills="{{mockedSkills}}"></skill-polygon>-->
+				<!--</paper-material>-->
+			</div>
+
+			<challenge-list challenge-template="{{challengeTemplate}}"></challenge-list>
+
+			<div class="grid-row horizontal layout wrap">
+				<template is="dom-repeat" items="{{challengeTemplate.tasks}}">
+					<task-card task="{{item}}" no-select></task-card>
+				</template>
+			</div>
+		</div>
+	</template>
+	<script>
+		Polymer({
+			is: 'challenge-template-detail',
+			properties: {
+				challengeTemplate: {
+					type: Object,
+					notify: true
+				},
+				task: {
+					type: Object,
+					notify: true,
+					observer: '_taskChanged'
+				},
+				duration: {
+					type: String,
+					computed: 'computeDuration(challengeTemplate)'
+				},
+			},
+			_taskChanged: function(){
+				this.push('tasks', this.task);
+			},
+			loadData: function (challengeTemplateId) {
+				this.$.challengeTemplateService.getById(challengeTemplateId);
+			},
+			computeDuration: function (challengeTemplate) {
+				if (!!challengeTemplate){
+					return util.computeDuration(challengeTemplate.duration);
+				}
+			}
+		});
+	</script>
+</dom-module>

@@ -17,6 +17,17 @@
 			on-response="_onResponse"
 			on-error="_onError">
 		</iron-ajax>
+
+		<iron-ajax
+			id="getChallenge"
+			method="GET"
+			handle-as="json"
+			content-type="application/json"
+			last-response="{{challenge}}"
+			with-credentials="true"
+			on-response="_onResponse"
+			on-error="_onError">
+		</iron-ajax>
 	</template>
 	<script type="application/javascript" src="/scripts/behaviors/service-behavior.js"></script>
 	<script>
@@ -32,11 +43,16 @@
 					reflectToAttribute: true
 				}
 			},
-			save: function(templateId, challenge){
+			save: function(challenge){
 				this.app.startLoading();
-				this.$.postChallenge.url = util.build('/template/' + templateId + '/challenges');
+				this.$.postChallenge.url = util.build('/challenges');
 				this.$.postChallenge.body = challenge;
 				this.$.postChallenge.generateRequest();
+			},
+			getById: function(challengeId){
+				this.app.startLoading();
+				this.$.getChallenge.url = util.build('/challenges/' + challengeId);
+				this.$.getChallenge.generateRequest();
 			},
 			_onResponse: function(){
 				this.app.stopLoading();

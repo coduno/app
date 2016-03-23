@@ -65,7 +65,7 @@
 			},
 			getByScheduledChallengeId: function(id){
 				this.app.startLoading();
-				this.$.getSingleChallengeTemplate.url = util.build('/challenges/' + id);
+				this.$.getSingleChallengeTemplate.url = util.build('/challenges/templates/challenge/' + id);
 				this.$.getSingleChallengeTemplate.generateRequest();
 			},
 			getById: function(id){

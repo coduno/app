@@ -9,7 +9,7 @@ window.addEventListener('WebComponentsReady', function() {
 		if (!localStorage.authorization){
 			page('/login');
 		}else if (util.organization()) {
-			page('/challenges');
+			page('/challengetemplates');
 		} else {
 			page('/challenge');
 		}
@@ -46,18 +46,25 @@ window.addEventListener('WebComponentsReady', function() {
 			});
 	});
 
-	page('/challenges', function () {
-		app.route = 'challenges';
-		Polymer.Base.importHref('/elements/company/challenge/template/challenge-template-list.html', function(){
+	page('/challenges/:id', function(data) {
+		app.route = 'challenge-detail';
+		Polymer.Base.importHref('/elements/company/challenge/challenge-detail.html', function(){
+			app.$.challengeDetail.loadData(data.params.id);
+		});
+	});
+
+	page('/challengetemplates', function () {
+		app.route = 'challenge-templates';
+		Polymer.Base.importHref('/elements/company/challenge-template/challenge-template-list.html', function(){
 			app.$.challengeList.getChallenges();
 		});
 	});
 
-	page('/challenges/:challengeKey', function(data){
+	page('/challenges/template/:id', function(data){
 		checkIsOrganization();
-		app.route = 'challenge-detail';
-		Polymer.Base.importHref('/elements/company/challenge/template/challenge-template-detail.html', function(){
-			app.$.challengeTemplateDetail.loadData(data.params.challengeKey);
+		app.route = 'challenge-template-detail';
+		Polymer.Base.importHref('/elements/company/challenge-template/challenge-template-detail.html', function(){
+			app.$.challengeTemplateDetail.loadData(data.params.id);
 		});
 	});
 

@@ -1,0 +1,78 @@
+<link rel="import" href="/bower_components/iron-flex-layout/classes/iron-flex-layout.html">
+<link rel="import" href="/bower_components/paper-button/paper-button.html">
+<link rel="import" href="/bower_components/paper-material/paper-material.html">
+
+<link rel="import" href="/elements/common/services/challenge-service.html">
+<link rel="import" href="/elements/common/description-list/description-list.html">
+<link rel="import" href="/elements/common/description-list/description-list-item.html">
+<link rel="import" href="/elements/company/candidate/invite/invite-candidates.html">
+
+<dom-module id="challenge-detail">
+	<style>
+		.card h1 {
+			padding: 20px 0;
+		}
+
+		.card h4 {
+			padding: 20px 0;
+		}
+		paper-material {
+			margin: 16px;
+		}
+	</style>
+	<template>
+		<challenge-service id="challengeService" challenge="{{challenge}}"></challenge-service>
+		<invite-candidates id="inviteCandidates"></invite-candidates>
+
+		<div class="grid vertical layout mainContent">
+				<paper-material class="card" elevation="1">
+					<div class="layout horizontal">
+						<h1 class="flex">{{challenge.name}}</h1>
+						<paper-button on-click="_inviteCandidates">
+							<iron-icon icon="mail"></iron-icon>
+							Invite candidates
+						</paper-button>
+					</div>
+					<description-list>
+						<description-list-item label="Canonical name" value="{{challenge.canonicalName}}"></description-list-item>
+						<description-list-item label="Start date" value="{{challenge.startDate}}" date></description-list-item>
+						<description-list-item label="End date" value="{{challenge.endDate}}" date></description-list-item>
+					</description-list>
+				</paper-material>
+
+				<paper-material class="card">
+					<h3>Invited users</h3>
+					<template is="dom-repeat" items="{{challenge.invitedUsers}}">
+						<div>{{item.username}}</div>
+					</template>
+				</paper-material>
+			<paper-material class="card">
+				<h3>Results</h3>
+			</paper-material>
+		</div>
+	</template>
+	<script>
+		Polymer({
+			is: 'challenge-detail',
+			properties: {
+				challenge: {
+					type: Object,
+					notify: true
+				}
+			},
+			loadData: function (challengeId) {
+				this.$.challengeService.getById(challengeId);
+			},
+			_formatDate: function(date){
+				if (!!date){
+					return util.formatDate(date);
+				}
+			},
+			_inviteCandidates: function(){
+				this.$.inviteCandidates.challenges = [this.challenge];
+				this.$.inviteCandidates.toggle();
+				console.log(this.challenge);
+			}
+		});
+	</script>
+</dom-module>

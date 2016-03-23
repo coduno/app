@@ -1,0 +1,75 @@
+<link rel="import" href="/bower_components/iron-flex-layout/classes/iron-flex-layout.html">
+<link rel="import" href="/bower_components/paper-button/paper-button.html">
+<link rel="import" href="/bower_components/paper-material/paper-material.html">
+<link rel="import" href="/bower_components/paper-button/paper-button.html">
+
+<link rel="import" href="/elements/company/candidate/invite/invite-candidates.html">
+
+<dom-module id="challenge-list">
+	<template>
+		<style>
+			:host {
+				padding: 8px;
+			}
+			.rows {
+				@apply(--layout-vertical);
+			}
+			.row {
+				@apply(--layout-horizontal);
+				@apply(--layout-center-center);
+			}
+
+			hr {
+				margin: 5px 0 5px 0;
+			}
+		</style>
+
+		<paper-material class="card">
+			<h4>Challenges for this template</h4>
+			<div class="rows">
+				<template is="dom-repeat" items="{{challengeTemplate.challenges}}">
+					<div class="row">
+						<div class="flex" style="cursor: pointer" on-click="_viewDetail">{{item.name}}</div>
+						<div class="flex">{{_formatDate(item.startDate)}}</div>
+						<paper-button on-click="_inviteCandidates">
+							<iron-icon icon="mail"></iron-icon>
+							Invite candidates
+						</paper-button>
+					</div>
+					<hr>
+				</template>
+			</div>
+			<paper-button id="createChallengeButton" raised on-click="_createChallenge">
+				<iron-icon icon="add"></iron-icon>
+				New challenge
+			</paper-button>
+		</paper-material>
+		<invite-candidates id="inviteCandidatesModal"></invite-candidates>
+	</template>
+	<script>
+		Polymer({
+			is: 'challenge-list',
+			properties: {
+				challengeTemplate: {
+					type: Object,
+					notify: true
+				}
+			},
+			_createChallenge: function(){
+				page('/challenge/template/'+ this.challengeTemplate.id + '/create');
+			},
+			_inviteCandidates: function (e) {
+				this.$.inviteCandidatesModal.challenges = [e.model.__data__.item];
+				this.$.inviteCandidatesModal.toggle();
+			},
+			_formatDate: function(date){
+				if (!!date){
+					return util.formatDate(date);
+				}
+			},
+			_viewDetail: function(e){
+				page.redirect('/challenges/' + e.model.__data__.item.id);
+			}
+		});
+	</script>
+</dom-module>

@@ -70,6 +70,9 @@ var util = {
 		return ('0' + h).slice(-2) + ':' + ('0' + m).slice(-2) + ':' + ('0' + s).slice(-2);
 	},
 	formatDate: function(date, ommitTime){
+		if (!(date instanceof Date)){
+			date = new Date(date);
+		}
 		var month = Number(date.getMonth()) + 1;
 		var formattedDate = date.getDate() + '-' + month + '-' + date.getFullYear();
 		if (!ommitTime){

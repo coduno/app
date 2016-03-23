@@ -29,7 +29,7 @@
 						<paper-tabs id="bottomTabs" class="bottom indent" selected="{{selected}}" noink no-slide>
 							<span class="flex-5"></span>
 							<template is="dom-if" if="{{isCompany}}">
-								<paper-tab link><a href="/challenges" class="center-center horizontal layout">Challenges</a></paper-tab>
+								<paper-tab link><a href="/challengetemplates" class="center-center horizontal layout">Challenge Templates</a></paper-tab>
 								<paper-tab link><a href="/tasks" class="center-center horizontal layout fullHeight">Tasks</a></paper-tab>
 							</template>
 							<template is="dom-if" if="{{isCoder}}">
@@ -58,11 +58,11 @@
 						<register-page></register-page>
 					</section>
 
-					<section data-route="challenges">
+					<section data-route="challenge-templates">
 						<challenge-template-list id="challengeList"></challenge-template-list>
 					</section>
 
-					<section data-route="challenge-detail">
+					<section data-route="challenge-template-detail">
 						<challenge-template-detail id="challengeTemplateDetail"></challenge-template-detail>
 					</section>
 
@@ -72,6 +72,10 @@
 
 					<section data-route="challenge-create" class="fullHeight">
 						<challenge-create id="challengeCreate"></challenge-create>
+					</section>
+
+					<section data-route="challenge-detail" class="fullHeight">
+						<challenge-detail id="challengeDetail"></challenge-detail>
 					</section>
 
 					<section data-route="tasks">
@@ -196,7 +200,7 @@
 			login: function() {
 				this.refreshMenu(true);
 				if (!!util.organization()) {
-					return page.redirect('/challenges');
+					return page.redirect('/challengetemplates');
 				}
 				page.redirect('/challenge');
 			},

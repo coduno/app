@@ -1,0 +1,73 @@
+<dom-module id="description-list-item">
+	<template>
+		<style is="custom-style" include="shared-styles">
+			.list-item {
+				margin: 5px 0;
+				width: 100%;
+				@apply(--layout-horizontal);
+			}
+
+			.list-item > .item-label{
+				width: 20%;
+				min-width:200px;
+				font-weight: bold;
+			}
+
+			.list-item > .item-value{
+				width: 90%;
+				min-width: 200px;
+			}
+		</style>
+		<template is="dom-if" if="{{showMe}}">
+			<div class="list-item">
+				<div class="item-label">{{label}}</div>
+				<template is="dom-if" if="{{date}}">
+					<div class="item-value">{{formattedValue}}</div>
+				</template>
+				<template is="dom-if" if="{{!date}}">
+					<div class="item-value">{{value}}</div>
+				</template>
+			</div>
+		</template>
+	</template>
+	<script>
+		Polymer({
+			is: 'description-list-item',
+			properties: {
+				label: {
+					type: String,
+					notify: true
+				},
+				value: {
+					type: String,
+					notify: true
+				},
+				formattedValue: {
+					type: String,
+					notify: true
+				},
+				showMe: {
+					type: Boolean,
+					notify: true,
+					value: false
+				},
+				date: {
+					type: Boolean,
+					notify: true,
+					value: false
+				}
+			},
+			observers: [
+				'_set(value, date)'
+			],
+			_set: function(){
+				this.showMe = !!this.value;
+
+				if (!!this.value && this.date){
+					this.formattedValue = util.formatDate(this.value);
+					console.log(this.formattedValue);
+				}
+			}
+		});
+	</script>
+</dom-module>

@@ -68,7 +68,7 @@
 				'user-invited': '_userInvited'
 			},
 			toggle: function () {
-				this._clearDialog();
+				this._clearCandidates();
 				this._addCandidate();
 				this.$.dialog.toggle();
 			},
@@ -96,12 +96,12 @@
 				var index = this.candidates.indexOf(event.detail);
 				this.splice('candidates', index, 1);
 			},
-			_clearDialog: function () {
+			_clearCandidates: function () {
+				this.candidates = [];
 				var el;
 				while ((el = document.querySelector('invite-candidate-input')) !== null) {
 					el.remove();
 				}
-				this.splice('candidates', this.candidates.length);
 			},
 			_userInvited: function(){
 				this.$.toast.show();
