@@ -1,6 +1,5 @@
 <link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="/bower_components/iron-icons/av-icons.html">
-<link rel="import" href="/elements/common/services/user-submission-service.html">
 <link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 
 <dom-module id="input-view-element">
@@ -17,13 +16,11 @@
 		}
 	</style>
 	<template>
-		<user-submission-service id="submissionService" on-response="_onResponse" on-error="_onError"></user-submission-service>
 		<input type="file" name="inputToTest" id="inputToTest" on-change="setInput" style="display: none;">
 		<div class="inputelement">
 			<p>Test <span>{{counter}}</counter></p>
-			<textarea id="input" type="text" style$="{{inputStyle}}"></textarea>
+			<textarea id="input" type="text" style$="{{inputStyle}}" value="{{inputValue::input}}"></textarea>
 			<paper-icon-button id="uploadButton" icon="file-upload" on-click="addInputFile"></paper-icon-button>
-			<paper-icon-button id="runButton" icon="av:play-arrow" on-click="runTest"></paper-icon-button>
 		</div>
 	</template>
 	<script>
@@ -37,29 +34,38 @@
 				testId:{
 					type: Number,
 					reflectToAttribute: true
+				},
+				inputValue: {
+					type: String,
+					reflectToAttribute: true,
+					notify: true
+				},
+				testResult: {
+					type: Boolean,
+					observer: '_resultSet'
 				}
 			},
 			disable: function(){
 				this.$.input.disabled = true;
-				this.$.runButton.disabled = true;
 				this.$.uploadButton.disabled = true;
 			},
 			enable: function(){
 				this.$.input.disabled = false;
-				this.$.runButton.disabled = false;
 				this.$.uploadButton.disabled = false;
 			},
+			_resultSet: function(){
+				if (this.testResult){
+					this.disable();
+					this.green();
+				}else{
+					this.red();
+				}
+			},
 			green: function(){
-				this.fire('green-test', this.testId);
 				this.inputStyle = 'border-color: #86C67C;';
 			},
 			red: function(){
 				this.inputStyle = 'border-color: #CD4F39;';
-			},
-			runTest: function(){
-				this.inputStyle = '';
-				this.disable();
-				this.$.submissionService.submitOutput(this.testId, 'output' + this.counter, this.$.input.value);
 			},
 			addInputFile: function(){
 				this.$$('#inputToTest').click();
@@ -73,17 +79,6 @@
 						self.$.input.value = e.target.result;
 					};
 					fr.readAsText(files[0]);
-				}
-			},
-			_onResponse: function(e, r){
-				if(r.detail.status === 200){
-					this.green();
-				}
-			},
-			_onError: function(e, data){
-				this.enable();
-				if(data.req.request.status === 400){
-					this.red();
 				}
 			}
 		});

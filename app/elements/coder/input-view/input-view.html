@@ -1,4 +1,9 @@
 <link rel="import" href="input-view-element.html">
+<link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="/bower_components/iron-icons/av-icons.html">
+
+<link rel="import" href="/elements/common/services/user-submission-service.html">
 
 <dom-module id="input-view">
 	<style>
@@ -18,21 +23,29 @@
 			with-credentials="true"
 			>
 		</iron-ajax>
+		<user-submission-service id="userSubmissionService" on-response="_onResponse" on-error="_onError"></user-submission-service>
 		<p>Paste/Upload the generated output and test it.</p>
-		<div id="data"></data>
+		<template is="dom-repeat" items="{{testOutputs}}">
+			<input-view-element id="{{_inputId(item.id)}}"
+								test-id="{{item.id}}"
+								input-value="{{item.inputValue}}"
+								counter="{{item.counter}}">
+			</input-view-element>
+		</template>
+			<paper-icon-button id="runButton" icon="av:play-arrow" on-click="runTests">Run tests</paper-icon-button>
 	</template>
 	<script>
 		Polymer({
 			is: 'input-view',
 			properties: {
-				counter: {
-					type: Number,
-					value: 1
-				},
 				task: {
 					type: Object,
 					notify: true,
 					reflectToAttribute: true
+				},
+				testOutputs: {
+					type: Array,
+					notify: true
 				}
 			},
 			observers: [
@@ -41,36 +54,42 @@
 			listeners: {
 				'green-test': 'onGreenTest'
 			},
-			onGreenTest: function(e, data){
-				if(this.greenTests.indexOf(data) === -1){
-					this.push('greenTests', data);
-				}
-				if(this.tests.length === this.greenTests.length){
-					this.fire('level-completed');
-				}
+			runTests: function(){
+				this.$.userSubmissionService.submitOutput(this.task.id, this.testOutputs);
 			},
 			_afterPropertiesSet: function(){
-				this.greenTests = [];
+				this.testOutputs = [];
 				this.$.getTestsRequest.url = util.build('/tasks/' + this.task.id + '/tests');
 				this.$.getTestsRequest.generateRequest();
-			},
-			initViewElement: function(id){
-				var element = document.createElement('input-view-element');
-				element.id = 'input' + id;
-				element.counter = this.counter;
-				element.testId = id;
-				this.$.data.appendChild(element);
-				this.counter ++;
 			},
 			onTestsResponse: function(r){
 				var data = r.detail.response;
 				this.tests = data;
 				for(var i=0;i<data.length;i++){
-					this.initViewElement(data[i].id);
+					this.push('testOutputs', {'id': data[i].id, 'counter': i + 1});
 				}
 			},
 			onTestsError: function(err){
 				util.error(err);
+			},
+			_inputId: function(testId){
+				return 'test-' + testId;
+			},
+			_onResponse: function(event, r){
+				var results = r.detail.response;
+				var greenTests = 0;
+				for (var i = 0; i < results.length; i++){
+					var testResult = results[i];
+					var testInput = this.$$('#' + this._inputId(testResult.testId));
+					testInput.testResult = testResult.green;
+					greenTests = testResult.green ? greenTests + 1 : greenTests;
+				}
+				if(this.tests.length === greenTests){
+					this.fire('level-completed');
+				}
+			},
+			_onError: function(event, e){
+				util.error(e);
 			}
 		});
 	</script>

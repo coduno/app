@@ -39,13 +39,17 @@
 				this.$.post.url = util.build('/tasks/' + taskId +'/run');
 				this.$.post.generateRequest();
 			},
-			submitOutput: function(testId, name, value, mimeType){
+			submitOutput: function(taskId, testOutputs, mimeType){
 				var body = new FormData();
-				var f = this.getFile(name, value, mimeType);
-				body.append('file', f, f.name);
-
+				for (var i = 0; i < testOutputs.length; i++){
+					var testOutput = testOutputs[i];
+					if (!!testOutput.inputValue){
+						var f = this.getFile(testOutput.id, testOutput.inputValue, mimeType);
+						body.append('files', f, f.name);
+					}
+				}
 				this.$.post.body = body;
-				this.$.post.url = util.build('/results/' + localStorage.getItem('result') + '/tests/' + testId +'/output');
+				this.$.post.url = util.build('/results/' + localStorage.getItem('result') + '/task/' +taskId + '/output');
 				this.$.post.generateRequest();
 			},
 			getFile: function(name, value, mimeType) {
