@@ -101,18 +101,6 @@
 					this.dataStyle = 'display: none';
 				}
 			},
-			allGreen: function(){
-				if (!!this.stderr){
-					return false;
-				}
-				for(var i=0;i<this.tests.length;i++){
-					if (this.$$('#' + this.tests[i].Key).failed){
-						return false;
-					}
-				}
-				return true;
-
-			},
 			loading: function(){
 				this.testStats = {};
 				this.dataStyle = '';
@@ -139,14 +127,14 @@
 				console.log(err);
 			},
 			appendTestStats: function(result){
-				if(result.failed === undefined){
-					result.failed = true;
+				if(result.successful === undefined){
+					result.successful = false;
 				}
-				this.testStats[result.test] = !result.failed;
+				this.testStats[result.test] = result.successful;
 				this._testAllGreen();
 				var element = this.$$('#test' + result.test);
 				if(!!element){
-					element.setFailed(result.failed);
+					element.setSuccessful(result.successful);
 					element.stopLoading();
 				}
 			},
