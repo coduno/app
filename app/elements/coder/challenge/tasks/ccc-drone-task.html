@@ -199,6 +199,7 @@
 				}, 5000);
 			},
 			_onMessage: function(m){
+				this.$$('#inputView').setResult(JSON.parse(m.detail));
 				this.$$('#console').setResult(JSON.parse(m.detail));
 			},
 			_allTestsGreen: function(){
