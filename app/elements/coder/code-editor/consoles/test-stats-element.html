@@ -51,7 +51,7 @@
 				 notify: true,
 				 reflectAsAttribute: true
 			 },
-			 failed: Boolean,
+			 successful: Boolean,
 			 divClass: {
 				 type: String,
 				 notify: true,
@@ -62,9 +62,9 @@
 			 this.stopLoading();
 			 this.divClass = 'circle gray';
 		 },
-		 setFailed: function(failed){
-			 this.failed = failed;
-			 this.divClass = this.failed ? 'circle red': 'circle green';
+		 setSuccessful: function(successful){
+			 this.successful = successful;
+			 this.divClass = !this.successful ? 'circle red': 'circle green';
 		 },
 		 stopLoading: function(){
 	 		this.$.spinner.active = false;

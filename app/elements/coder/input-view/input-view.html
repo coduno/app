@@ -22,7 +22,7 @@
 			with-credentials="true"
 			>
 		</iron-ajax>
-		<user-submission-service id="userSubmissionService" on-response="_onResponse" on-error="_onError"></user-submission-service>
+		<user-submission-service id="userSubmissionService" on-error="_onError"></user-submission-service>
 		<p>Paste/Upload the generated output and test it.</p>
 		<template is="dom-repeat" items="{{testOutputs}}">
 			<input-view-element id="{{_inputId(item.id)}}"
@@ -34,6 +34,7 @@
 			<paper-icon-button id="runButton" icon="av:play-arrow" on-click="runTests">Run tests</paper-icon-button>
 	</template>
 	<script>
+	// TODO(victorbalan): move duplicate code(here and test-stats-console) to behavior
 		Polymer({
 			is: 'input-view',
 			properties: {
@@ -45,6 +46,10 @@
 				testOutputs: {
 					type: Array,
 					notify: true
+				},
+				testStats: {
+					type: Object,
+					value: {}
 				}
 			},
 			observers: [
@@ -53,8 +58,32 @@
 			listeners: {
 				'green-test': 'onGreenTest'
 			},
+			_testAllGreen: function(){
+				if(!this.tests){
+					return;
+				}
+				for(var i = 0;i<this.tests.length; i ++){
+					if(!this.testStats[this.tests[i].id]){
+						return;
+					}
+				}
+				this.fire('all-green');
+			},
 			runTests: function(){
 				this.$.userSubmissionService.submitOutput(this.task.id, this.testOutputs);
+			},
+			setResult: function(result){
+				if(!result.test){
+					alert('this should not happen');
+					return;
+				}
+				if(result.successful === undefined){
+					result.successful = false;
+				}
+				this.testStats[result.test] = result.successful;
+				this._testAllGreen();
+				var testInput = this.$$('#' + this._inputId(testResult.testId));
+				testInput.testResult = result.successful;
 			},
 			_afterPropertiesSet: function(){
 				this.testOutputs = [];
@@ -73,19 +102,6 @@
 			},
 			_inputId: function(testId){
 				return 'test-' + testId;
-			},
-			_onResponse: function(event, r){
-				var results = r.detail.response;
-				var greenTests = 0;
-				for (var i = 0; i < results.length; i++){
-					var testResult = results[i];
-					var testInput = this.$$('#' + this._inputId(testResult.testId));
-					testInput.testResult = testResult.green;
-					greenTests = testResult.green ? greenTests + 1 : greenTests;
-				}
-				if(this.tests.length === greenTests){
-					this.fire('level-completed');
-				}
 			},
 			_onError: function(event, e){
 				util.error(e);
