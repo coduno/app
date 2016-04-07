@@ -1,15 +1,13 @@
-<link rel="import" href="/elements/coder/code-editor/consoles/run-submit-console.html">
+<link rel="import" href="/elements/coder/code-editor/consoles/tabbed-console.html">
 <link rel="import" href="/elements/coder/code-editor/language-selector.html">
 <link rel="import" href="/elements/coder/challenge/tasks/task-display.html">
 <link rel="import" href="/elements/coder/code-editor/code-editor-with-actions.html">
 <link rel="import" href="/elements/coder/input-view/input-view.html">
 <link rel="import" href="/elements/common/leaderboard/challenge-leaderboard.html">
 
-<link rel="import" href="/bower_components/paper-fab/paper-fab.html">
 <link rel="import" href="/bower_components/paper-tabs/paper-tabs.html">
 <link rel="import" href="/bower_components/paper-tabs/paper-tab.html">
 <link rel="import" href="/bower_components/iron-icons/av-icons.html">
-<link rel="import" href="/bower_components/paper-toast/paper-toast.html">
 <link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 
 <dom-module id="ccc-drone-task">
@@ -52,57 +50,36 @@
 		width: calc(100% - 24px);
 		height: calc(100% - 98px);
 	}
-	#topRightCard{
-		overflow: auto;
+	#rightCard{
 		margin: 16px 16px 16px 8px;
 		width: calc(100% - 24px);
-		height: calc(50% - 66px);
-	}
-	#botRightCard{
-		overflow: hidden;
-		margin: 8px 16px 16px 8px;
-		width: calc(100% - 24px);
-		height: calc(50% - 48px);
-	}
-	#buttons{
-		height: 45px;
-		margin: 16px 16px 16px 8px;
-		@apply(--layout-horizontal);
-	}
-	#console{
-		margin: 8px 16px 16px 16px;
-		height: calc(100% - 85px);
-	}
-	#buttons>paper-icon-button{
-		padding: 5px;
-		margin: 0;
-	}
-	#buttons>language-selector{
-		padding: 5px;
-		margin: 0;
+		height: calc(100% - 98px);
 	}
 	#inputViewRightCard {
 		margin: 8px 16px 16px 8px;
 		width: calc(100% - 24px);
 		height: calc(100% - 98px);
 	}
+	.halfScreen {
+		width: 50%;
+	}
 </style>
 	<template>
 		<div id="componentWrapper">
-			<div class="flex">
+			<div class="halfScreen">
 				<paper-tabs selected="{{leftTab}}" align-bottom="true" no-ink="true" class="header left">
-					<paper-tab>Task description</paper-tab>
+					<paper-tab>Console</paper-tab>
 					<paper-tab>Leaderboard</paper-tab>
 				</paper-tabs>
 
 				<paper-material id="leftCard" elevation="1">
 					<iron-pages selected="{{leftTab}}">
-						<task-display task="{{task}}"></task-display>
+						<tabbed-console id="console" task="{{task}}" on-all-green="_allTestsGreen"></tabbed-console>
 						<challenge-leaderboard id="leaderboard" challenge-id="{{challengeId}}"></challenge-leaderboard>
 					</iron-pages>
 				</paper-material>
 			</div>
-			<div class="flex">
+			<div class="halfScreen">
 				<paper-tabs selected="{{selected}}" align-bottom="true" no-ink="true" class="header right">
 					<paper-tab>Input view</paper-tab>
 					<paper-tab>Code editor view</paper-tab>
@@ -113,17 +90,8 @@
 					</paper-material>
 				</template>
 				<template is="dom-if" if="{{!inputView}}">
-					<paper-material id="topRightCard" elevation="1">
+					<paper-material id="rightCard" elevation="1">
 						<code-editor-with-actions id="codeEditor" task="{{task}}" language="{{language.value}}"></code-editor-with-actions>
-					</paper-material>
-					<paper-material id="botRightCard" elevation="1">
-						<div id="buttons">
-							<paper-icon-button class="self-center" icon="av:play-arrow" on-click="runCode">Run code</paper-icon-button>
-							<language-selector class="self-center" id="languageSelector" task="{{task}}" language="{{language}}"></language-selector>
-							<span class="flex"></span>
-							<paper-button class="self-center" raised noink on-click="runTests">Run tests</paper-button>
-						</div>
-						<run-submit-console id="console" task="{{task}}" on-all-green="_allTestsGreen"></run-submit-console>
 					</paper-material>
 				</template>
 			</div>
@@ -168,7 +136,11 @@
 				'afterPropertiesSet(task, challengeId)'
 			],
 			listeners: {
-				'ws-message': '_onMessage'
+				'ws-message': '_onMessage',
+				'start-loading': '_startLoading'
+			},
+			_startLoading: function(){
+				this.$$('#console').startLoading();
 			},
 			_selectedChanged: function(){
 				switch(this.selected){
@@ -213,12 +185,7 @@
 				this.selected = 1;
 				this.$.leaderboard.refresh();
 			},
-			runCode: function(){
-				this.$$('#codeEditor').run();
-				this.$$('#console').runLoading();
-			},
 			runTests: function(){
-				this.$$('#codeEditor').submit();
 				this.$$('#console').submitLoading();
 			},
 			finishTask: function(){

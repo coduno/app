@@ -1,5 +1,6 @@
 <link rel="import" href="/elements/coder/code-editor/code-editor.html">
 <link rel="import" href="/elements/common/services/template-service.html">
+<link rel="import" href="/elements/coder/code-editor/language-selector.html">
 
 <link rel="import" href="/bower_components/iron-icons/av-icons.html">
 <link rel="import" href="/bower_components/iron-icons/iron-icons.html">
@@ -8,50 +9,75 @@
 <link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 
 <dom-module id="code-editor-with-actions">
-	<style include="iron-flex iron-flex-reverse">
-		:host {
-			display: block;
-			height: 100%;
-		}
-
-		#codeEditor {
-			height: calc(100% - 35px);
-		}
-
-		#codeEditorCommands {
-			height: 35px;
-			@apply(--layout-horizontal-reverse);
-		}
-
-		.maximized {
-			position: fixed;
-			top: 108px;
-			right: 0;
-			height: calc(100% - 120px) !important;
-			width: 100%;
-			z-index: 1;
-		}
-
-		#codeEditorWrapper{
-			height: 100%;
-			width: 100%;
-			background: white;
-		}
-
-		#addFile{
-			position: absolute;
-			right: 2%;
-			bottom: 2%;
-		}
-	</style>
 	<template>
+		<style include="iron-flex iron-flex-reverse">
+			:host {
+				display: block;
+				height: 100%;
+			}
+
+			#codeEditor {
+				height: calc(100% - 60px);
+			}
+
+			#codeEditorCommands {
+				height: 60px;
+				border-bottom: 1px solid black;
+				@apply(--layout-horizontal);
+			}
+
+			.maximized {
+				position: fixed;
+				top: 108px;
+				right: 0;
+				height: calc(100% - 120px) !important;
+				width: 100%;
+				z-index: 1;
+			}
+
+			#codeEditorWrapper{
+				height: 100%;
+				width: 100%;
+				background: white;
+			}
+
+			paper-fab {
+				margin: 10px;
+			}
+
+			#actions {
+				position: absolute;
+				bottom: 2%;
+				width:100%;
+				@apply(--layout-horizontal-reverse);
+			}
+
+			language-selector {
+				@apply(--layout-self-center)
+			}
+
+			span {
+				@apply(--layout-flex)
+			}
+
+			paper-icon-button {
+				@apply(--layout-self-center)
+			}
+		</style>
 		<template-service id="templateService" template="{{template}}"></template-service>
 		<div id="codeEditorWrapper" class$="{{codeEditorWrapperClass}}">
 			<div id="codeEditorCommands">
-				<paper-icon-button on-click="_maximize" class="self-center" icon="{{maximizeIcon}}">Run code</paper-icon-button>
+				<language-selector task="{{task}}" language="{{languageOption}}" style="margin-left: 20px;"></language-selector>
+				<span></span>
+				<paper-icon-button on-click="_maximize" icon="{{maximizeIcon}}"></paper-icon-button>
 			</div>
 			<code-editor id="codeEditor" task-id="{{task.id}}" language="{{language}}" on-code-changed="_setCachedCode"></code-editor>
-			<paper-fab mini id="addFile" on-click="_addFile" icon="file-upload"></paper-fab>
+			<div id="actions">
+				<paper-fab mini on-click="_goToInstructions" icon="chrome-reader-mode"></paper-fab>
+				<paper-fab mini on-click="_download" icon="file-download"></paper-fab>
+				<paper-fab mini on-click="_addFile" icon="file-upload"></paper-fab>
+				<paper-fab mini on-click="submit" icon="av:play-arrow"></paper-fab>
+			</div>
 			<input type="file" name="fileToRun" id="fileToRun" on-change="_filesUploaded" style="display: none;">
 		</div>
 	</template>
@@ -64,6 +90,11 @@
 					notify: true,
 					observer: '_languageChanged'
 				},
+				languageOption: {
+					type: Object,
+					notify: true,
+					observer: '_languageOptionChanged'
+				},
 				task: {
 					type: Object
 				},
@@ -75,10 +106,18 @@
 					observer: '_templateChanged'
 				}
 			},
+			_goToInstructions: function(){
+				window.open(this.task.instructions, '', '_blank');
+			},
+			_download: function(){
+				alert('simulator.jar is not yet available');
+			},
 			run: function(){
+				this.fire('start-loading');
 				this.$$('#codeEditor').run();
 			},
 			submit: function(){
+				this.fire('start-loading');
 				this.$$('#codeEditor').submit();
 			},
 			ready: function(){
@@ -110,6 +149,12 @@
 					return undefined;
 				}
 				return localStorage.getItem('cachedCode.' + this.language);
+			},
+			_languageOptionChanged: function(){
+				if(!this.languageOption){
+					return;
+				}
+				this.language = this.languageOption.value;
 			},
 			_languageChanged: function(){
 				if(this.language){

@@ -45,6 +45,7 @@ Behaviors.ChallengeBehavior = {
 		}
 		var taskResults = {};
 		var i = 0;
+		var hasEndTime = false;
 		for(i=0; i<this.result.taskResults.length; i++){
 			taskResults[this.result.taskResults[i].task.id] = this.result.taskResults[i];
 		}
@@ -55,12 +56,19 @@ Behaviors.ChallengeBehavior = {
 			}
 			if(taskResult.task.id === this.challenge.tasks[i] && taskResult.startTime){
 				this.taskIndex = i;
+				hasEndTime = !!taskResult.endTime;
 			}
 			if(i === 0){
 				this.challengeStartTime = new Date(taskResult.startTime).getTime();
 			}
 		}
 		this.taskStartTime = new Date(taskResults[this.challenge.tasks[this.taskIndex]].task.startTime).getTime();
+		if(hasEndTime){
+			this.taskIndex++;
+			this.startTask();
+			this.startChallenge();
+			return;
+		}
 
 		this.getTask();
 		this.startChallenge();

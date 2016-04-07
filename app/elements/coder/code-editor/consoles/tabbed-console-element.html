@@ -1,0 +1,55 @@
+<link rel="import" href="/bower_components/paper-spinner/paper-spinner.html">
+
+<dom-module id="tabbed-console-element">
+	<style>
+		p {
+			font-family: 'Lucida Console', Monaco, monospace;
+			white-space: pre-wrap;
+			word-break: break-all;
+		}
+		.stderr {
+			color: red;
+		}
+		paper-spinner {
+			margin: auto auto 50% 50%;
+		}
+	</style>
+	<template>
+		<h4>Stdout</h4>
+		<p>{{result.stdout}}</p>
+		<h4>Stderr</h4>
+		<p class="stderr">{{result.stderr}}</p>
+		<h4>Status</h4>
+		<p>{{result.status}}</p>
+		<h4>Failure</h4>
+		<p class="stderr">{{result.failure}}</p>
+		<paper-spinner id="spinner" alt="Loading results"></paper-spinner>
+	</template>
+	<script>
+	 Polymer({
+		 is: 'tabbed-console-element',
+		 properties:{
+			 id: {
+				 type: String
+			 },
+			 result: {
+				 type: Object
+			 }
+		 },
+		 refresh: function(){
+			 this.stopLoading();
+			 this.divClass = 'circle gray';
+		 },
+		 setResult: function(result){
+			 this.result = result;
+			 this.$.spinner.active = false;
+		 },
+		 stopLoading: function(){
+	 		this.$.spinner.active = false;
+		 },
+		 startLoading: function(){
+			 this.$.spinner.active = true;
+		 }
+	 });
+ </script>
+</dom-module>

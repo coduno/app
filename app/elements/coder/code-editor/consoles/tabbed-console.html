@@ -1,0 +1,163 @@
+<link rel="import" href="tabbed-console-element.html">
+<link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="/bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="/bower_components/paper-tabs/paper-tab.html">
+<link rel="import" href="/bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="/bower_components/paper-toast/paper-toast.html">
+
+<dom-module id="tabbed-console">
+	<style include="iron-flex">
+		:host{
+			--paper-tabs-selection-bar-color: #87CEFA;
+			--paper-tab-ink: #87CEFA;
+		}
+		#tabs{
+			background: white;
+			color: black;
+		}
+		.red{
+			color: #CD4F39;
+		}
+		.green{
+			color: #86C67C;
+		}
+	</style>
+	<template>
+		<iron-ajax
+			id="getTestsRequest"
+			handle-as="json"
+			on-response="onTestsResponse"
+			on-error="onTestsError"
+			method="GET"
+			with-credentials="true"
+			>
+		</iron-ajax>
+		<paper-toast id="toast" text="There was a problem when running your code. Please try again later."></paper-toast>
+		<paper-tabs id="tabs" selected="{{selected}}" no-ink="true">
+			<template is="dom-repeat" items="{{tests}}">
+				<paper-tab id="{{_getTabId(item.id)}}">{{_getLabel(index)}}</paper-tab>
+			</template>
+		</paper-tabs>
+		<iron-pages id="pages" selected="{{selected}}">
+			<template is="dom-repeat" items="{{tests}}">
+				<tabbed-console-element id="{{_getConsoleId(item.id)}}" test="{{item.id}}"></tabbed-console-element>
+			</template>
+		</iron-pages>
+	</template>
+	<script>
+		Polymer({
+			is: 'tabbed-console',
+			properties: {
+				counter: {
+					type: Number,
+					value: 1
+				},
+				task: {
+					type: Object,
+					notify: true,
+					reflectToAttribute: true
+				},
+				tests: {
+					type: Array
+				},
+				testStats: {
+					type: Object,
+					value: {}
+				}
+			},
+			observers: [
+				'_afterPropertiesSet(task)'
+			],
+			_getTabId: function(id){
+				return 'tab-' + id;
+			},
+			_getConsoleId: function(id){
+				return 'console-' + id;
+			},
+			_getLabel: function(index){
+				return 'Test ' + (index + 1);
+			},
+			_testAllGreen: function(){
+				if(!this.tests){
+					return;
+				}
+				for(var i = 0;i<this.tests.length; i ++){
+					if(!this.testStats[this.tests[i].id]){
+						return;
+					}
+				}
+				this.fire('all-green');
+			},
+			_afterPropertiesSet: function(){
+				this.testStats = {};
+				this.$.getTestsRequest.url = util.build('/tasks/' + this.task.id + '/tests');
+				this.$.getTestsRequest.generateRequest();
+			},
+			setResult: function(result){
+				if(result.successful === undefined){
+					result.successful = false;
+				}
+				if(result.failure){
+					this.$$('#toast').show();
+				}
+				this.testStats[result.test] = result.successful;
+				this._testAllGreen();
+				var element = this.$$('#' + this._getConsoleId(result.test));
+				var tab =  this.$$('#' + this._getTabId(result.test));
+				this.toggleClass('green', result.successful, tab);
+				this.toggleClass('red', !result.successful, tab);
+				if(!!element){
+					element.setResult(result);
+					element.stopLoading();
+				}
+			},
+			startLoading: function(){
+				this.testStats = {};
+				if(!this.tests){
+					return;
+				}
+				for(var i=0;i<this.tests.length;i++){
+					this.$$('#' + this._getConsoleId(this.tests[i].id)).startLoading();
+					this.toggleClass('green', false, this.$$('#' + this._getTabId(this.tests[i].id)));
+					this.toggleClass('red', false, this.$$('#' + this._getTabId(this.tests[i].id)));
+				}
+			},
+			stopLoading: function(){
+				this.testStats = {};
+				if(!this.tests){
+					return;
+				}
+				for(var i=0;i<this.tests.length;i++){
+					this.$$('#' + this._getConsoleId(this.tests[i].id)).stopLoading();
+				}
+			},
+			error: function(err){
+				console.log(err);
+			},
+			initTestElement: function(id){
+				var element = document.createElement('tabbed-console-element');
+				element.id = this._getConsoleId(id);
+				element.test = id;
+				this.$.pages.appendChild(element);
+				this.counter ++;
+			},
+			onTestsResponse: function(r){
+				var data = r.detail.response;
+				this.tests = data;
+				for(var i=0;i<data.length;i++){
+					this.initTestElement(data[i].id);
+				}
+				this.selected = 0;
+			},
+			onTestsError: function(err){
+				util.error(err);
+			},
+			show: function(){
+				this.style = '';
+			},
+			hide: function(){
+				this.style = 'display: none';
+			}
+		});
+	</script>
+</dom-module>
