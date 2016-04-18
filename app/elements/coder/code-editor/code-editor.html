@@ -1,23 +1,46 @@
-<link rel="import" href="/elements/coder/challenge/sock-ws-element.html">
-<link rel="import" href="/elements/coder/challenge/ws-element.html">
-<link rel="import" href="/elements/common/services/user-submission-service.html">
+<link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="/bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+
+<link rel="import" href="file-explorer/explorer-folder.html">
+<link rel="import" href="file-explorer/context-menu.html">
 
 <dom-module id="code-editor">
-	<style>
+	<style include="iron-flex">
 		:host {
 			display: block;
 			height: 100%;
 		}
-
 		#editor {
-			height: 100%;
+			height: calc(100% - 36px);
 			z-index:0;
+		}
+		.container {
+			height: 100%;
+			@apply(--layout-horizontal);
+		}
+		.editor-container {
+			@apply(--layout-flex);
+			height: 100%;
+			@apply(--layout-vertical);
+		}
+		.explorer-container {
+			width: 200px;
 		}
 	</style>
 	<template>
-		<user-submission-service id="submissionService"></user-submission-service>
-		<ws-element url="{{wsUrl}}"></ws-element>
-		<div id="editor"></div>
+		<context-menu id="contextMenu"></context-menu>
+		<div class="container">
+			<div class="explorer-container" style$="{{explorerStyle}}">
+				<explorer-folder id="rootFolder" meta="{{rootFolder}}"></explorer-folder>
+			</div>
+			<div class="editor-container">
+				<div>
+					<paper-icon-button icon="{{toggleExplorerIcon}}" on-click="_toggle"></paper-icon-button>
+				</div>
+				<div id="editor"></div>
+			</div>
+		</div>
 	</template>
 	<script src="/bower_components/ace-min-noconflict/ace.js" type="application/javascript"></script>
 	<script src="/bower_components/ace-min-noconflict/ext-language_tools.js" type="application/javascript"></script>
@@ -26,30 +49,35 @@
 		Polymer({
 			is: 'code-editor',
 			properties: {
-				wsUrl: {
-					type: String,
-					notify: true
-				},
-				taskId: {
-					type: String,
-					reflectToAttribute: true
-				},
 				language: {
 					type: String,
 					reflectToAttribute: true,
 					observer: '_languageChanged'
 				},
-				filename: String,
-				mimeType: String
+				toggleExplorerIcon: {
+					type: String,
+					notify: true,
+					value: 'chevron-left'
+				},
+				rootFolder: {
+					type: Object,
+					notify: true
+				},
+				explorerStyle :{
+					type: String,
+					value: ''
+				},
+				selectedFile: {
+					type: Object,
+					notify: true
+				}
 			},
-			run: function() {
-				this.$.submissionService.run(this.taskId, this.language, this.getFile());
-			},
-			submit: function() {
-				this.$.submissionService.submit(this.taskId, this.language, this.getFile());
+			listeners: {
+				'show-menu': '_showMenu',
+				'file-selected': '_fileSelected'
 			},
 			ready: function(){
-				this.wsUrl = util.getWSUrl('/ws');
+				this._addContextMenuListener();
 				ace.require('ace/ext/language_tools');
 				this.$.editor = ace.edit(this.$.editor);
 				this.$.editor.setTheme('ace/theme/chrome');
@@ -57,39 +85,79 @@
 					enableBasicAutocompletion: true
 				});
 				var self = this;
-				this.$.editor.commands.addCommand({
-					name: 'run',
-					bindKey: {
-						win: 'Ctrl-Enter',
-					},
-					exec: function(){
-						self.runCodeNormal();
-						console.log('loading animation not started');
-					},
-					readOnly: true
-				});
 				this.$.editor.getSession().on('change', function(){
-					self.fire('code-changed', self.$.editor.getValue());
+					var content = self.$.editor.getValue();
+					self.selectedFile.setContent(content);
+					self.fire('code-changed', self.rootFolder);
+				});
+				this.$.editor.commands.addCommand({
+						name: 'run',
+						bindKey: {
+							win: 'Ctrl-Enter'
+						},
+						exec: function(){
+								self.fire('run-code');
+						},
+						readOnly: true
 				});
 				this.$.editor.$blockScrolling = Infinity;
+				this.clearFiles();
 			},
-			getFile: function() {
-				var blob = new Blob([this.$.editor.getValue()], {type: this.mimeType });
-				blob.name = this.filename;
+			clearFiles: function(){
+				this.rootFolder = {
+					'name': 'root',
+					'isFolder': true,
+					'order': 0,
+					'isRoot': true
+				};
+				this.setValue('');
+				if (!!this.selectedFile){
+					this.selectedFile.markUnselected();
+					this.selectedFile = null;
+				}
+			},
+			_fileSelected: function(e, detail){
+				if (!!this.selectedFile){
+					this.selectedFile.markUnselected();
+				}
+				this.selectedFile = detail;
+				this.setValue(this.selectedFile.getContent());
+			},
+			_toggle: function(){
+				if (this.toggleExplorerIcon === 'chevron-left'){
+					this.explorerStyle = 'display: none';
+					this.toggleExplorerIcon = 'chevron-right';
+				}else{
+					this.explorerStyle = '';
+					this.toggleExplorerIcon = 'chevron-left';
+				}
+			},
+			setFilesJson: function(rootFolder) {
+				this.rootFolder = rootFolder;
+			},
+			getFiles: function(){
+				var jsonFiles = this.$.rootFolder.getSquashedFilesAsJson();
+				var files = [];
+				for (var i = 0; i < jsonFiles.length; i++){
+					files.push(this.getFile(jsonFiles[i]));
+				}
+				return files;
+			},
+			getFile: function(jsonFile) {
+				var blob = new Blob([jsonFile.content]);
+				blob.name = jsonFile.name;
 				return blob;
 			},
 			setValue: function(text){
 				this.$.editor.getSession().setValue(text);
 			},
-			setFile: function(f) {
+			addFile: function(f) {
 				var that = this;
 				var fr = new FileReader();
 				fr.onload = function(e) {
-					that.setValue(e.target.result);
+					that.$.rootFolder.putSelectedFile(f.name, e.target.result);
 				};
 				fr.readAsText(f);
-				this.mimeType = f.type;
-				this.filename = f.name;
 			},
 			_languageChanged: function(){
 				if(this.language){
@@ -114,6 +182,34 @@
 					mode = 'text';
 				}
 				this.$.editor.getSession().setMode('ace/mode/' + mode);
+			},
+			_showMenu: function(event, data){
+				this.$.contextMenu.showMenu(data);
+			},
+			_addContextMenuListener: function(){
+				var self = this;
+				document.addEventListener('click', function(e){
+					if (!self._clickInsideElement(e, 'context-menu')){
+						if (self._clickInsideElement(e, 'explorer-folder')){
+							return;
+						}
+						document.querySelector('context-menu').hideMenu();
+					}
+				});
+			},
+			_clickInsideElement: function(e, elName){
+				elName = elName.toLowerCase();
+				var el = e.srcElement || e.target;
+				if (el.tagName.toLowerCase() === elName){
+					return el;
+				}else{
+					while (!!(el = el.parentNode)){
+						if (!!el.tagName && el.tagName.toLowerCase() === elName){
+							return el;
+						}
+					}
+				}
+				return false;
 			}
 		});
 	</script>

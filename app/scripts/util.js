@@ -85,11 +85,5 @@ var util = {
 		}
 
 		return result + ' ' + util.padTime(date.getUTCHours()) + ':' + util.padTime(date.getUTCMinutes()) + ' UTC';
-	},
-	languages: [
-		'java',
-		'py',
-		'c',
-		'js'
-	]
+	}
 };
