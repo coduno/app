@@ -87,6 +87,11 @@
 				this.userInfo.user = user;
 				this.userInfo.organization = organization;
 				this.refreshMenu();
+				if(this.accessLink){
+					page(this.accessLink);
+					this.accessLink = '';
+					return;
+				}
 				page('/');
 			},
 			logout: function() {

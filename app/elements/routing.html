@@ -1,6 +1,10 @@
 <script src="../bower_components/page/page.js"></script>
 <script>
 window.addEventListener('WebComponentsReady', function() {
+	function persistAccessLink(ctx){
+		app.accessLink = ctx.path;
+	}
+
 	// COMMON
 	page('/', function() {
 		if (app.userInfo.organization) {
@@ -58,7 +62,8 @@ window.addEventListener('WebComponentsReady', function() {
 	});
 
 	// COMPANY
-	page('/challenge/create', function() {
+	page('/challenge/create', function(ctx) {
+		persistAccessLink(ctx);
 		Polymer.Base.importHref('/elements/company/task/task-list.html', function(){
 			var page = document.createElement('task-list');
 			page.startChallengeCreation();
@@ -67,6 +72,7 @@ window.addEventListener('WebComponentsReady', function() {
 	});
 
 	page('/challenges/:id', function(ctx) {
+		persistAccessLink(ctx);
 		Polymer.Base.importHref('/elements/company/challenge/challenge-detail.html', function(){
 			var page = document.createElement('challenge-detail');
 			page.challengeId = ctx.params.id;
@@ -75,6 +81,7 @@ window.addEventListener('WebComponentsReady', function() {
 	});
 
 	page('/challenge/template/:templateId/create', function(ctx) {
+		persistAccessLink(ctx);
 		Polymer.Base.importHref('/elements/company/challenge/challenge-create.html', function(){
 			var page = document.createElement('challenge-create');
 			page.challengeTemplate = ctx.params.templateId;
@@ -82,13 +89,15 @@ window.addEventListener('WebComponentsReady', function() {
 		});
 	});
 
-	page('/challengetemplates', function () {
+	page('/challengetemplates', function(ctx) {
+		persistAccessLink(ctx);
 		Polymer.Base.importHref('/elements/company/challenge-template/challenge-template-list.html', function(){
 			app.swapContent(document.createElement('challenge-template-list'));
 		});
 	});
 
-	page('/challenges/template/:id', function(ctx){
+	page('/challenges/template/:id', function(ctx) {
+		persistAccessLink(ctx);
 		Polymer.Base.importHref('/elements/company/challenge-template/challenge-template-detail.html', function(){
 			var page = document.createElement('challenge-template-detail');
 			page.challengeTemplateId = ctx.params.id;
@@ -96,13 +105,15 @@ window.addEventListener('WebComponentsReady', function() {
 		});
 	});
 
-	page('/tasks', function() {
+	page('/tasks', function(ctx) {
+		persistAccessLink(ctx);
 		Polymer.Base.importHref('/elements/company/task/task-list.html', function(){
 			app.swapContent(document.createElement('task-list'));
 		});
 	});
 
 	page('/tasks/:id', function(ctx) {
+		persistAccessLink(ctx);
 		Polymer.Base.importHref('/elements/company/task/task-detail.html', function() {
 			var page = document.createElement('task-detail');
 			page.getTask(ctx.params.id);
@@ -110,20 +121,23 @@ window.addEventListener('WebComponentsReady', function() {
 		});
 	});
 
-	page('/task/create', function(){
+	page('/task/create', function(ctx) {
+		persistAccessLink(ctx);
 		Polymer.Base.importHref('/elements/company/task/task-form.html', function(){
 			app.swapContent(document.createElement('task-form'));
 		});
 	});
 
-	page('/template/create', function(){
+	page('/template/create', function(ctx) {
+		persistAccessLink(ctx);
 		Polymer.Base.importHref('/elements/company/task/template/template-form.html', function(){
 			app.swapContent(document.createElement('template-form'));
 		});
 	});
 
 
-	page('/task/edit/:id', function(ctx){
+	page('/task/edit/:id', function(ctx) {
+		persistAccessLink(ctx);
 		Polymer.Base.importHref('/elements/company/task/task-form.html', function(){
 			var page = document.createElement('task-form');
 			page.taskId = ctx.params.id;
@@ -131,7 +145,8 @@ window.addEventListener('WebComponentsReady', function() {
 		});
 	});
 
-	page('/user/:id', function(ctx){
+	page('/user/:id', function(ctx) {
+		persistAccessLink(ctx);
 		Polymer.Base.importHref('/elements/company/user/user-detail.html', function(){
 			var page = document.createElement('user-detail');
 			page.getData(ctx.params.id);
@@ -139,8 +154,8 @@ window.addEventListener('WebComponentsReady', function() {
 		});
 	});
 
-	page('/user/:userId/challenge/:challengeId', function(ctx){
-		app.route = 'userChallenge';
+	page('/user/:userId/challenge/:challengeId',function(ctx) {
+		persistAccessLink(ctx);
 		Polymer.Base.importHref('/elements/company/user/challenge/user-challenge-detail.html', function(){
 			var page = document.createElement('user-challenge-detail');
 			page.getData(ctx.ctx.userId, ctx.ctx.challengeId);
@@ -154,13 +169,15 @@ window.addEventListener('WebComponentsReady', function() {
 		app.inviteByToken(ctx.params.token);
 	});
 
-	page('/mychallenges', function() {
+	page('/mychallenges', function(ctx) {
+		persistAccessLink(ctx);
 		Polymer.Base.importHref('/elements/coder/challenge/my/my-challenges.html', function(){
 			app.swapContent(document.createElement('my-challenges'));
 		});
 	});
 
 	page('/contest/:id', function(ctx) {
+		persistAccessLink(ctx);
 		Polymer.Base.importHref('/elements/coder/challenge/page/challenge-page.html', function(){
 			var page = document.createElement('challenge-page');
 			page.challengeId = ctx.params.id;
@@ -169,6 +186,7 @@ window.addEventListener('WebComponentsReady', function() {
 	});
 
 	page('/contest/:id/result', function(ctx) {
+		persistAccessLink(ctx);
 		Polymer.Base.importHref('/elements/coder/challenge/result/contest-result.html', function(){
 			var page = document.createElement('contest-result');
 			page.challengeId = ctx.params.id;
