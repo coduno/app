@@ -2,6 +2,7 @@
 <link rel="import" href="/bower_components/paper-material/paper-material.html">
 <link rel="import" href="/bower_components/paper-input/paper-input.html">
 <link rel="import" href="/bower_components/paper-button/paper-button.html">
+<link rel="import" href="/bower_components/iron-form/iron-form.html">
 
 <link rel="import" href="/elements/common/services/user-service.html">
 <link rel="import" href="change-password-dialog.html">
@@ -20,7 +21,7 @@
 		.aligned-item {
 			margin-left: 200px;
 		}
-		#fieldList {
+		#form {
 			@apply(--layout-vertical);
 		}
 		#buttons {
@@ -28,7 +29,7 @@
 		}
 
 		paper-input {
-			width: 250px;
+			width: 400px;
 		}
 
 		#wrapper {
@@ -41,21 +42,27 @@
 		<user-service id="userService" user="{{user}}"></user-service>
 		<paper-material id="wrapper" elevation="1" class="card">
 			<div class="mainContent">
-				<div id="fieldList">
+				<form is="iron-form" id="form">
 					<div>
 						<div class="list-item">
 							<div class="item-label">Name</div>
 							<div>{{fullName}}</div>
 						</div>
 						<div class="aligned-item">
-							<paper-input label="First name" value="{{user.firstName}}"></paper-input>
-							<paper-input label="Last name" value="{{user.lastName}}"></paper-input>
+							<paper-input label="First name" value="{{user.firstName}}"
+								pattern="^[\w-\. ]{2,40}$" auto-validate
+								error-message="Must be between 2 and 40 chars and only contain letters."></paper-input>
+							<paper-input label="Last name" value="{{user.lastName}}"
+								pattern="^[\w-\. ]{2,40}$" auto-validate
+								error-message="Must be between 2 and 40 chars and only contain letters."></paper-input>
 						</div>
 					</div>
 					<div>
 						<div class="list-item">
 							<div class="item-label">Username</div>
-							<paper-input value="{{user.username}}" no-label-float></paper-input>
+							<paper-input value="{{user.username}}" no-label-float
+								required minlength="5" maxlength="40" auto-validate pattern="^[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*$"
+								error-message="Must be between 5 and 40 chars and only contain letters and numbers."></paper-input>
 						</div>
 						<div class="aligned-item">
 							<p>Your public username is the same as your profile address</p>
@@ -65,7 +72,8 @@
 					<div>
 						<div class="list-item">
 							<div class="item-label">Email</div>
-							<paper-input value="{{user.email}}" no-label-float></paper-input>
+							<paper-input value="{{user.email}}" no-label-float type="email"
+								required auto-validate error-message="Please enter a valid email 'me@mail.example'"></paper-input>
 						</div>
 					</div>
 					<div>
@@ -74,9 +82,9 @@
 							<paper-button class="primary" on-click="_showChangePasswordDialog">Change password</paper-button>
 						</div>
 					</div>
-				</div>
+				</form>
 				<div class="aligned-item">
-					<paper-button raised on-click="_saveUser" class="success">Save</paper-button>
+					<paper-button raised on-click="_saveUser" class="success" disabled="{{saveDisabled}}">Save</paper-button>
 				</div>
 			</div>
 		</paper-material>
@@ -98,12 +106,25 @@
 			password: {
 				type: Object,
 				value: {}
+			},
+			saveDisabled: {
+				type: Boolean,
+				value: true
 			}
+		},
+		listeners: {
+			'keyup': '_userChanged'
 		},
 		ready: function(){
 			this.$$('user-service').whoAmI();
 		},
+		_userChanged: function(){
+			this.saveDisabled = !this.$.form.validate();
+		},
 		_saveUser: function(){
+			if(!this.$.form.validate()){
+				return;
+			}
 			this.$.userService.updateMe(this.user);
 		},
 		_showChangePasswordDialog: function(){
