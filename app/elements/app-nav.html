@@ -3,6 +3,8 @@
 <link rel="import" href="/bower_components/paper-tabs/paper-tab.html">
 <link rel="import" href="/bower_components/paper-progress/paper-progress.html">
 <link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="/bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="/bower_components/paper-menu/paper-menu.html">
 
 <dom-module id="app-nav">
 	<template>
@@ -16,6 +18,15 @@
 			}
 		</style>
 		<template is="dom-if" if="{{isLoggedIn}}">
+			<iron-ajax
+				id="switchOrganizationRequest"
+				method="PUT"
+				last-response="{{user}}"
+				handle-as="json"
+				content-type="application/json"
+				with-credentials="true"
+				on-error="_onSwitchOrganizationError">
+			</iron-ajax>
 			<paper-toolbar>
 				<paper-icon-button icon="code"></paper-icon-button>
 				<div>CODUNO</div>
@@ -35,6 +46,15 @@
 						<span></span>
 					</paper-tabs>
 				</div>
+				<template is="dom-if" if="showOrganizationSwitch">
+					<paper-dropdown-menu selected-item="{{loggedInAs}}">
+						<paper-menu id="loginAsMenu" class="dropdown-content">
+							<template is="dom-repeat" items="{{loginAsOptions}}">
+								<option value="{{item.id}}">{{_getLoginAsName(item)}}</option>
+							</template>
+						</paper-menu>
+					</paper-dropdown-menu>
+				</template>
 				<paper-menu-button horizontal-align="right">
 					<paper-icon-button icon="supervisor-account" class="dropdown-trigger"></paper-icon-button>
 					<paper-menu class="dropdown-content">
@@ -74,9 +94,19 @@
 					type: Number,
 					value: 0
 				},
-				userInfo: {
+				user: {
 					type: Object,
-					reflectToAttribute: true
+					notify: true,
+					reflectToAttribute: true,
+					observer: '_userChanged'
+				},
+				loggedInAs: {
+					type: Object,
+					observer: '_loggedInAsChanged'
+				},
+				showOrganizationSwitch: {
+					type: Boolean,
+					value: false
 				}
 			},
 			startLoading: function(){
@@ -91,13 +121,78 @@
 					this.progressStyle = 'display: none;';
 				}
 			},
-			refresh: function(){
-				this.isCompany = !!this.userInfo.organization;
-				this.isCoder = !!this.userInfo.user && !this.isCompany;
-				this.isLoggedIn = this.isCompany || this.isCoder;
-				if(this.userInfo && this.userInfo.user){
-					this.isAdmin = this.userInfo.user.admin;
+			_userChanged: function(){
+				if(!this.user || !this.user.organizations || this.user.organizations.length === 0){
+					return;
 				}
+				this.showOrganizationSwitch = true;
+				this.loginAsOptions = [];
+				this.push('loginAsOptions', this.user);
+				var i;
+				for(i=0;i<this.user.organizations.length; i++){
+					this.push('loginAsOptions', this.user.organizations[i]);
+				}
+				var index = 0;
+				for(i=0; i<this.loginAsOptions.length; i++){
+					if(this.user.activeOrganization === this.loginAsOptions[i].id){
+						index = i;
+						break;
+					}
+				}
+				this._setLoginAsMenuSelectedIndex(index);
+				this.refresh();
+				page('/');
+			},
+			refresh: function(){
+				if(!this.user){
+					this.isLoggedIn = false;
+					return;
+				}
+				this.isCompany = !!this.user.activeOrganization;
+				this.isCoder = !!this.user && !this.isCompany;
+				this.isLoggedIn = this.isCompany || this.isCoder;
+				this.isAdmin = this.user.admin;
+			},
+			_loggedInAsChanged: function(){
+				if(!this.loggedInAs){
+					return;
+				}
+				var activeOrganization = null;
+				if(this.loggedInAs.value !== this.user.id){
+					activeOrganization = this.loggedInAs.value;
+				}
+				this.$$('#switchOrganizationRequest').body = {id: activeOrganization};
+				this.$$('#switchOrganizationRequest').url = util.build('/user/organizations/active');
+				this.$$('#switchOrganizationRequest').generateRequest();
+			},
+			_getLoginAsName: function(item){
+				if(!item){
+					return '';
+				}
+				if(item.hasOwnProperty('username') && !!item.username){
+					return item.username;
+				}
+				if(!item.name){
+					return '';
+				}
+				return item.name;
+			},
+			// NOTE - sometimes the user with activeOrganization arrives before
+			// NOTE - loginAsMenu is initialized. Therefore we need to set a timeout
+			// NOTE - before we update the selected index.
+			_setLoginAsMenuSelectedIndex: function(index){
+				var menu = this.$$('#loginAsMenu');
+				if(menu){
+					menu.selected = index;
+					return;
+				}
+				var element = this;
+				setTimeout(function(){
+					element.$$('#loginAsMenu').selected = index;
+				}, 500);
+			},
+			__onSwitchOrganizationError: function(err){
+				util.error(err);
 			}
 		});
 	</script>

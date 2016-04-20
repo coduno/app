@@ -15,15 +15,6 @@
 			on-error="_onUserError"
 			with-credentials="true">
 		</iron-ajax>
-		<iron-ajax
-			id="organizationRequest"
-			method="GET"
-			handle-as="json"
-			on-response="onOrganization"
-			on-error="onOrganizationError"
-			with-credentials="true"
-		>
-		</iron-ajax>
 	</template>
 	<script type="application/javascript" src="/scripts/behaviors/service-behavior.js"></script>
 	<script>
@@ -43,9 +34,7 @@
 			},
 			_onUser: function(r){
 				// A successful response means the user has successfully authenticated
-				this.loggedInUser = r.detail.response;
-				this.$.organizationRequest.url = util.build('/user/organization');
-				this.$.organizationRequest.generateRequest();
+				this.fire('user-ok', r.detail.response);
 			},
 			_onUserError: function(err) {
 				if (err.detail.request.xhr.status !== 401) {
@@ -54,12 +43,6 @@
 				}
 
 				this.fire('user-error');
-			},
-			onOrganization: function() {
-				this.fire('user-ok', {user: this.loggedInUser, organization: this.$.organizationRequest.lastResponse});
-			},
-			onOrganizationError: function() {
-				this.fire('user-ok', {user: this.loggedInUser});
 			}
 		});
 	</script>

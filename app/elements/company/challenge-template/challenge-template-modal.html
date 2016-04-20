@@ -93,7 +93,6 @@
 				this.challengeTemplateToSave.tasks = taskIds;
 				this.challengeTemplateToSave.duration = 60 * this.challengeTemplateDuration;
 				this.challengeTemplateToSave.endpointId = this.selectedEndpoint.value;
-				this.challengeTemplateToSave.organizationId = util.organization().id;
 				this.$.challengeTemplateService.save(this.challengeTemplateToSave);
 				this.fire('challenge-template-created');
 				this.$.dialog.close();

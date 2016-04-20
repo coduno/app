@@ -127,7 +127,7 @@
 				this.task.duration = this.task.duration * 60;
 				this.task.endpointId = this.selectedEndpoint ? this.selectedEndpoint.value : null;
 				this.task.runnerId = this.selectedRunner ? this.selectedRunner.value : null;
-				this.task.organizationId = util.organization().id;
+				// TODO - add organization id from a dropdown
 				this.task.skillMap = {'CODING_SPEED': 1.0};
 				this.$.taskService.save(this.task);
 			},

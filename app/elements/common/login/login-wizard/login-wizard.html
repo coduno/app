@@ -98,8 +98,8 @@ Polymer({
 		this.exitAnimation = 'slide-right-animation';
 		this.selected = pageEmail;
 	},
-	_userOk: function(e, userInfo){
-		app.login(userInfo.user, userInfo.organization);
+	_userOk: function(e, user){
+		app.login(user);
 	}
 });
 </script>

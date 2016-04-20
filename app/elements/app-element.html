@@ -12,7 +12,7 @@
 	</style>
 	<template>
 		<paper-header-panel class="fullHeight">
-			<app-nav id="appNav" user-info="{{userInfo}}"></app-nav>
+			<app-nav id="appNav" user="{{user}}"></app-nav>
 			<div id="sections" class="content">
 			</div>
 		</paper-header-panel>
@@ -46,7 +46,7 @@
 					type: Object,
 					notify: true
 				},
-				userInfo: {
+				user: {
 					type: Object,
 					notify: true,
 					value: {}
@@ -67,7 +67,7 @@
 				var self = this;
 				var cookieService = document.createElement('cookie-service');
 				cookieService.addEventListener('user-ok', function(e){
-					self.userInfo = e.detail;
+					self.user = e.detail;
 					self.refreshMenu();
 				});
 				cookieService.addEventListener('user-error', function(){
@@ -83,14 +83,13 @@
 				this.$.appNav.stopLoading();
 				this.ironPagesStyle = '';
 			},
-			login: function(user, organization) {
-				this.userInfo.user = user;
-				this.userInfo.organization = organization;
+			login: function(user) {
+				this.user = user;
 				this.refreshMenu();
 				page('/');
 			},
 			logout: function() {
-				this.userInfo = {};
+				this.user = null;
 				localStorage.clear();
 				this.refreshMenu();
 				page('/login');

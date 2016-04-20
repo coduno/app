@@ -3,9 +3,9 @@
 window.addEventListener('WebComponentsReady', function() {
 	// COMMON
 	page('/', function() {
-		if (app.userInfo.organization) {
+		if (app.user.activeOrganization) {
 			page('/challengetemplates');
-		} else if(app.userInfo.user){
+		} else if(app.user){
 			page('/mychallenges');
 		} else {
 			page('/login');
@@ -32,7 +32,6 @@ window.addEventListener('WebComponentsReady', function() {
 
 	page('/login', function(ctx) {
 		app.initUserInfo = false;
-		app.isLoggedIn = false;
 		Polymer.Base.importHref('/elements/common/login/login-wizard/login-wizard.html', function(){
 			var page = document.createElement('login-wizard');
 			app.swapContent(page);

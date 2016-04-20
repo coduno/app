@@ -92,11 +92,8 @@
 				this.$.startTaskRequest.generateRequest();
 			},
 			getAll: function(){
-				if(!util.organization()){
-					return page('/');
-				}
 				this.app.startLoading();
-				this.$.getMultiTasks.url = util.build('/tasks?organization=' + util.organization().id);
+				this.$.getMultiTasks.url = util.build('/tasks');
 				this.$.getMultiTasks.generateRequest();
 			},
 			finishTask: function(resultKey, taskIndex, lastSubmissionKey){

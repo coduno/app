@@ -28,14 +28,6 @@ var util = {
 
 		return prefix + suffix;
 	},
-	organization: function() {
-		var app = document.querySelector('#app');
-		return app.userInfo.organization;
-	},
-	user: function() {
-		var app = document.querySelector('#app');
-		return app.userInfo.user;
-	},
 	computeDuration: function(duration) {
 		var minutes = Math.floor(duration / 60);
 		var hours = Math.floor(minutes / 60);
