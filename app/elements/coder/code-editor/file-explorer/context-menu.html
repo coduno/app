@@ -13,7 +13,6 @@
 				padding: 2px 5px;
 				background-color: white;
 			}
-
 			.nav-item:hover {
 				cursor: pointer;
 				background-color: lightgray;
@@ -23,7 +22,7 @@
 			}
 		</style>
 		<div id="contextMenuHost" style$="{{contextStyle}}">
-			<template is="dom-if" if="{{selectedItem.meta.isFolder}}">
+			<template is="dom-if" if="{{handleDirectory(selectedItem)}}">
 				<div class="nav-item" on-click="_addFolder">
 					<iron-icon icon="create-new-folder"></iron-icon>
 					Add folder
@@ -33,16 +32,14 @@
 					Add file
 				</div>
 			</template>
-			<template is="dom-if" if="{{!isRoot}}">
-				<div class="nav-item" on-click="_rename">
-					<iron-icon icon="create"></iron-icon>
-					Rename
-				</div>
-				<div class="nav-item" on-click="_delete">
-					<iron-icon icon="delete"></iron-icon>
-					Delete
-				</div>
-			</template>
+			<div class="nav-item" on-click="_rename">
+				<iron-icon icon="create"></iron-icon>
+				Rename
+			</div>
+			<div class="nav-item" on-click="_delete">
+				<iron-icon icon="delete"></iron-icon>
+				Delete
+			</div>
 		</div>
 	</template>
 	<script>
@@ -62,23 +59,21 @@
 					type: Object,
 					notify: true,
 					value: {}
-				},
-				isRoot: {
-					type: Boolean,
-					notify: true
 				}
 			},
-			showMenu: function(data){
-				if (this.pos.x === data.x && this.pos.y === data.y){
+			handleDirectory: function(selectedItem) {
+				return !selectedItem.tree.isLeaf();
+			},
+			showMenu: function(data) {
+				if (this.pos.x === data.x && this.pos.y === data.y) {
 					return;
 				}
 				this.contextStyle = '';
 				this.selectedItem = data.element;
-				this.notifyPath('selectedItem.meta.isFolder', this.selectedItem.meta.isFolder);
-				this.isRoot = this.selectedItem.meta.isFolder && this.selectedItem.meta.name === 'root';
+				this.notifyPath('selectedItem.isFolder', this.selectedItem.isFolder);
 				this._updatePosition(data);
 			},
-			_updatePosition: function(data){
+			_updatePosition: function(data) {
 				this.pos = {};
 				this.pos.x = data.x;
 				this.pos.y = data.y;
@@ -90,23 +85,23 @@
 			},
 			_addFolder: function(){
 				this.hideMenu();
-				if (!this.selectedItem.meta.isFolder){
+				if (!this.selectedItem.isFolder) {
 					return;
 				}
 				this.selectedItem.addFolder();
 			},
 			_addFile: function() {
 				this.hideMenu();
-				if (!this.selectedItem.meta.isFolder){
+				if (!this.selectedItem.isFolder) {
 					return;
 				}
 				this.selectedItem.addFile();
 			},
-			_rename: function(){
+			_rename: function() {
 				this.selectedItem.rename();
 				this.hideMenu();
 			},
-			_delete: function(){
+			_delete: function() {
 				this.selectedItem.delete();
 				this.hideMenu();
 			}

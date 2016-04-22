@@ -1,20 +1,227 @@
+<link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="/bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="/bower_components/paper-button/paper-button.html">
+
+<script src="/scripts/tree.js" type="application/javascript"></script>
+
 <dom-module id="explorer-item">
 	<template>
 		<style>
-			.item-wrapper:hover {
-				background-color: lightgray;
-				cursor: pointer;
-			}
-			.item-wrapper {
+		 	div#file {
+				background-color: inherit;
 				@apply(--layout-horizontal);
 				padding: 3px;
 			}
-			.item-name {
-				margin-left: 2px;
+			div#file.selected, div#file:hover {
+				background-color: lightgray;
+			}
+			div#file:hover {
+				cursor: pointer;
 			}
 			input {
 				width: calc(100% - 26px);
 			}
 		</style>
+		<style include="iron-flex"></style>
+		<div class$="[[className]]" id="wrapper">
+			<template is="dom-if" if="{{isFolder}}">
+				<iron-icon icon="folder"></iron-icon>
+			</template>
+			<template is="dom-if" if="{{!isFolder}}">
+				<iron-icon icon="assignment"></iron-icon>
+			</template>
+			<template is="dom-if" if="{{renaming}}">
+				<input id="input" type="text" value="[[path + '/' + name]]" on-keyup="_handleRename" autofocus>
+			</template>
+			<template is="dom-if" if="{{!renaming}}">
+				<div class="name">{{name}}</div>
+			</template>
+		</div>
+		<template is="dom-repeat" items="{{childItems}}">
+			<explorer-item tree="{{item.tree}}" name="{{item.name}}" path="{{item.path}}"></explorer-item>
+		</template>
+		<paper-toast id="toast"></paper-toast>
+
 	</template>
+	<script src="/scripts/tree.js" type="application/javascript"></script>
+	<script>
+		Polymer({
+			is: 'explorer-item',
+			properties: {
+				name: {
+					type: String,
+					notify: true,
+					reflectToAttribute: true
+				},
+				tree: {
+					type: String,
+					notify: true,
+					reflectToAttribute: true,
+					observer: '_treeChanged'
+				},
+				path: {
+					type: String,
+					notify: true,
+					reflectToAttribute: true
+				},
+				renaming: {
+					type: Boolean,
+					notify: true,
+					value: false
+				},
+				isFolder: {
+					type: Boolean,
+					notify: true,
+					value: false
+				},
+				className: {
+					type: String,
+					notify: true,
+					value: ''
+				},
+				childItems: {
+					type: Array,
+					notify: true,
+					value: [],
+					reflectToAttribute: true
+				}
+			},
+			listeners: {
+				'contextmenu': '_contextmenu',
+				'click': 'selectFile'
+			},
+			observers: [
+				'_updateIndent(path, tree)'
+			],
+			ready: function() {
+				console.log("explorer-item is ready.")
+			},
+			_updateIndent: function(path, tree) {
+				this.$.wrapper.style.marginLeft = (path.split(Tree.separator).length - 1) * 20 + 'px';
+
+				if (!tree) {
+					return;
+				}
+
+				tree = JSON.parse(tree);
+
+				if (Tree.isLeaf(tree)) {
+					return;
+				}
+
+				tree = Tree.fromJSON(tree);
+				if (!tree || !tree.value) {
+					console.log('Failed to generate tree from JSON.');
+					return;
+				}
+
+				this.set('childItems', Object.keys(tree.value).map(function(key) {
+					return {
+						name: key,
+						tree: JSON.stringify(Tree.toJSON(tree.value[key])),
+						path: path + Tree.separator + key
+					};
+				}));
+			},
+			_treeChanged: function(tree) {
+				this.set('isFolder', !Tree.isLeaf(tree));
+			},
+			_contextmenu: function(e) {
+				e.preventDefault();
+				this.fire('show-menu', {
+					'element': this,
+					'x': e.pageX,
+					'y': e.pageY
+				});
+			},
+			_handleRename: function(e) {
+				// "Escape" key.
+				if (e.keyCode === 27) {
+					this.set('renaming', false);
+					return;
+				}
+
+				// Not "Return" key.
+				if (e.keyCode !== 13) {
+					return;
+				}
+
+				if (!this.newName || this.newName.length === 0) {
+					this.$.toast.text = this.isFolder ? 'Folder name cannot be empty.' : 'File name cannot be empty.';
+					this.$.toast.show();
+					return;
+				}
+
+				this.fire('rename', this);
+			},
+			startRenaming: function() {
+				this.set('renaming', true);
+			},
+			finishRenaming: function(target) {
+				// TODO: Use tree to check for a conflict.
+				var conflict = tree.exists(target);
+
+				if (conflict) {
+					this.$.toast.text = 'A file with the same name exists';
+					this.$.toast.show();
+					return;
+				}
+
+				this.set('name', target);
+				this.set('renaming', false);
+			},
+			delete: function() {
+				if (this.isFolder) {
+					return;
+				}
+
+				this.fire('delete', this);
+			},
+			_afterMetaSet: function() {
+				if (this.selected) {
+					this.selectFile();
+				}
+			},
+			selectFile: function() {
+				this.fire('file-selected', this);
+				this.set('className', 'selected');
+			},
+			unselectFile: function() {
+				this.set('className', '');
+			},
+			getFullName: function() {
+				return path;
+			},
+			getContent: function() {
+				return this.tree.value;
+			},
+			setContent: function(content) {
+				this.tree.value = content;
+			},
+			addFolder: function() {
+				if (!this.meta.children) {
+					this.set('meta.children', []);
+				}
+				var newFolder = {
+					'isFolder': true,
+					'order': this.meta.order + 1,
+					'editMode': true,
+					'name': ''
+				};
+				this.push('meta.children', newFolder);
+			},
+			addFile: function() {
+				if (!this.meta.children){
+					this.set('meta.children', []);
+				}
+				var newFile = {
+					'isFolder': false,
+					'order': this.meta.order + 1,
+					'editMode': true,
+					'name': ''
+				};
+				this.push('meta.children', newFile);
+			}
+		});
+	</script>
 </dom-module>

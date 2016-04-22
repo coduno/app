@@ -2,7 +2,7 @@
 <link rel="import" href="/bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 
-<link rel="import" href="file-explorer/explorer-folder.html">
+<link rel="import" href="file-explorer/explorer-item.html">
 <link rel="import" href="file-explorer/context-menu.html">
 
 <dom-module id="code-editor">
@@ -13,7 +13,7 @@
 		}
 		#editor {
 			height: calc(100% - 36px);
-			z-index:0;
+			z-index: 0;
 		}
 		.container {
 			height: 100%;
@@ -32,7 +32,7 @@
 		<context-menu id="contextMenu"></context-menu>
 		<div class="container">
 			<div class="explorer-container" style$="{{explorerStyle}}">
-				<explorer-folder id="rootFolder" meta="{{rootFolder}}"></explorer-folder>
+				<explorer-item id="rootFolder" tree="{{jsonTree(tree)}}" path="" name=""></explorer-item>
 			</div>
 			<div class="editor-container">
 				<div>
@@ -44,6 +44,7 @@
 	</template>
 	<script src="/bower_components/ace-min-noconflict/ace.js" type="application/javascript"></script>
 	<script src="/bower_components/ace-min-noconflict/ext-language_tools.js" type="application/javascript"></script>
+	<script src="/scripts/tree.js" type="application/javascript"></script>
 	<script>
 		/*global ace:false */
 		Polymer({
@@ -59,11 +60,15 @@
 					notify: true,
 					value: 'chevron-left'
 				},
-				rootFolder: {
+				tree: {
 					type: Object,
-					notify: true
+					notify: true,
+					value: function() {
+						return new Tree({'y.txt': 'Hi!', 'x': new Tree({'a.txt': 'Ho!', 'b.txt': 'Hu!'})});
+					},
+					observer: '_treeChanged'
 				},
-				explorerStyle :{
+				explorerStyle: {
 					type: String,
 					value: ''
 				},
@@ -76,7 +81,7 @@
 				'show-menu': '_showMenu',
 				'file-selected': '_fileSelected'
 			},
-			ready: function(){
+			ready: function() {
 				this._addContextMenuListener();
 				ace.require('ace/ext/language_tools');
 				this.$.editor = ace.edit(this.$.editor);
@@ -84,131 +89,127 @@
 				this.$.editor.setOptions({
 					enableBasicAutocompletion: true
 				});
-				var self = this;
-				this.$.editor.getSession().on('change', function(){
-					var content = self.$.editor.getValue();
-					self.selectedFile.setContent(content);
-					self.fire('code-changed', self.rootFolder);
+				var that = this;
+				this.$.editor.getSession().on('change', function() {
+					var content = that.$.editor.getValue();
+					that.selectedFile.setContent(content);
+					that.fire('code-changed', that.tree);
 				});
 				this.$.editor.commands.addCommand({
-						name: 'run',
-						bindKey: {
-							win: 'Ctrl-Enter'
-						},
-						exec: function(){
-								self.fire('run-code');
-						},
-						readOnly: true
+					name: 'run',
+					bindKey: {
+						win: 'Ctrl-Enter'
+					},
+					exec: function() {
+						that.fire('run-code');
+					},
+					readOnly: true
 				});
 				this.$.editor.$blockScrolling = Infinity;
-				this.clearFiles();
+				//this.clearFiles();
 			},
-			clearFiles: function(){
-				this.rootFolder = {
-					'name': 'root',
-					'isFolder': true,
-					'order': 0,
-					'isRoot': true
-				};
-				this.setValue('');
-				if (!!this.selectedFile){
-					this.selectedFile.markUnselected();
-					this.selectedFile = null;
+			_treeChanged: function(current, previous) {
+				console.log('Tree changed from', Tree.toJSON(previous), 'to', Tree.toJSON(current));
+			},
+			jsonTree: function(tree) {
+				var result = Tree.toJSON(tree);
+				console.log('Converted tree', tree, 'to', result);
+				return JSON.stringify(result);
+			},
+			clearFiles: function() {
+				this.tree = new Tree({});
+				this.notifyPath('tree');
+				if (!!this.selectedFile) {
+					this.selectedFile.unselectFile();
+					this.selectedFile = undefined;
 				}
 			},
-			_fileSelected: function(e, detail){
-				if (!!this.selectedFile){
-					this.selectedFile.markUnselected();
+			_fileSelected: function(e, detail) {
+				if (!!this.selectedFile) {
+					this.selectedFile.unselectFile();
 				}
 				this.selectedFile = detail;
 				this.setValue(this.selectedFile.getContent());
 			},
-			_toggle: function(){
-				if (this.toggleExplorerIcon === 'chevron-left'){
+			_toggle: function() {
+				if (this.toggleExplorerIcon === 'chevron-left') {
 					this.explorerStyle = 'display: none';
 					this.toggleExplorerIcon = 'chevron-right';
-				}else{
+				} else {
 					this.explorerStyle = '';
 					this.toggleExplorerIcon = 'chevron-left';
 				}
 			},
 			setFilesJson: function(rootFolder) {
-				this.rootFolder = rootFolder;
+				this.tree = Tree.fromSON(rootFolder);
+				this.notifyPath('tree');
 			},
-			getFiles: function(){
-				var jsonFiles = this.$.rootFolder.getSquashedFilesAsJson();
-				var files = [];
-				for (var i = 0; i < jsonFiles.length; i++){
-					files.push(this.getFile(jsonFiles[i]));
-				}
-				return files;
+			getFiles: function() {
+				return this.tree.all().map(function(it) {
+					var blob = new Blob([this.tree.get(it).value]);
+					blob.name = it;
+					return blob;
+				}, this);
 			},
-			getFile: function(jsonFile) {
-				var blob = new Blob([jsonFile.content]);
-				blob.name = jsonFile.name;
-				return blob;
-			},
-			setValue: function(text){
+			setValue: function(text) {
 				this.$.editor.getSession().setValue(text);
 			},
 			addFile: function(f) {
-				var that = this;
 				var fr = new FileReader();
+				var that = this;
 				fr.onload = function(e) {
-					that.$.rootFolder.putSelectedFile(f.name, e.target.result);
+					that.tree.add(f.name, e.target.result);
 				};
 				fr.readAsText(f);
 			},
-			_languageChanged: function(){
-				if(this.language){
+			_languageChanged: function() {
+				if (this.language) {
 					this._setMode(this.language);
 				}
 			},
-			_setMode: function(lang){
+			_setMode: function(lang) {
 				var languageModeMap = {
-					'c': 'c_cpp',
-					'cpp': 'c_cpp',
+					'c':      'c_cpp',
+					'cpp':    'c_cpp',
 					'csharp': 'csharp',
-					'java': 'java',
-					'js': 'javascript',
-					'py': 'python',
-					'go': 'golang',
-					'scala': 'scala',
+					'java':   'java',
+					'js':     'javascript',
+					'py':     'python',
+					'go':     'golang',
+					'scala':  'scala',
 					'groovy': 'groovy',
-					'php': 'php'
+					'php':    'php'
 				};
-				var mode = languageModeMap[lang];
-				if(!mode){
-					mode = 'text';
-				}
-				this.$.editor.getSession().setMode('ace/mode/' + mode);
+				this.$.editor.getSession().setMode('ace/mode/' + (languageModeMap[lang] || 'text'));
 			},
-			_showMenu: function(event, data){
+			_showMenu: function(event, data) {
 				this.$.contextMenu.showMenu(data);
 			},
-			_addContextMenuListener: function(){
-				var self = this;
-				document.addEventListener('click', function(e){
-					if (!self._clickInsideElement(e, 'context-menu')){
-						if (self._clickInsideElement(e, 'explorer-folder')){
-							return;
-						}
-						document.querySelector('context-menu').hideMenu();
+			_addContextMenuListener: function() {
+				var that = this;
+				document.addEventListener('click', function(e) {
+					if (that._clickInsideElement(e, 'context-menu')) {
+						return;
 					}
+					if (that._clickInsideElement(e, 'explorer-folder')) {
+						return;
+					}
+					document.querySelector('context-menu').hideMenu();
 				});
 			},
-			_clickInsideElement: function(e, elName){
+			_clickInsideElement: function(e, elName) {
 				elName = elName.toLowerCase();
 				var el = e.srcElement || e.target;
-				if (el.tagName.toLowerCase() === elName){
+				if (el.tagName.toLowerCase() === elName) {
 					return el;
-				}else{
-					while (!!(el = el.parentNode)){
-						if (!!el.tagName && el.tagName.toLowerCase() === elName){
-							return el;
-						}
+				}
+
+				while (!!(el = el.parentNode)) {
+					if (!!el.tagName && el.tagName.toLowerCase() === elName) {
+						return el;
 					}
 				}
+
 				return false;
 			}
 		});
