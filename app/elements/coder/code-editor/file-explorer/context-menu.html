@@ -1,0 +1,115 @@
+<link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="/bower_components/iron-icon/iron-icon.html">
+
+<dom-module id="context-menu">
+	<template>
+		<style include="iron-flex">
+			#contextMenuHost {
+				@apply(--layout-vertical);
+				position: fixed;
+				z-index: 10;
+				width: 200px;
+				box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
+				padding: 2px 5px;
+				background-color: white;
+			}
+
+			.nav-item:hover {
+				cursor: pointer;
+				background-color: lightgray;
+			}
+			.nav-item {
+				padding: 2px;
+			}
+		</style>
+		<div id="contextMenuHost" style$="{{contextStyle}}">
+			<template is="dom-if" if="{{selectedItem.meta.isFolder}}">
+				<div class="nav-item" on-click="_addFolder">
+					<iron-icon icon="create-new-folder"></iron-icon>
+					Add folder
+				</div>
+				<div class="nav-item" on-click="_addFile">
+					<iron-icon icon="add"></iron-icon>
+					Add file
+				</div>
+			</template>
+			<template is="dom-if" if="{{!isRoot}}">
+				<div class="nav-item" on-click="_rename">
+					<iron-icon icon="create"></iron-icon>
+					Rename
+				</div>
+				<div class="nav-item" on-click="_delete">
+					<iron-icon icon="delete"></iron-icon>
+					Delete
+				</div>
+			</template>
+		</div>
+	</template>
+	<script>
+		Polymer({
+			is: 'context-menu',
+			properties: {
+				selectedItem: {
+					type: Object,
+					notify: true
+				},
+				contextStyle: {
+					type: String,
+					notify: true,
+					value: 'display: none'
+				},
+				pos: {
+					type: Object,
+					notify: true,
+					value: {}
+				},
+				isRoot: {
+					type: Boolean,
+					notify: true
+				}
+			},
+			showMenu: function(data){
+				if (this.pos.x === data.x && this.pos.y === data.y){
+					return;
+				}
+				this.contextStyle = '';
+				this.selectedItem = data.element;
+				this.notifyPath('selectedItem.meta.isFolder', this.selectedItem.meta.isFolder);
+				this.isRoot = this.selectedItem.meta.isFolder && this.selectedItem.meta.name === 'root';
+				this._updatePosition(data);
+			},
+			_updatePosition: function(data){
+				this.pos = {};
+				this.pos.x = data.x;
+				this.pos.y = data.y;
+				this.$.contextMenuHost.style.left = data.x + 'px';
+				this.$.contextMenuHost.style.top = data.y + 'px';
+			},
+			hideMenu: function(){
+				this.contextStyle = 'display: none';
+			},
+			_addFolder: function(){
+				this.hideMenu();
+				if (!this.selectedItem.meta.isFolder){
+					return;
+				}
+				this.selectedItem.addFolder();
+			},
+			_addFile: function() {
+				this.hideMenu();
+				if (!this.selectedItem.meta.isFolder){
+					return;
+				}
+				this.selectedItem.addFile();
+			},
+			_rename: function(){
+				this.selectedItem.rename();
+				this.hideMenu();
+			},
+			_delete: function(){
+				this.selectedItem.delete();
+				this.hideMenu();
+			}
+		});
+	</script>
+</dom-module>
