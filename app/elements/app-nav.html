@@ -41,7 +41,7 @@
 							<paper-tab link><a href="/tasks" class="tablink">Tasks</a></paper-tab>
 						</template>
 						<template is="dom-if" if="{{isCoder}}">
-							<paper-tab link><a href="/myprofile" class="tablink">Profile</a></paper-tab>
+							<paper-tab link><a href="{{myProfileLink}}" class="tablink">Profile</a></paper-tab>
 							<paper-tab link><a href="/mychallenges" class="tablink">My challenges</a></paper-tab>
 						</template>
 						<span></span>
@@ -127,7 +127,11 @@
 				}
 			},
 			_userChanged: function(){
-				if(!this.user || !this.user.organizations || this.user.organizations.length === 0){
+				if(!this.user){
+					return;
+				}
+				this.myProfileLink = '/u/' + this.user.username;
+				if(!this.user.organizations || this.user.organizations.length === 0){
 					return;
 				}
 				this.showOrganizationSwitch = true;
