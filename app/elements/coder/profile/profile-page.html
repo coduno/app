@@ -1,0 +1,99 @@
+<link rel="import" href="/bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+
+<link rel="import" href="/elements/common/data-providers/team-provider.html">
+<link rel="import" href="/elements/common/data-providers/user-provider.html">
+<link rel="import" href="/elements/common/skill/skill-polygon.html">
+
+<dom-module id="profile-page">
+	<style include="iron-flex">
+		:host {
+			height: 100%;
+		}
+		.letter {
+			font-size: 16vh;
+			color: #4B4F62;
+		}
+		#top {
+			margin-bottom: 16px;
+			height: calc(50% - 16px);
+			background: white;
+			@apply(--layout-horizontal);
+		}
+		#bottom {
+			margin-bottom: 16px;
+			height: calc(50% - 16px);
+			@apply(--layout-horizontal);
+		}
+		.left {
+			margin-right: 8px;
+			background: white;
+			@apply(--layout-flex)
+		}
+		.right {
+			margin-left: 8px;
+			background: white;
+			@apply(--layout-flex)
+		}
+		#userInfo {
+			text-align:center;
+			@apply(--layout-flex)
+			@apply(--layout-vertical)
+		}
+		#skillPolygonWrapper {
+			text-align:center;
+			@apply(--layout-flex)
+		}
+		#wrapper {
+			padding-top: 16px; height: calc(100% - 16px);
+		}
+		.card-header {
+			padding: 16px;
+		}
+	</style>
+	<template>
+		<user-provider username="{{username}}" data="{{user}}" with-mocked-skills></user-provider>
+		<team-provider user-id="{{user.id}}" data="{{teams}}"></team-provider>
+		<div id="wrapper">
+			<paper-material id="top" class="mainContent" elevation="1">
+				<div id="userInfo">
+					<text class="letter">{{user._initialLetter}}</text>
+					<h3>{{user.username}}</h3>
+					<p>{{user.email}}</p>
+					<p>{{user._fullName}}</p>
+				</div>
+				<div id="skillPolygonWrapper">
+					<skill-polygon id="skillPolygon" skills="{{user._mockedSkills}}"></skill-polygon>
+				</div>
+			</paper-material>
+			<div id="bottom" class="mainContent">
+				<paper-material class="left" elevation="1">
+					<h3 class="card-header">Teams</h3>
+					<vaadin-grid id="simple" items="{{teams}}">
+						<table>
+							<thead>
+								<tr>
+									<th>Name</th>
+									<th>Members</th>
+								</tr>
+							</thead>
+							<colgroup>
+								<col name="name">
+								<col name="members.length">
+							</colgroup>
+						</table>
+					</vaadin-grid>
+				</paper-material>
+				<paper-material class="right" elevation="1">
+					<h3 class="card-header">Challenges</h3>
+				</paper-material>
+			</div>
+		</div>
+	</template>
+	<script>
+		// NOTE: username needs to be set for data to be shown.
+		Polymer({
+			is: 'profile-page'
+		});
+	</script>
+</dom-module>

@@ -60,6 +60,27 @@ window.addEventListener('WebComponentsReady', function() {
 		});
 	});
 
+	page('/myprofile', function() {
+		if(!!app.user.activeOrganization){
+			alert('Company profile not yet available');
+			page('/');
+			return;
+		}
+		Polymer.Base.importHref('/elements/coder/profile/profile-page.html', function(){
+			var page = document.createElement('profile-page');
+			page.username = app.user.username;
+			app.swapContent(page);
+		});
+	});
+
+	page('/profile/:username', function(ctx) {
+		Polymer.Base.importHref('/elements/coder/profile/profile-page.html', function(){
+			var page = document.createElement('profile-page');
+			page.username = ctx.params.username;
+			app.swapContent(page);
+		});
+	});
+
 	// COMPANY
 	page('/challenge/create', function() {
 		Polymer.Base.importHref('/elements/company/task/task-list.html', function(){

@@ -41,6 +41,7 @@
 							<paper-tab link><a href="/tasks" class="tablink">Tasks</a></paper-tab>
 						</template>
 						<template is="dom-if" if="{{isCoder}}">
+							<paper-tab link><a href="/myprofile" class="tablink">Profile</a></paper-tab>
 							<paper-tab link><a href="/mychallenges" class="tablink">My challenges</a></paper-tab>
 						</template>
 						<span></span>
@@ -107,6 +108,10 @@
 				showOrganizationSwitch: {
 					type: Boolean,
 					value: false
+				},
+				lastOrganization: {
+					type: Object,
+					value: 'not-defined'
 				}
 			},
 			startLoading: function(){
@@ -141,7 +146,10 @@
 				}
 				this._setLoginAsMenuSelectedIndex(index);
 				this.refresh();
-				page('/');
+				if(this.lastOrganization !== 'not-defined' && this.lastOrganization !== this.user.activeOrganization){
+					page('/');
+				}
+				this.lastOrganization = this.user.activeOrganization;
 			},
 			refresh: function(){
 				if(!this.user){
@@ -151,7 +159,7 @@
 				this.isCompany = !!this.user.activeOrganization;
 				this.isCoder = !!this.user && !this.isCompany;
 				this.isLoggedIn = this.isCompany || this.isCoder;
-				this.isAdmin = this.user.admin;
+				this.isAdmin = this.user.admin && this.isCompany;
 			},
 			_loggedInAsChanged: function(){
 				if(!this.loggedInAs){

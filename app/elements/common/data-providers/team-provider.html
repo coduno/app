@@ -1,0 +1,41 @@
+<link rel="import" href="/bower_components/iron-ajax/iron-ajax.html">
+
+<dom-module id="team-provider">
+	<style>
+		:host {
+			display: none;
+		}
+	</style>
+	<template>
+		<iron-ajax
+			id="request"
+			auto
+			method="GET"
+			handle-as="json"
+			last-response="{{data}}"
+			with-credentials="true">
+		</iron-ajax>
+	</template>
+	<script>
+		Polymer({
+			is: 'team-provider',
+			properties: {
+				data: {
+					type: Array,
+					reflectToAttribute: true,
+					notify: true
+				},
+				userId: {
+					type: String,
+					observer: '_userIdChanged'
+				}
+			},
+			_userIdChanged: function(id){
+				if(!id){
+					return;
+				}
+				this.$.request.url = util.build('/users/' + id + '/teams');
+			}
+		});
+	</script>
+</dom-module>

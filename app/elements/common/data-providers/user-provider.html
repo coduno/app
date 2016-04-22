@@ -1,0 +1,77 @@
+<link rel="import" href="/bower_components/iron-ajax/iron-ajax.html">
+
+<dom-module id="user-provider">
+	<style>
+		:host {
+			display: none;
+		}
+	</style>
+	<template>
+		<iron-ajax
+			id="request"
+			auto
+			method="GET"
+			handle-as="json"
+			last-response="{{data}}"
+			with-credentials="true">
+		</iron-ajax>
+	</template>
+	<script>
+		Polymer({
+			is: 'user-provider',
+			properties: {
+				data: {
+					type: Object,
+					reflectToAttribute: true,
+					notify: true,
+					observer: '_dataLoaded'
+				},
+				username: {
+					type: String,
+					observer: '_usernameChanged'
+				},
+				withMockedSkills: {
+					type: Boolean
+				}
+			},
+			_usernameChanged: function(username){
+				if(!username){
+					return;
+				}
+				this.$.request.url = util.build('/users/username/' + username);
+			},
+			_dataLoaded: function(){
+				this.set('data._fullName', this._getFullName(this.data));
+				this.set('data._initialLetter', this._getInitialLetter(this.data));
+				if(this.withMockedSkills){
+					this.set('data._mockedSkills', this._getMockedSkills());
+				}
+			},
+			_getInitialLetter: function(user){
+				return user.username.charAt(0).toUpperCase();
+			},
+			_getFullName: function(user){
+				if(!user){
+					return '';
+				}
+				var name = '';
+				if(user.firstName){
+					name = user.firstName + ' ';
+				}
+				if(user.lastName){
+					name = name + user.lastName;
+				}
+				return name;
+			},
+			_getMockedSkills: function(){
+				return {
+					'Algorithmics': 0.8,
+					'Readability': 0.6,
+					'Security': 0.1,
+					'Efficiency': 0.3,
+					'Coding Speed': 0.7
+				};
+			}
+		});
+	</script>
+</dom-module>
