@@ -62,7 +62,7 @@
 				}
 			},
 			handleDirectory: function(selectedItem) {
-				return !selectedItem.tree.isLeaf();
+				return selectedItem.isFolder;
 			},
 			showMenu: function(data) {
 				if (this.pos.x === data.x && this.pos.y === data.y) {

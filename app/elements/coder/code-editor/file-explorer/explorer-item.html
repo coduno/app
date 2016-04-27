@@ -6,7 +6,7 @@
 
 <dom-module id="explorer-item">
 	<template>
-		<style>
+		<style include="iron-flex">
 		 	div#file {
 				background-color: inherit;
 				@apply(--layout-horizontal);
@@ -20,6 +20,9 @@
 			}
 			input {
 				width: calc(100% - 26px);
+			}
+			#wrapper {
+				@apply(--layout-horizontal);
 			}
 		</style>
 		<style include="iron-flex"></style>
@@ -124,7 +127,7 @@
 				}));
 			},
 			_treeChanged: function(tree) {
-				this.set('isFolder', !Tree.isLeaf(tree));
+				this.set('isFolder', !Tree.isLeaf(JSON.parse(tree)));
 			},
 			_contextmenu: function(e) {
 				e.preventDefault();
@@ -199,28 +202,10 @@
 				this.tree.value = content;
 			},
 			addFolder: function() {
-				if (!this.meta.children) {
-					this.set('meta.children', []);
-				}
-				var newFolder = {
-					'isFolder': true,
-					'order': this.meta.order + 1,
-					'editMode': true,
-					'name': ''
-				};
-				this.push('meta.children', newFolder);
+				console.log('add folder');
 			},
 			addFile: function() {
-				if (!this.meta.children){
-					this.set('meta.children', []);
-				}
-				var newFile = {
-					'isFolder': false,
-					'order': this.meta.order + 1,
-					'editMode': true,
-					'name': ''
-				};
-				this.push('meta.children', newFile);
+				console.log('add file');
 			}
 		});
 	</script>
