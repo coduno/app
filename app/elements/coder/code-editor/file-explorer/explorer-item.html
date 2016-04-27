@@ -2,31 +2,29 @@
 <link rel="import" href="/bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="/bower_components/paper-button/paper-button.html">
 
-<script src="/scripts/tree.js" type="application/javascript"></script>
-
 <dom-module id="explorer-item">
 	<template>
-		<style include="iron-flex">
-		 	div#file {
+		<style>
+			div#wrapper {
 				background-color: inherit;
 				@apply(--layout-horizontal);
 				padding: 3px;
 			}
-			div#file.selected, div#file:hover {
+			div#wrapper.selected, div#wrapper:hover {
 				background-color: lightgray;
 			}
-			div#file:hover {
+			div#wrapper:hover {
 				cursor: pointer;
 			}
 			input {
 				width: calc(100% - 26px);
 			}
-			#wrapper {
-				@apply(--layout-horizontal);
+			div.children {
+				padding-left: 20px;
 			}
 		</style>
 		<style include="iron-flex"></style>
-		<div class$="[[className]]" id="wrapper">
+		<div class$="[[className]]" id="wrapper" on-click="selectFile">
 			<template is="dom-if" if="{{isFolder}}">
 				<iron-icon icon="folder"></iron-icon>
 			</template>
@@ -34,33 +32,27 @@
 				<iron-icon icon="assignment"></iron-icon>
 			</template>
 			<template is="dom-if" if="{{renaming}}">
-				<input id="input" type="text" value="[[path + '/' + name]]" on-keyup="_handleRename" autofocus>
+				<input type="text" value="[[path]]" on-keyup="_handleRename" autofocus>
 			</template>
 			<template is="dom-if" if="{{!renaming}}">
 				<div class="name">{{name}}</div>
 			</template>
 		</div>
 		<template is="dom-repeat" items="{{childItems}}">
-			<explorer-item tree="{{item.tree}}" name="{{item.name}}" path="{{item.path}}"></explorer-item>
+			<div class="children">
+				<explorer-item node="{{item.node}}" path="{{item.path}}"></explorer-item>
+			</div>
 		</template>
 		<paper-toast id="toast"></paper-toast>
-
 	</template>
-	<script src="/scripts/tree.js" type="application/javascript"></script>
 	<script>
 		Polymer({
 			is: 'explorer-item',
 			properties: {
-				name: {
-					type: String,
+				node: {
+					type: Object,
 					notify: true,
 					reflectToAttribute: true
-				},
-				tree: {
-					type: String,
-					notify: true,
-					reflectToAttribute: true,
-					observer: '_treeChanged'
 				},
 				path: {
 					type: String,
@@ -72,64 +64,54 @@
 					notify: true,
 					value: false
 				},
-				isFolder: {
-					type: Boolean,
-					notify: true,
-					value: false
-				},
 				className: {
 					type: String,
 					notify: true,
 					value: ''
 				},
+				isFolder: {
+					type: Boolean,
+					computed: 'computeIsFolder(node)'
+				},
 				childItems: {
 					type: Array,
-					notify: true,
-					value: [],
-					reflectToAttribute: true
+					computed: 'computeChildItems(path, node)'
+				},
+				name: {
+					type: String,
+					computed: 'computeName(path)'
 				}
 			},
 			listeners: {
-				'contextmenu': '_contextmenu',
-				'click': 'selectFile'
+				'contextmenu': 'showContextMenu'
 			},
-			observers: [
-				'_updateIndent(path, tree)'
-			],
-			ready: function() {
-				console.log("explorer-item is ready.")
+			computeName: function(path) {
+				if (path === '') {
+					return '/';
+				}
+				if (path.indexOf('/') < 0) {
+					return path;
+				}
+				return path.substring(path.lastIndexOf('/') + 1);
 			},
-			_updateIndent: function(path, tree) {
-				this.$.wrapper.style.marginLeft = (path.split(Tree.separator).length - 1) * 20 + 'px';
-
-				if (!tree) {
+			computeChildItems: function(path, node) {
+				if (!node || (typeof(node) === 'string' || node instanceof String)) {
 					return;
 				}
 
-				tree = JSON.parse(tree);
-
-				if (Tree.isLeaf(tree)) {
-					return;
+				var childItems = [];
+				for (var name in node) {
+					childItems.push({
+						node: node[name],
+						path: path + '/' + name
+					});
 				}
-
-				tree = Tree.fromJSON(tree);
-				if (!tree || !tree.value) {
-					console.log('Failed to generate tree from JSON.');
-					return;
-				}
-
-				this.set('childItems', Object.keys(tree.value).map(function(key) {
-					return {
-						name: key,
-						tree: JSON.stringify(Tree.toJSON(tree.value[key])),
-						path: path + Tree.separator + key
-					};
-				}));
+				return childItems;
 			},
-			_treeChanged: function(tree) {
-				this.set('isFolder', !Tree.isLeaf(JSON.parse(tree)));
+			computeIsFolder: function(node) {
+				return !(!node || (typeof(node) === 'string' || node instanceof String));
 			},
-			_contextmenu: function(e) {
+			showContextMenu: function(e) {
 				e.preventDefault();
 				this.fire('show-menu', {
 					'element': this,
@@ -149,36 +131,30 @@
 					return;
 				}
 
-				if (!this.newName || this.newName.length === 0) {
+				var name = e.target.value;
+				if (!name || name.length === 0) {
 					this.$.toast.text = this.isFolder ? 'Folder name cannot be empty.' : 'File name cannot be empty.';
 					this.$.toast.show();
 					return;
 				}
 
-				this.fire('rename', this);
+				this.fire('rename', {
+					from: this.path,
+					to:   name
+				});
 			},
 			startRenaming: function() {
-				this.set('renaming', true);
-			},
-			finishRenaming: function(target) {
-				// TODO: Use tree to check for a conflict.
-				var conflict = tree.exists(target);
-
-				if (conflict) {
-					this.$.toast.text = 'A file with the same name exists';
-					this.$.toast.show();
+				if (this.renaming) {
 					return;
 				}
-
-				this.set('name', target);
-				this.set('renaming', false);
+				this.set('renaming', true);
 			},
 			delete: function() {
 				if (this.isFolder) {
 					return;
 				}
 
-				this.fire('delete', this);
+				this.fire('delete', this.path);
 			},
 			_afterMetaSet: function() {
 				if (this.selected) {
@@ -186,26 +162,26 @@
 				}
 			},
 			selectFile: function() {
-				this.fire('file-selected', this);
+				if (this.isFolder) {
+					return;
+				}
 				this.set('className', 'selected');
+				this.fire('file-selected', this);
 			},
 			unselectFile: function() {
 				this.set('className', '');
 			},
-			getFullName: function() {
-				return path;
-			},
 			getContent: function() {
-				return this.tree.value;
+				return this.node;
 			},
 			setContent: function(content) {
-				this.tree.value = content;
+				this.node.value = content;
 			},
 			addFolder: function() {
-				console.log('add folder');
+				console.log('Not yet implemented.');
 			},
 			addFile: function() {
-				console.log('add file');
+				console.log('Not yet implemented.');
 			}
 		});
 	</script>

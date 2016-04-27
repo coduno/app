@@ -32,7 +32,7 @@
 		<context-menu id="contextMenu"></context-menu>
 		<div class="container">
 			<div class="explorer-container" style$="{{explorerStyle}}">
-				<explorer-item id="rootFolder" tree="{{jsonTree(tree)}}" path="" name=""></explorer-item>
+				<explorer-item id="rootFolder" node="{{tree.root}}" path=""></explorer-item>
 			</div>
 			<div class="editor-container">
 				<div>
@@ -64,7 +64,7 @@
 					type: Object,
 					notify: true,
 					value: function() {
-						return new Tree({'y.txt': 'Hi!', 'x': new Tree({'a.txt': 'Ho!', 'b.txt': 'Hu!'})});
+						return new Tree({'y.txt': 'Hi!', 'x': {'a.txt': 'Ho!', 'b.txt': 'Hu!'}});
 					},
 					observer: '_treeChanged'
 				},
@@ -109,12 +109,7 @@
 				//this.clearFiles();
 			},
 			_treeChanged: function(current, previous) {
-				console.log('Tree changed from', Tree.toJSON(previous), 'to', Tree.toJSON(current));
-			},
-			jsonTree: function(tree) {
-				var result = Tree.toJSON(tree);
-				console.log('Converted tree', tree, 'to', result);
-				return JSON.stringify(result);
+				console.log('Tree changed from', (previous ? previous.root : undefined), 'to', current.root);
 			},
 			clearFiles: function() {
 				this.tree = new Tree({});
@@ -141,7 +136,7 @@
 				}
 			},
 			setFilesJson: function(rootFolder) {
-				this.tree = Tree.fromSON(rootFolder);
+				this.tree = new Tree(rootFolder);
 				this.notifyPath('tree');
 			},
 			getFiles: function() {
@@ -152,6 +147,12 @@
 				}, this);
 			},
 			setValue: function(text) {
+				if (!text) {
+					return;
+				}
+				if (!((typeof(text) === 'string' || text instanceof String))) {
+					return;
+				}
 				this.$.editor.getSession().setValue(text);
 			},
 			addFile: function(f) {

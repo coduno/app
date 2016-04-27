@@ -14,8 +14,8 @@
  *
  * new Tree({'y.txt': 'Hi!', 'x': new Tree({'a.txt': 'Ho!', 'b.txt': 'Hu!'})})
  */
-function Tree(value) {
-	this.value = value;
+function Tree(root) {
+	this.root = root;
 
 	this.search = function(name) {
 		name = name.toLowerCase();
@@ -30,7 +30,7 @@ function Tree(value) {
 		}
 
 		if (!node && !path) {
-			node = this.value;
+			node = this.root;
 			path = [];
 		} else if (!node || !path) {
 			return undefined;
@@ -59,7 +59,7 @@ function Tree(value) {
 
 		// There are no child nodes if the
 		// node itself is a leaf node.
-		if (Tree.isLeaf(value)) {
+		if (Tree.isLeaf(root)) {
 			return undefined;
 		}
 
@@ -67,7 +67,7 @@ function Tree(value) {
 		// unwrapping dictionaries. If we end up at
 		// an undefined entry, the loop breaks and
 		// undefined is returned.
-		var node = this.value;
+		var node = this.root;
 		for (var i = 0; i < path.length && !!node; i++) {
 			node = node[path[i]];
 		}
@@ -89,7 +89,7 @@ function Tree(value) {
 		// Extract the name of the child node we should create.
 		var child = path.pop();
 
-		var node = this.value;
+		var node = this.root;
 		var i = 0;
 
 		while (i < path.length && !!node) {
@@ -114,16 +114,16 @@ function Tree(value) {
 		}
 
 		var child = path.pop();
-		var node = this.value;
+		var node = this.root;
 
 		for (var i = 0; i < path.length; i++) {
 			var next = node[path[i]];
 
 			if (!next) {
-				node[path[i]] = new Tree({});
+				node[path[i]] = {};
 			}
 
-			node = node[path[i]].value;
+			node = node[path[i]];
 		}
 
 		if (node instanceof String) {
@@ -174,42 +174,4 @@ Tree.explode = function(path) {
 
 Tree.isLeaf = function(value) {
 	return typeof(value) === 'string' || value instanceof String;
-};
-
-Tree.fromJSON = function(o) {
-	if (Tree.isLeaf(o)) {
-		return new Tree(o);
-	}
-
-	var r = new Tree({});
-	for (var k in o) {
-		r.value[k] = Tree.fromJSON(o[k]);
-	}
-
-	return r;
-};
-
-Tree.toJSON = function(t) {
-	if (!t) {
-		return undefined;
-	}
-
-	if (Tree.isLeaf(t)) {
-		return t;
-	}
-
-	if (!t.value) {
-		return undefined;
-	}
-
-	if (Tree.isLeaf(t.value)) {
-		return t.value;
-	}
-
-	var r = {};
-	for (var k in t.value) {
-		r[k] = Tree.toJSON(t.value[k]);
-	}
-
-	return r;
 };
