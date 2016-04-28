@@ -79,7 +79,8 @@
 			},
 			listeners: {
 				'show-menu': '_showMenu',
-				'file-selected': '_fileSelected'
+				'file-selected': '_fileSelected',
+				'rename': '_rename'
 			},
 			ready: function() {
 				this._addContextMenuListener();
@@ -93,7 +94,7 @@
 				this.$.editor.getSession().on('change', function() {
 					var content = that.$.editor.getValue();
 					that.selectedFile.setContent(content);
-					that.fire('code-changed', that.tree);
+					that.fire('code-changed', that.tree.root);
 				});
 				this.$.editor.commands.addCommand({
 					name: 'run',
@@ -118,6 +119,20 @@
 					this.selectedFile.unselectFile();
 					this.selectedFile = undefined;
 				}
+			},
+			_rename: function(e, data){
+				if(data.from === data.to){
+					return;
+				}
+				if(!!this.tree.get(data.to)){
+					console.log('already exists');
+					return;
+				}
+				var value = this.tree.get(data.from);
+				this.tree.remove(data.from);
+				this.tree.add(data.to, value);
+				console.log(this.tree)
+				this.notifyPath('tree', this.tree);
 			},
 			_fileSelected: function(e, detail) {
 				if (!!this.selectedFile) {
