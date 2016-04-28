@@ -17,6 +17,10 @@
 function Tree(root) {
 	this.root = root;
 
+	this.contains = function(name) {
+		return !!this.get(name);
+	};
+
 	this.search = function(name) {
 		name = name.toLowerCase();
 		return this.traverse(function(node, path) {
@@ -75,6 +79,31 @@ function Tree(root) {
 		return node;
 	};
 
+	this.set = function(path, content) {
+		path = Tree.explode(path);
+
+		if (!path) {
+			return undefined;
+		}
+
+		// Extract the name of the child node we should change.
+		var child = path.pop();
+
+		var node = this.root;
+		var i = 0;
+
+		while (i < path.length && !!node) {
+			node = node[path[i++]];
+		}
+
+		if (!node) {
+			return undefined;
+		}
+
+		node[child] = content;
+		return true;
+	};
+
 	this.exists = function(path) {
 		return !!this.get(path);
 	};
@@ -86,7 +115,7 @@ function Tree(root) {
 			return undefined;
 		}
 
-		// Extract the name of the child node we should create.
+		// Extract the name of the child node we should remove.
 		var child = path.pop();
 
 		var node = this.root;

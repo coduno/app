@@ -32,7 +32,7 @@
 					Add file
 				</div>
 			</template>
-			<div class="nav-item" on-click="_rename">
+			<div class="nav-item" on-click="handleRename">
 				<iron-icon icon="create"></iron-icon>
 				Rename
 			</div>
@@ -97,7 +97,7 @@
 				}
 				this.selectedItem.addFile();
 			},
-			_rename: function() {
+			handleRename: function() {
 				this.selectedItem.startRenaming();
 				this.hideMenu();
 			},

@@ -19,7 +19,7 @@
 			input {
 				width: calc(100% - 26px);
 			}
-			div.children {
+			div#children {
 				padding-left: 20px;
 			}
 		</style>
@@ -38,15 +38,15 @@
 				<div class="name">{{name}}</div>
 			</template>
 		</div>
-		<template is="dom-repeat" items="{{childItems}}">
-			<div class="children">
+		<div id="children">
+			<template is="dom-repeat" items="{{childItems}}">
 				<explorer-item node="{{item.node}}" path="{{item.path}}"></explorer-item>
-			</div>
-		</template>
+			</template>
+		</div>
 		<paper-toast id="toast"></paper-toast>
 	</template>
 	<script>
-		Polymer({
+		ExplorerItem = Polymer({
 			is: 'explorer-item',
 			properties: {
 				node: {
@@ -62,6 +62,7 @@
 				renaming: {
 					type: Boolean,
 					notify: true,
+					reflectToAttribute: true,
 					value: false
 				},
 				className: {
@@ -84,6 +85,11 @@
 			},
 			listeners: {
 				'contextmenu': 'showContextMenu'
+			},
+			factoryImpl: function(node, path, renaming) {
+				this.node = node;
+				this.path = path;
+				this.renaming = renaming;
 			},
 			computeName: function(path) {
 				if (path === '') {
@@ -138,11 +144,19 @@
 					return;
 				}
 
-				this.fire('rename', {
-					from: this.path,
-					to:   name
-				});
 				this.set('renaming', false);
+
+				if (!name || name === '') {
+					this.fire('create', {
+						path: name
+					});
+				} else {
+					this.fire('rename', {
+						from: this.path,
+						to:   name
+					});
+				}
+				this.set('path', name);
 			},
 			startRenaming: function() {
 				if (this.renaming) {
@@ -156,11 +170,6 @@
 				}
 
 				this.fire('delete', this.path);
-			},
-			_afterMetaSet: function() {
-				if (this.selected) {
-					this.selectFile();
-				}
 			},
 			selectFile: function() {
 				if (this.isFolder) {
@@ -179,10 +188,13 @@
 				this.node.value = content;
 			},
 			addFolder: function() {
-				console.log('Not yet implemented.');
+				this.appendChildItem(new ExplorerItem({}, '', true));
 			},
 			addFile: function() {
-				console.log('Not yet implemented.');
+				this.appendChildItem(new ExplorerItem('', '', true));
+			},
+			appendChildItem: function(item) {
+				this.$$('#children').appendChild(item);
 			}
 		});
 	</script>
