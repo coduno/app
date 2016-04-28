@@ -64,6 +64,7 @@ window.addEventListener('WebComponentsReady', function() {
 		Polymer.Base.importHref('/elements/coder/profile/profile-page.html', function(){
 			var page = document.createElement('profile-page');
 			page.username = ctx.params.username;
+			page.isCurrentUser = (ctx.params.username === app.user.username);
 			app.swapContent(page);
 		});
 	});

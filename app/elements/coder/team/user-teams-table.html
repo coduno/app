@@ -1,0 +1,96 @@
+<link rel="import" href="/bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="/bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="/bower_components/iron-icons/social-icons.html">
+<link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+
+<link rel="import" href="/elements/common/data-providers/team/teams-for-user-provider.html">
+<link rel="import" href="/elements/common/skill/skill-polygon.html">
+<link rel="import" href="/elements/coder/team/create-team-modal.html">
+
+<dom-module id="user-teams-table">
+	<style include="iron-flex">
+		:host {
+			display: block;
+			height: 100%;
+		}
+		paper-icon-button {
+			@apply(--layout-self-center);
+		}
+	</style>
+	<template>
+		<teams-for-user-provider username="[[user.username]]" data="{{teams}}"></teams-for-user-provider>
+		<vaadin-grid id="teamsGrid" class="fullHeight" items="[[teams]]" on-selected-items-changed="_selectedItemsChanged">
+			<table>
+				<thead>
+					<tr>
+						<th>Name</th>
+						<th>Members</th>
+						<th>Options</th>
+					</tr>
+				</thead>
+				<colgroup>
+					<col name="name"/>
+					<col name="members.length"/>
+					<col name="id" hidden="[[!isCurrentUser]]"/>
+				</colgroup>
+			</table>
+		</vaadin-grid>
+	</template>
+	<script>
+		// NOTE: username needs to be set for data to be shown.
+		Polymer({
+			is: 'user-teams-table',
+			properties: {
+				isCurrentUser: {
+					value: false
+				}
+			},
+			observers: [
+				'_userChanged(user)'
+			],
+			_selectedItemsChanged: function(){
+				var selected = this.$.teamsGrid.selection.selected();
+				if(!this.clickedOnOption && !!selected && selected.length > 0){
+					console.log('opening team in new window');
+					return;
+				}
+				this.clickedOnOption = false;
+			},
+			_userChanged: function(user){
+				var element = this;
+				this.$.teamsGrid.columns[2].renderer = function(cell){
+					cell.element.innerHTML = '';
+					if(!element._isAdmin(user, cell.row.data)){
+						return;
+					}
+					cell.element.appendChild(element._createIconButton('social:group-add', function(){
+						console.log('invite to', cell.data);
+						element.clickedOnOption = true;
+					}));
+					cell.element.appendChild(element._createIconButton('delete', function(){
+						console.log('delete', cell.data);
+						element.clickedOnOption = true;
+					}));
+				};
+			},
+			_createTeam: function(){
+				this.$.createTeamDialog.toggle();
+			},
+			_isAdmin: function(user, team){
+				return team.members.some(function(it) {
+					return it.admin && it.username === user.username;
+				});
+			},
+			_createIconButton: function(icon, clickListener){
+				var button = document.createElement('paper-icon-button');
+				button.icon = icon;
+				button.addEventListener('click', clickListener);
+				return button;
+			},
+			refresh: function(){
+				this.$$('teams-for-user-provider').refresh();
+			}
+		});
+	</script>
+</dom-module>

@@ -1,9 +1,13 @@
 <link rel="import" href="/bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="/bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="/bower_components/iron-icons/social-icons.html">
+<link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 
-<link rel="import" href="/elements/common/data-providers/team/teams-for-user-provider.html">
 <link rel="import" href="/elements/common/data-providers/user/user-by-username-provider.html">
 <link rel="import" href="/elements/common/skill/skill-polygon.html">
+<link rel="import" href="/elements/coder/team/create-team-modal.html">
+<link rel="import" href="/elements/coder/team/user-teams-table.html">
 
 <dom-module id="profile-page">
 	<style include="iron-flex">
@@ -26,6 +30,7 @@
 			@apply(--layout-horizontal);
 		}
 		.left {
+			height: 100%;
 			margin-right: 8px;
 			background: white;
 			@apply(--layout-flex)
@@ -50,50 +55,61 @@
 		.card-header {
 			padding: 16px;
 		}
+		#teamsHeader {
+			height: 60px;
+			@apply(--layout-horizontal);
+		}
+		paper-icon-button {
+			@apply(--layout-self-center);
+		}
+		#teamsGrid {
+			height: calc(100% - 60px);
+		}
 	</style>
 	<template>
-		<user-by-username-provider username="{{username}}" data="{{user}}" with-mocked-skills></user-by-username-provider>
-		<teams-for-user-provider user-id="{{user.id}}" data="{{teams}}"></teams-for-user-provider>
+		<user-by-username-provider username="[[username]]" data="{{user}}" with-mocked-skills></user-by-username-provider>
+
 		<div id="wrapper">
 			<paper-material id="top" class="mainContent" elevation="1">
 				<div id="userInfo">
-					<text class="letter">{{user._initialLetter}}</text>
-					<h3>{{user.username}}</h3>
-					<p>{{user.email}}</p>
-					<p>{{user._fullName}}</p>
+					<text class="letter">[[user._initialLetter]]</text>
+					<h3>[[user.username]]</h3>
+					<p>[[user.email]]</p>
+					<p>[[user._fullName]]</p>
 				</div>
 				<div id="skillPolygonWrapper">
-					<skill-polygon id="skillPolygon" skills="{{user._mockedSkills}}"></skill-polygon>
+					<skill-polygon id="skillPolygon" skills="[[user._mockedSkills]]"></skill-polygon>
 				</div>
 			</paper-material>
 			<div id="bottom" class="mainContent">
 				<paper-material class="left" elevation="1">
-					<h3 class="card-header">Teams</h3>
-					<vaadin-grid id="simple" items="{{teams}}">
-						<table>
-							<thead>
-								<tr>
-									<th>Name</th>
-									<th>Members</th>
-								</tr>
-							</thead>
-							<colgroup>
-								<col name="name">
-								<col name="members.length">
-							</colgroup>
-						</table>
-					</vaadin-grid>
+					<div id="teamsHeader">
+						<h3 class="card-header">Teams</h3>
+						<span class="flex"></span>
+						<template is="dom-if" if="[[isCurrentUser]]">
+							<paper-icon-button icon="add" on-click="_createTeam"></paper-icon-button>
+						</template>
+					</div>
+					<user-teams-table id="teamsGrid" user="[[user]]" is-current-user="[[isCurrentUser]]"><user-teams-table>
 				</paper-material>
 				<paper-material class="right" elevation="1">
 					<h3 class="card-header">Challenges</h3>
 				</paper-material>
 			</div>
 		</div>
+
+		<create-team-modal id="createTeamDialog" on-team-created="_refreshTeams"></create-team-modal>
 	</template>
 	<script>
 		// NOTE: username needs to be set for data to be shown.
 		Polymer({
-			is: 'profile-page'
+			is: 'profile-page',
+			_createTeam: function(){
+				this.$.createTeamDialog.toggle();
+			},
+			_refreshTeams: function(){
+				this.$.teamsGrid.refresh();
+			}
 		});
 	</script>
 </dom-module>

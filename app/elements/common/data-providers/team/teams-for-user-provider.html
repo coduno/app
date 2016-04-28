@@ -9,9 +9,8 @@
 	<template>
 		<iron-ajax
 			id="request"
-			auto
 			method="GET"
-			url="{{url}}"
+			url="[[baseUrl]]/users/[[username]]/teams"
 			handle-as="json"
 			last-response="{{data}}"
 			with-credentials="true">
@@ -25,10 +24,13 @@
 				Behaviors.Providers.General
 			],
 			observers: [
-				'_userIdChanged(userId)'
+				'_urlChanged(baseUrl, username)'
 			],
-			_userIdChanged: function(userId){
-				this.url = this.baseUrl + '/users/' + userId + '/teams';
+			_urlChanged: function(){
+				this.refresh();
+			},
+			refresh: function(){
+				this.$.request.generateRequest();
 			}
 		});
 	</script>

@@ -1,0 +1,92 @@
+<link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="/bower_components/paper-material/paper-material.html">
+<link rel="import" href="/bower_components/paper-input/paper-input.html">
+<link rel="import" href="/bower_components/paper-button/paper-button.html">
+<link rel="import" href="/bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="/bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="/bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="/bower_components/iron-form/iron-form.html">
+
+<dom-module id="create-team-modal">
+	<style include="iron-flex">
+		.fieldList {
+			@apply(--layout-vertical);
+		}
+		paper-input {
+			width: 250px;
+		}
+	</style>
+	<template>
+		<iron-ajax
+			id="createTeamRequest"
+			method="POST"
+			handle-as="text"
+			content-type="application/json"
+			with-credentials="true"
+			on-response="_onResponse"
+			on-error="_onError">
+		</iron-ajax>
+		<paper-dialog id="createTeamDialog" modal>
+			<h4>Create new team</h4>
+			<div class="fieldList">
+				<form is="iron-form" id="form">
+					<paper-input autofocus="true" label="Name" value="{{team.name}}"
+						required minlength="6" maxlength="40" auto-validate error-message="Must be between 6 and 40 chars."></paper-input>
+					<paper-input label="Canonical name" value="{{team.canonicalName}}"
+						required minlength="6" maxlength="40" auto-validate error-message="Must be between 6 and 40 chars."></paper-input>
+				</form>
+			</div>
+			<div class="buttons">
+				<paper-button class="secondary" dialog-dismiss>Cancel</paper-button>
+				<paper-button on-click="_saveTeam" class="primary" dialog-confirm disabled="{{saveDisabled}}">Save</paper-button>
+			</div>
+		</paper-dialog>
+		<paper-toast id="toast" text="{{toastText}}"></paper-toast>
+	</template>
+	<script>
+		// NOTE: username needs to be set for data to be shown.
+		Polymer({
+			is: 'create-team-modal',
+			properties: {
+				team: {
+					type: Object,
+					value: {}
+				},
+				saveDisabled: {
+					type: Boolean,
+					value: true
+				}
+			},
+			listeners: {
+				'keyup': '_teamChanged'
+			},
+			toggle: function(){
+				this.$.createTeamDialog.toggle();
+			},
+			_saveTeam: function(){
+				if(!this.$.form.validate()){
+					return;
+				}
+				this.$.createTeamRequest.body = this.team;
+				this.$.createTeamRequest.url = util.build('/teams');
+				this.$.createTeamRequest.generateRequest();
+				this.team = {};
+			},
+			_teamChanged: function(){
+				this.saveDisabled = !this.$.form.validate();
+			},
+			_onResponse: function(){
+				this.toastText = 'Team successfully created.';
+				this.$.toast.show();
+				this.fire('team-created');
+			},
+			_onError: function(e, r){
+				this.toastText = 'An error occured when creating your team.';
+				if(!!r.request.xhr.responseText){
+					this.toastText = r.request.xhr.responseText;
+				}
+				this.$.toast.show();
+			}
+		});
+	</script>
+</dom-module>
