@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!--
+Copyright (c) Coduno - All Rights Reserved
+
+	Unauthorized copying of this file via any
+	medium is strictly prohibited.
+	Proprietary.
+
+Author: Lorenz Leutgeb <lorenz.leutgeb@cod.uno>
+-->
+<svg viewBox="0 0 1 1" xmlns="http://www.w3.org/2000/svg">
+	<path fill="#14b2e6" d="M 0.00 0.50 L 0.50 0.00 L 0.50 0.50 z"/>
+	<path fill="#45d9ff" d="M 0.50 0.50 L 0.75 0.25 L 0.50 0.00 z"/>
+	<path fill="#abe3fd" d="M 0.50 0.00 L 1.00 0.00 L 0.75 0.25 z"/>
+	<path fill="#524fa3" d="M 0.00 0.50 L 0.50 0.50 L 0.50 1.00 z"/>
+	<path fill="#2b2661" d="M 0.50 0.50 L 0.75 0.75 L 0.50 1.00 z"/>
+	<path fill="#c7216e" d="M 0.50 1.00 L 1.00 1.00 L 1.00 0.50 z"/>
+</svg>

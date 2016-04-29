@@ -16,6 +16,14 @@
 			span {
 				@apply(--layout-flex);
 			}
+			.big {
+				--iron-icon-height: 64px;
+				--iron-icon-width: 64px;
+				padding: 8px;
+			}
+			.higher {
+				--paper-toolbar-height: 72px;
+			}
 		</style>
 		<template is="dom-if" if="{{isLoggedIn}}">
 			<iron-ajax
@@ -27,9 +35,9 @@
 				with-credentials="true"
 				on-error="_onSwitchOrganizationError">
 			</iron-ajax>
-			<paper-toolbar>
-				<paper-icon-button icon="code"></paper-icon-button>
-				<div>CODUNO</div>
+			<paper-toolbar class="higher">
+				<iron-icon src="/images/logo.svg" class="big"></iron-icon>
+				<div class="title-font">Coduno</div>
 				<div class="flex">
 					<paper-tabs id="bottomTabs" class="bottom indent" selected="{{selected}}" noink no-slide>
 						<span></span>
