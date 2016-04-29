@@ -1,0 +1,80 @@
+<link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="/bower_components/paper-material/paper-material.html">
+
+<link rel="import" href="/elements/common/data-providers/team/team-by-canonical-name-provider.html">
+<link rel="import" href="/elements/coder/team/profile/team-members-table.html">
+
+<dom-module id="team-profile-page">
+	<style include="iron-flex">
+		:host {
+			height: 100%;
+		}
+		#wrapper {
+			padding-top: 16px; height: calc(100% - 16px);
+		}
+		.letter {
+			font-size: 16vh;
+			color: #4B4F62;
+		}
+		#teamInfo {
+			text-align:center;
+			@apply(--layout-flex)
+			@apply(--layout-vertical)
+		}
+		#top {
+			margin-bottom: 16px;
+			height: calc(50% - 16px);
+			@apply(--layout-horizontal);
+		}
+		.left {
+			height: 100%;
+			margin-right: 8px;
+			background: white;
+			@apply(--layout-flex)
+		}
+		.right {
+			height: 100%;
+			margin-left: 8px;
+			background: white;
+			@apply(--layout-flex)
+		}
+	</style>
+	<template>
+		<team-by-canonical-name-provider canonical-name="{{canonicalName}}" data="{{team}}"></team-by-canonical-name-provider>
+		<div id="wrapper">
+			<div id="top" class="mainContent">
+				<paper-material class="left" elevation="1">
+					<div id="teamInfo">
+						<text class="letter">[[team._initialLetter]]</text>
+						<h3>[[team.name]]</h3>
+					</div>
+				</paper-material>
+				<paper-material class="right" elevation="1">
+					<team-members-table id="membersGrid" members="[[team.members]]" is-admin="[[isAdmin]]"><team-members-table>
+				</paper-material>
+			</div>
+		</div>
+	</template>
+	<script type="application/javascript" src="/scripts/behaviors/app-connection-behavior.js"></script>
+	<script>
+		// NOTE: canonicalName needs to be set for data to be shown.
+		Polymer({
+			is: 'team-profile-page',
+			behaviors: [
+				Behaviors.AppConnection
+			],
+			observers: [
+				'_teamLoaded(team)'
+			],
+			_teamLoaded: function(team){
+				this.isAdmin = this._isCurentUserAdmin(team);
+			},
+			_isCurentUserAdmin: function(team){
+				var user = this._getCurrentUser();
+				return team.members.some(function(it) {
+					return it.admin && it.username === user.username;
+				});
+			},
+		});
+	</script>
+</dom-module>

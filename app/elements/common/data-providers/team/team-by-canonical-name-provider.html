@@ -1,0 +1,45 @@
+<link rel="import" href="/bower_components/iron-ajax/iron-ajax.html">
+
+<dom-module id="team-by-canonical-name-provider">
+	<style>
+		:host {
+			display: none;
+		}
+	</style>
+	<template>
+		<iron-ajax
+			id="request"
+			method="GET"
+			url="[[baseUrl]]/teams/[[canonicalName]]"
+			handle-as="json"
+			last-response="{{data}}"
+			with-credentials="true">
+		</iron-ajax>
+	</template>
+	<script type="application/javascript" src="/scripts/behaviors/providers/general-provider-behavior.js"></script>
+	<script type="application/javascript" src="/scripts/behaviors/providers/team-provider-behavior.js"></script>
+	<script>
+		Polymer({
+			is: 'team-by-canonical-name-provider',
+			behaviors: [
+				Behaviors.Providers.General,
+				Behaviors.Providers.Team
+			],
+			properties: {
+				withMockedSkills: {
+					type: Boolean
+				}
+			},
+			observers: [
+				'_dataLoaded(data)',
+				'_urlChanged(baseUrl, canonicalName)'
+			],
+			_urlChanged: function(){
+				this.$.request.generateRequest();
+			},
+			_dataLoaded: function(){
+				this.set('data._initialLetter', this._getInitialLetter(this.data));
+			}
+		});
+	</script>
+</dom-module>

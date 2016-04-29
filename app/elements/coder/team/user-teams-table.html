@@ -5,7 +5,6 @@
 <link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 
 <link rel="import" href="/elements/common/data-providers/team/teams-for-user-provider.html">
-<link rel="import" href="/elements/common/skill/skill-polygon.html">
 <link rel="import" href="/elements/coder/team/invite-to-team-modal.html">
 <link rel="import" href="/elements/coder/team/delete-team-modal.html">
 
@@ -58,7 +57,7 @@
 			_selectedItemsChanged: function(){
 				var selected = this.$.teamsGrid.selection.selected();
 				if(!this.clickedOnOption && !!selected && selected.length > 0){
-					console.log('opening team in new window');
+					page('/t/' + this.teams[selected[0]].canonicalName);
 					return;
 				}
 				this.clickedOnOption = false;

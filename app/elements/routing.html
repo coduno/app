@@ -69,6 +69,14 @@ window.addEventListener('WebComponentsReady', function() {
 		});
 	});
 
+	page('/t/:canonicalName', function(ctx) {
+		Polymer.Base.importHref('/elements/coder/team/profile/team-profile-page.html', function(){
+			var page = document.createElement('team-profile-page');
+			page.canonicalName = ctx.params.canonicalName;
+			app.swapContent(page);
+		});
+	});
+
 	// COMPANY
 	page('/challenge/create', function() {
 		Polymer.Base.importHref('/elements/company/task/task-list.html', function(){

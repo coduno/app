@@ -1,0 +1,83 @@
+<link rel="import" href="/bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="/bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="/bower_components/iron-icons/social-icons.html">
+<link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+
+<dom-module id="team-members-table">
+	<style include="iron-flex">
+		:host {
+			display: block;
+			height: 100%;
+		}
+		paper-icon-button {
+			@apply(--layout-self-center);
+		}
+	</style>
+	<template>
+		<vaadin-grid id="membersGrid" class="fullHeight" items="[[members]]" on-selected-items-changed="_selectedItemsChanged">
+			<table>
+				<thead>
+					<tr>
+						<th>Username</th>
+						<th>Name</th>
+						<th>Admin</th>
+						<th>Options</th>
+					</tr>
+				</thead>
+				<colgroup>
+					<col name="username"/>
+					<col name="firstName"/>
+					<col name="admin"/>
+					<col name="id" hidden="[[!isAdmin]]"/>
+				</colgroup>
+			</table>
+		</vaadin-grid>
+	</template>
+	<script type="application/javascript" src="/scripts/behaviors/providers/user-provider-behavior.js"></script>
+	<script>
+		// NOTE: members needs to be set for data to be shown.
+		Polymer({
+			is: 'team-members-table',
+			behaviors: [
+				Behaviors.Providers.User
+			],
+			properties: {
+				isAdmin: {
+					value: true
+				}
+			},
+			observers: [
+				'_membersChanged(members)'
+			],
+			_selectedItemsChanged: function(){
+				var selected = this.$.membersGrid.selection.selected();
+				if(!this.clickedOnOption && !!selected && selected.length > 0){
+					page('/u/' + this.members[selected[0]].username);
+					return;
+				}
+				this.clickedOnOption = false;
+			},
+			_membersChanged: function(){
+				var element = this;
+				this.$.membersGrid.columns[1].renderer = function(cell){
+					cell.element.innerHTML = element._getFullName(cell.row.data);
+				};
+				this.$.membersGrid.columns[3].renderer = function(cell){
+					cell.element.innerHTML = '';
+					cell.element.appendChild(element._createIconButton('close', function(){
+						console.log('remove user');
+						element.clickedOnOption = true;
+					}));
+				};
+				this.$.membersGrid.refreshItems();
+			},
+			_createIconButton: function(icon, clickListener){
+				var button = document.createElement('paper-icon-button');
+				button.icon = icon;
+				button.addEventListener('click', clickListener);
+				return button;
+			}
+		});
+	</script>
+</dom-module>
