@@ -6,7 +6,8 @@
 
 <link rel="import" href="/elements/common/data-providers/team/teams-for-user-provider.html">
 <link rel="import" href="/elements/common/skill/skill-polygon.html">
-<link rel="import" href="/elements/coder/team/create-team-modal.html">
+<link rel="import" href="/elements/coder/team/invite-to-team-modal.html">
+<link rel="import" href="/elements/coder/team/delete-team-modal.html">
 
 <dom-module id="user-teams-table">
 	<style include="iron-flex">
@@ -36,6 +37,8 @@
 				</colgroup>
 			</table>
 		</vaadin-grid>
+		<invite-to-team-modal id="inviteToTeamDialog"></invite-to-team-modal>
+		<delete-team-modal id="deleteTeamDialog" on-team-deleted="_teamDeleted"></delete-team-modal>
 	</template>
 	<script>
 		// NOTE: username needs to be set for data to be shown.
@@ -49,6 +52,9 @@
 			observers: [
 				'_userChanged(user)'
 			],
+			_teamDeleted: function(){
+				this.refresh();
+			},
 			_selectedItemsChanged: function(){
 				var selected = this.$.teamsGrid.selection.selected();
 				if(!this.clickedOnOption && !!selected && selected.length > 0){
@@ -60,16 +66,21 @@
 			_userChanged: function(user){
 				var element = this;
 				this.$.teamsGrid.columns[2].renderer = function(cell){
+					var team = cell.row.data;
 					cell.element.innerHTML = '';
-					if(!element._isAdmin(user, cell.row.data)){
+					if(!element._isAdmin(user, team)){
 						return;
 					}
 					cell.element.appendChild(element._createIconButton('social:group-add', function(){
-						console.log('invite to', cell.data);
+						var dialog = element.$.inviteToTeamDialog;
+						dialog.team = team;
+						dialog.toggle();
 						element.clickedOnOption = true;
 					}));
 					cell.element.appendChild(element._createIconButton('delete', function(){
-						console.log('delete', cell.data);
+						var dialog = element.$.deleteTeamDialog;
+						dialog.team = team;
+						dialog.toggle();
 						element.clickedOnOption = true;
 					}));
 				};

@@ -1,0 +1,84 @@
+<link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="/bower_components/paper-material/paper-material.html">
+<link rel="import" href="/bower_components/paper-input/paper-input.html">
+<link rel="import" href="/bower_components/paper-button/paper-button.html">
+<link rel="import" href="/bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="/bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="/bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="/bower_components/iron-form/iron-form.html">
+
+<dom-module id="delete-team-modal">
+	<style include="iron-flex">
+		.fieldList {
+			@apply(--layout-vertical);
+		}
+		paper-input {
+			width: 250px;
+		}
+	</style>
+	<template>
+		<iron-ajax
+			id="deleteTeamRequest"
+			method="DELETE"
+			handle-as="text"
+			content-type="application/json"
+			with-credentials="true"
+			on-response="_onResponse"
+			on-error="_onError">
+		</iron-ajax>
+		<paper-dialog id="inviteDialog" modal>
+			<h4>Are you sure?</h4>
+			<p><b>This action cannot be undone.</b> It will permanently delete the /t/[[team.canonicalName]] team.</p>
+			<p>Please type the name of the team to continue</p>
+			<div class="fieldList">
+				<paper-input autofocus="true" label="Team name" value="{{teamName}}"></paper-input>
+			</div>
+			<div class="buttons">
+				<paper-button class="secondary" dialog-dismiss>Cancel</paper-button>
+				<paper-button on-click="_deleteTeam" class="error" dialog-confirm disabled="{{deleteDisabled}}">Delete</paper-button>
+			</div>
+		</paper-dialog>
+		<paper-toast id="toast" text="{{toastText}}"></paper-toast>
+	</template>
+	<script>
+		// NOTE: username needs to be set for data to be shown.
+		Polymer({
+			is: 'delete-team-modal',
+			properties: {
+				deleteDisabled: {
+					type: Boolean,
+					value: true
+				}
+			},
+			listeners: {
+				'keyup': '_nameChanged'
+			},
+			toggle: function(){
+				this.$.inviteDialog.toggle();
+			},
+			_deleteTeam: function(){
+				if(this.team.name !== this.teamName){
+					return;
+				}
+				this.$.deleteTeamRequest.url = util.build('/teams/' + this.team.canonicalName);
+				this.$.deleteTeamRequest.generateRequest();
+				this.team = {};
+			},
+			_nameChanged: function(){
+				this.deleteDisabled = this.team.name !== this.teamName;
+			},
+			_onResponse: function(){
+				this.toastText = 'Team successfully deleted.';
+				this.$.toast.show();
+				this.fire('team-deleted');
+			},
+			_onError: function(e, r){
+				this.toastText = 'An error occured when processing your request.';
+				if(!!r.request.xhr.responseText){
+					this.toastText = r.request.xhr.responseText;
+				}
+				this.$.toast.show();
+			}
+		});
+	</script>
+</dom-module>
