@@ -2,15 +2,20 @@
 <link rel="import" href="/bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="/bower_components/iron-icons/social-icons.html">
 <link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="/bower_components/paper-button/paper-button.html">
 <link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+
+<link rel="import" href="/bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="/bower_components/paper-tabs/paper-tab.html">
 
 <link rel="import" href="/elements/common/data-providers/user/user-by-username-provider.html">
 <link rel="import" href="/elements/common/skill/skill-polygon.html">
 <link rel="import" href="/elements/coder/team/create-team-modal.html">
 <link rel="import" href="/elements/coder/team/user-teams-table.html">
+<link rel="import" href="/elements/coder/team/user-team-invitations-table.html">
 
 <dom-module id="profile-page">
-	<style include="iron-flex">
+	<style include="iron-flex iron-flex-reverse">
 		:host {
 			height: 100%;
 		}
@@ -59,11 +64,24 @@
 			height: 60px;
 			@apply(--layout-horizontal);
 		}
+		#teamsGrid {
+			height: calc(100% - 100px);
+		}
+		#teamsButtons{
+			height: 40px;
+			@apply(--layout-horizontal-reverse);
+		}
 		paper-icon-button {
 			@apply(--layout-self-center);
 		}
-		#teamsGrid {
+		.teamsContent {
 			height: calc(100% - 60px);
+		}
+		.header{
+			background: white;
+			color: black;
+			height: 100%;
+			width: calc(100% - 24px);
 		}
 	</style>
 	<template>
@@ -84,13 +102,25 @@
 			<div id="bottom" class="mainContent">
 				<paper-material class="left" elevation="1">
 					<div id="teamsHeader">
-						<h3 class="card-header">Teams</h3>
-						<span class="flex"></span>
 						<template is="dom-if" if="[[isCurrentUser]]">
-							<paper-icon-button icon="add" on-click="_createTeam"></paper-icon-button>
+							<paper-tabs selected="{{selectedTab}}" no-ink="true" class="header">
+								<paper-tab>Teams</paper-tab>
+								<paper-tab>Invitations</paper-tab>
+							</paper-tabs>
+						</template>
+						<template is="dom-if" if="[[!isCurrentUser]]">
+							<h3 class="card-header">Teams</h3>
 						</template>
 					</div>
-					<user-teams-table id="teamsGrid" user="[[user]]" is-current-user="[[isCurrentUser]]"><user-teams-table>
+					<template is="dom-if" if="[[showUserTeams]]">
+						<user-teams-table id="teamsGrid" user="[[user]]" is-current-user="[[isCurrentUser]]"></user-teams-table>
+						<div id="teamsButtons">
+							<paper-button icon="add" on-click="_createTeam">New team</paper-button>
+						</div>
+					</template>
+					<template is="dom-if" if="[[showInvitations]]">
+						<user-team-invitations-table class="teamsContent"></user-team-invitations-table>
+					</template>
 				</paper-material>
 				<paper-material class="right" elevation="1">
 					<h3 class="card-header">Challenges</h3>
@@ -104,6 +134,23 @@
 		// NOTE: username needs to be set for data to be shown.
 		Polymer({
 			is: 'profile-page',
+			properties: {
+				selectedTab: {
+					value: 0
+				},
+				showUserTeams: {
+					computed: '_computeShowUserTeams(isCurrentUser, selectedTab)'
+				},
+				showInvitations: {
+					computed: '_computeShowInvitations(isCurrentUser, selectedTab)'
+				}
+			},
+			_computeShowUserTeams: function(isCurrentUser, selectedTab){
+				return !isCurrentUser || selectedTab === 0;
+			},
+			_computeShowInvitations: function(isCurrentUser, selectedTab){
+				return isCurrentUser && selectedTab === 1;
+			},
 			_createTeam: function(){
 				this.$.createTeamDialog.toggle();
 			},

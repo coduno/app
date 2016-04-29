@@ -1,0 +1,69 @@
+<link rel="import" href="/bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="/bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="/bower_components/iron-icons/social-icons.html">
+<link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+
+<link rel="import" href="/elements/common/data-providers/team/invitation/my-team-invitations-provider.html">
+
+<dom-module id="user-team-invitations-table">
+	<style include="iron-flex">
+		:host {
+			display: block;
+			height: 100%;
+		}
+		paper-icon-button {
+			@apply(--layout-self-center);
+		}
+	</style>
+	<template>
+		<my-team-invitations-provider data="{{invitations}}"></my-team-invitations-provider>
+		<vaadin-grid id="invitationsGrid" class="fullHeight" items="[[invitations]]">
+			<table>
+				<thead>
+					<tr>
+						<th>Team</th>
+						<th>Invited by</th>
+						<th>Options</th>
+					</tr>
+				</thead>
+				<colgroup>
+					<col name="team.name"/>
+					<col name="invitedBy.username"/>
+					<col name="team.id"/>
+				</colgroup>
+			</table>
+		</vaadin-grid>
+	</template>
+	<script type="application/javascript" src="/scripts/behaviors/providers/user-provider-behavior.js"></script>
+	<script>
+		// NOTE: members needs to be set for data to be shown.
+		Polymer({
+			is: 'user-team-invitations-table',
+			behaviors: [
+				Behaviors.Providers.User
+			],
+			observers: [
+				'_invitationsChanged(invitations)'
+			],
+			_invitationsChanged: function(){
+				var element = this;
+				this.$.invitationsGrid.columns[2].renderer = function(cell){
+					cell.element.innerHTML = '';
+					cell.element.appendChild(element._createIconButton('check', function(){
+						console.log('accept invitation');
+					}));
+					cell.element.appendChild(element._createIconButton('close', function(){
+						console.log('remove invitation');
+					}));
+				};
+			},
+			_createIconButton: function(icon, clickListener){
+				var button = document.createElement('paper-icon-button');
+				button.icon = icon;
+				button.addEventListener('click', clickListener);
+				return button;
+			}
+		});
+	</script>
+</dom-module>
