@@ -23,7 +23,10 @@
 			is: 'my-team-invitations-provider',
 			behaviors: [
 				Behaviors.Providers.General
-			]
+			],
+			refresh: function(){
+				this.$.request.generateRequest();
+			}
 		});
 	</script>
 </dom-module>

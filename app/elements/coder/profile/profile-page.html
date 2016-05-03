@@ -115,7 +115,7 @@
 					</div>
 				</template>
 				<template is="dom-if" if="[[showInvitations]]">
-					<user-team-invitations-table class="teamsContent"></user-team-invitations-table>
+					<user-team-invitations-table class="teamsContent" on-invitation-accepted="_refreshTeams"></user-team-invitations-table>
 				</template>
 			</paper-material>
 			<paper-material class="right" elevation="1">
@@ -150,7 +150,7 @@
 				this.$.createTeamDialog.toggle();
 			},
 			_refreshTeams: function(){
-				this.$.teamsGrid.refresh();
+				this.$$('#teamsGrid').refresh();
 			}
 		});
 	</script>

@@ -3,6 +3,7 @@
 <link rel="import" href="/bower_components/iron-icons/social-icons.html">
 <link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="/bower_components/iron-ajax/iron-ajax.html">
 
 <link rel="import" href="/elements/common/data-providers/team/invitation/my-team-invitations-provider.html">
 
@@ -17,6 +18,15 @@
 		}
 	</style>
 	<template>
+		<iron-ajax
+			id="request"
+			method="POST"
+			handle-as="text"
+			content-type="application/json"
+			with-credentials="true"
+			on-response="_onResponse"
+			on-error="_onError">
+		</iron-ajax>
 		<my-team-invitations-provider data="{{invitations}}"></my-team-invitations-provider>
 		<vaadin-grid id="invitationsGrid" class="fullHeight" items="[[invitations]]">
 			<table>
@@ -30,7 +40,7 @@
 				<colgroup>
 					<col name="team.name"/>
 					<col name="invitedBy.username"/>
-					<col name="team.id"/>
+					<col name="team.canonicalName"/>
 				</colgroup>
 			</table>
 		</vaadin-grid>
@@ -50,19 +60,39 @@
 				var element = this;
 				this.$.invitationsGrid.columns[2].renderer = function(cell){
 					cell.element.innerHTML = '';
+					var team = cell.row.data.team;
 					cell.element.appendChild(element._createIconButton('check', function(){
-						console.log('accept invitation');
+						element._acceptInvitation(team);
 					}));
 					cell.element.appendChild(element._createIconButton('close', function(){
-						console.log('remove invitation');
+						element._declineInvitation(team);
 					}));
 				};
+			},
+			_acceptInvitation: function(team){
+				this.$.request.url = util.build('/teams/' + team.canonicalName + '/invitation/accept');
+				this.$.request.generateRequest();
+			},
+			_declineInvitation: function(team){
+				this.$.request.url = util.build('/teams/' + team.canonicalName + '/invitation/decline');
+				this.$.request.generateRequest();
 			},
 			_createIconButton: function(icon, clickListener){
 				var button = document.createElement('paper-icon-button');
 				button.icon = icon;
 				button.addEventListener('click', clickListener);
 				return button;
+			},
+			_onResponse: function(){
+				this.fire('invitation-accepted');
+				this.$$('my-team-invitations-provider').refresh();
+			},
+			_onError: function(e, r){
+				this.toastText = 'An error occured when processing your request.';
+				if(!!r.request.xhr.responseText){
+					this.toastText = r.request.xhr.responseText;
+				}
+				this.$.toast.show();
 			}
 		});
 	</script>
