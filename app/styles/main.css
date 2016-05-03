@@ -98,9 +98,10 @@ paper-header-panel>#mainPanel {
 }
 
 #sections {
-	height: -moz-calc(100% - 64px);
-	height: -webkit-calc(100% - 64px);
-	height: calc(100% - 64px);
+	height: -moz-calc(100% - 88px);
+	height: -webkit-calc(100% - 88px);
+	height: calc(100% - 88px);
+	padding-top: 16px;
 }
 
 .fullHeight {

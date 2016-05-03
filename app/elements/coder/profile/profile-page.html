@@ -54,9 +54,6 @@
 			text-align:center;
 			@apply(--layout-flex)
 		}
-		#wrapper {
-			padding-top: 16px; height: calc(100% - 16px);
-		}
 		.card-header {
 			padding: 16px;
 		}
@@ -87,45 +84,43 @@
 	<template>
 		<user-by-username-provider username="[[username]]" data="{{user}}" with-mocked-skills></user-by-username-provider>
 
-		<div id="wrapper">
-			<paper-material id="top" class="mainContent" elevation="1">
-				<div id="userInfo">
-					<text class="letter">[[user._initialLetter]]</text>
-					<h3>[[user.username]]</h3>
-					<p>[[user.email]]</p>
-					<p>[[user._fullName]]</p>
-				</div>
-				<div id="skillPolygonWrapper">
-					<skill-polygon id="skillPolygon" skills="[[user._mockedSkills]]"></skill-polygon>
-				</div>
-			</paper-material>
-			<div id="bottom" class="mainContent">
-				<paper-material class="left" elevation="1">
-					<div id="teamsHeader">
-						<template is="dom-if" if="[[isCurrentUser]]">
-							<paper-tabs selected="{{selectedTab}}" no-ink="true" class="header">
-								<paper-tab>Teams</paper-tab>
-								<paper-tab>Invitations</paper-tab>
-							</paper-tabs>
-						</template>
-						<template is="dom-if" if="[[!isCurrentUser]]">
-							<h3 class="card-header">Teams</h3>
-						</template>
-					</div>
-					<template is="dom-if" if="[[showUserTeams]]">
-						<user-teams-table id="teamsGrid" user="[[user]]" is-current-user="[[isCurrentUser]]"></user-teams-table>
-						<div id="teamsButtons">
-							<paper-button icon="add" on-click="_createTeam">New team</paper-button>
-						</div>
-					</template>
-					<template is="dom-if" if="[[showInvitations]]">
-						<user-team-invitations-table class="teamsContent"></user-team-invitations-table>
-					</template>
-				</paper-material>
-				<paper-material class="right" elevation="1">
-					<h3 class="card-header">Challenges</h3>
-				</paper-material>
+		<paper-material id="top" class="mainContent" elevation="1">
+			<div id="userInfo">
+				<text class="letter">[[user._initialLetter]]</text>
+				<h3>[[user.username]]</h3>
+				<p>[[user.email]]</p>
+				<p>[[user._fullName]]</p>
 			</div>
+			<div id="skillPolygonWrapper">
+				<skill-polygon id="skillPolygon" skills="[[user._mockedSkills]]"></skill-polygon>
+			</div>
+		</paper-material>
+		<div id="bottom" class="mainContent">
+			<paper-material class="left" elevation="1">
+				<div id="teamsHeader">
+					<template is="dom-if" if="[[isCurrentUser]]">
+						<paper-tabs selected="{{selectedTab}}" no-ink="true" class="header">
+							<paper-tab>Teams</paper-tab>
+							<paper-tab>Invitations</paper-tab>
+						</paper-tabs>
+					</template>
+					<template is="dom-if" if="[[!isCurrentUser]]">
+						<h3 class="card-header">Teams</h3>
+					</template>
+				</div>
+				<template is="dom-if" if="[[showUserTeams]]">
+					<user-teams-table id="teamsGrid" user="[[user]]" is-current-user="[[isCurrentUser]]"></user-teams-table>
+					<div id="teamsButtons">
+						<paper-button icon="add" on-click="_createTeam">New team</paper-button>
+					</div>
+				</template>
+				<template is="dom-if" if="[[showInvitations]]">
+					<user-team-invitations-table class="teamsContent"></user-team-invitations-table>
+				</template>
+			</paper-material>
+			<paper-material class="right" elevation="1">
+				<h3 class="card-header">Challenges</h3>
+			</paper-material>
 		</div>
 
 		<create-team-modal id="createTeamDialog" on-team-created="_refreshTeams"></create-team-modal>

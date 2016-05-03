@@ -17,12 +17,16 @@
 				@apply(--layout-flex);
 			}
 			.big {
-				--iron-icon-height: 64px;
-				--iron-icon-width: 64px;
-				padding: 8px;
+				--iron-icon-height: 40px;
+				--iron-icon-width: 40px;
+				padding: 32px;
 			}
 			.higher {
 				--paper-toolbar-height: 72px;
+				--paper-toolbar-background: white
+			}
+			paper-tabs {
+				background-color: white;
 			}
 		</style>
 		<template is="dom-if" if="{{isLoggedIn}}">
@@ -35,9 +39,9 @@
 				with-credentials="true"
 				on-error="_onSwitchOrganizationError">
 			</iron-ajax>
+			<paper-material elevation="1">
 			<paper-toolbar class="higher">
 				<iron-icon src="/images/logo.svg" class="big"></iron-icon>
-				<div class="title-font">Coduno</div>
 				<div class="flex">
 					<paper-tabs id="bottomTabs" class="bottom indent" selected="{{selected}}" noink no-slide>
 						<span></span>
@@ -73,6 +77,7 @@
 				</paper-menu-button>
 				<paper-progress class="secnav bottom fit" indeterminate style$="{{progressStyle}}"></paper-progress>
 			</paper-toolbar>
+			</paper-material>
 		</template>
 	</template>
 	<script>
