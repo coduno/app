@@ -1,12 +1,12 @@
-<link rel="import" href="/elements/coder/code-editor/code-editor.html">
-<link rel="import" href="/elements/common/services/template-service.html">
-<link rel="import" href="/elements/coder/code-editor/language-selector.html">
-
+<link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 <link rel="import" href="/bower_components/iron-icons/av-icons.html">
 <link rel="import" href="/bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="/bower_components/paper-fab/paper-fab.html">
 <link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
-<link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+
+<link rel="import" href="/elements/coder/code-editor/code-editor.html">
+<link rel="import" href="/elements/coder/code-editor/template-chooser.html">
+<link rel="import" href="/elements/common/services/template-service.html">
 
 <dom-module id="code-editor-with-actions">
 	<template>
@@ -52,10 +52,6 @@
 				@apply(--layout-horizontal-reverse);
 			}
 
-			language-selector {
-				@apply(--layout-self-center)
-			}
-
 			span {
 				@apply(--layout-flex)
 			}
@@ -67,21 +63,27 @@
 		<template-service id="templateService" template="{{template}}"></template-service>
 		<user-submission-service id="submissionService"></user-submission-service>
 		<ws-element url="{{wsUrl}}"></ws-element>
-		<div id="codeEditorWrapper" class$="{{codeEditorWrapperClass}}">
-			<div id="codeEditorCommands">
-				<language-selector task="{{task}}" language="{{languageOption}}" style="margin-left: 20px;"></language-selector>
-				<span></span>
-				<paper-icon-button on-click="_maximize" icon="{{maximizeIcon}}"></paper-icon-button>
+		<template is="dom-if" if="[[choose]]">
+			<div class="layout horizontal wrap">
+				<template-chooser templates="{{task.languages}}"></template-chooser>
 			</div>
-			<code-editor id="codeEditor" on-code-changed="_setCachedCode"></code-editor>
-			<div id="actions">
-				<paper-fab mini on-click="_goToInstructions" icon="chrome-reader-mode"></paper-fab>
-				<paper-fab mini on-click="_download" icon="file-download"></paper-fab>
-				<paper-fab mini on-click="_addFile" icon="file-upload"></paper-fab>
-				<paper-fab mini on-click="submit" icon="av:play-arrow"></paper-fab>
+		</template>
+		<template is="dom-if" if="[[!choose]]">
+			<div id="codeEditorWrapper" class$="{{codeEditorWrapperClass}}">
+				<div id="codeEditorCommands">
+					<paper-input value="[[selectedFile.path]]"></paper-input>
+					<paper-icon-button on-click="_maximize" icon="{{maximizeIcon}}"></paper-icon-button>
+				</div>
+				<code-editor id="codeEditor" on-code-changed="_setCachedCode" selected-file="{{selectedFile}}"></code-editor>
+				<div id="actions">
+					<paper-fab mini on-click="_goToInstructions" icon="chrome-reader-mode"></paper-fab>
+					<paper-fab mini on-click="_download" icon="file-download"></paper-fab>
+					<paper-fab mini on-click="_addFile" icon="file-upload"></paper-fab>
+					<paper-fab mini on-click="submit" icon="av:play-arrow"></paper-fab>
+				</div>
+				<input type="file" name="fileToRun" id="fileToRun" on-change="_filesUploaded" style="display: none;">
 			</div>
-			<input type="file" name="fileToRun" id="fileToRun" on-change="_filesUploaded" style="display: none;">
-		</div>
+		</template>
 	</template>
 	<script>
 		Polymer({
@@ -110,7 +112,17 @@
 				wsUrl: {
 					type: String,
 					notify: true
+				},
+				choose: {
+					type: Boolean,
+					value: true
+				},
+				selectedFile: {
+					type: Object
 				}
+			},
+			listeners: {
+				'template-chosen': 'handleTemplate'
 			},
 			_goToInstructions: function(){
 				window.open(this.task.instructions, '', '_blank');
@@ -124,13 +136,14 @@
 				var files = this.$codeEditor.getFiles();
 				this.$.submissionService.run(this.task.id, this.language, files);
 			},
-			submit: function(){
+			submit: function() {
 				this.fire('start-loading');
 				var files = this.$.codeEditor.getFiles();
 				this.$.submissionService.submit(this.task.id, this.language, files);
 			},
-			ready: function(){
-				this._setValue(this._getCachedCode());
+			ready: function() {
+				console.log(this.task);
+				//this._setValue(this._getCachedCode());
 				this.wsUrl = util.getWSUrl('/ws');
 			},
 			_addFile: function(){
@@ -166,35 +179,21 @@
 				}
 				this.language = this.languageOption.value;
 			},
-			_languageChanged: function(){
-				if(this.language){
-					this.$.codeEditor.language = this.language;
-					var cachedCode = this._getCachedCode();
-					if(cachedCode){
-						this.$.codeEditor.setFilesJson(cachedCode);
-						return;
-					}
-					//this.$.codeEditor.clearFiles();
-					if(!this.task || !this.task.templates || !this.language){
-						return;
-					}
-					for(var i=0;i<this.task.templates.length;i++){
-						if(this.task.templates[i].language === this.language){
-							this.$.templateService.getById(this.task.templates[i].id);
-							return;
-						}
-					}
+			handleTemplate: function(e, detail) {
+				this.set('choose', false);
+
+				// If detail is the empty string, the user decided to start from scratch.
+				if (detail === '' || !this.task || !this.task.templates) {
+					return;
 				}
+
+				this.$.templateService.getById(this.task.languages.filter(function(it) {
+					return it.tag === detail;
+				}).pop(0).id);
 			},
-			_templateChanged: function(){
+			_templateChanged: function() {
 				if(this.template && !this._getCachedCode()){
 					this.$codeEditor.addFile(this.template);
-				}
-			},
-			_filesUploaded: function() {
-				var files = this.$$('#fileToRun').files;
-				if(files.length > 0){
-					this.$$('#codeEditor').setFile(files[0]);
 				}
 			}
 		});

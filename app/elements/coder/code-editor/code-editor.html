@@ -63,9 +63,6 @@
 				tree: {
 					type: Object,
 					notify: true,
-					value: function() {
-						return new Tree({'y.txt': 'Hi!', 'x': {'a.txt': 'Ho!', 'b.txt': 'Hu!'}});
-					},
 					observer: '_treeChanged'
 				},
 				explorerStyle: {
@@ -74,7 +71,8 @@
 				},
 				selectedFile: {
 					type: Object,
-					notify: true
+					notify: true,
+					reflectToAttribute: true
 				}
 			},
 			listeners: {
@@ -108,7 +106,6 @@
 					readOnly: true
 				});
 				this.$.editor.$blockScrolling = Infinity;
-				//this.clearFiles();
 			},
 			_treeChanged: function(current, previous) {
 				console.log('Tree changed from', (previous ? previous.root : undefined), 'to', current.root);

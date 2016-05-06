@@ -5,7 +5,6 @@
 <link rel="import" href="/bower_components/iron-icons/av-icons.html">
 
 <link rel="import" href="/elements/coder/code-editor/code-editor.html">
-<link rel="import" href="/elements/coder/code-editor/language-selector.html">
 
 <link rel="import" href="task-display.html">
 
@@ -65,10 +64,6 @@
 			padding: 5px;
 			margin: 0;
 		}
-		#buttons>language-selector{
-			padding: 5px;
-			margin: 0;
-		}
 	</style>
 	<template>
 		<div id="componentWrapper" class="horizontal layout">
@@ -86,8 +81,7 @@
 				<paper-material id="botRightCard" elevation="1">
 					<div id="buttons" class="horizontal layout">
 						<paper-icon-button class="self-center" icon="av:play-arrow" on-click="runCode">Run code</paper-icon-button>
-						<language-selector class="self-center" id="languageSelector" language="{{language}}" task="{{task}}"></language-selector>
-							<paper-icon-button class="self-center" icon="av:play-arrow" on-click="runTests">Run tests</paper-icon-button>
+						<paper-icon-button class="self-center" icon="av:play-arrow" on-click="runTests">Run tests</paper-icon-button>
 						<span class="flex"></span>
 						<paper-button class="self-center" raised noink class$="{{finishedButtonClass}}" on-click="finishTask">Finish</paper-button>
 					</div>

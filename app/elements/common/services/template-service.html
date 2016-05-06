@@ -1,11 +1,6 @@
 <link rel="import" href="/bower_components/iron-ajax/iron-ajax.html">
 
 <dom-module id="template-service">
-	<style>
-		:host {
-			display: none;
-		}
-	</style>
 	<template>
 		<iron-ajax
 			id="download"
@@ -32,12 +27,13 @@
 				Behaviors.ServiceBehavior
 			],
 			properties: {
-				template: {
+				tree: {
+					type: Object,
 					reflectToAttribute: true,
 					notify: true
 				}
 			},
-			getById: function(id){
+			getById: function(id) {
 				this.$.getOne.url = util.build('/templates/' + id);
 				this.$.getOne.generateRequest();
 			},
@@ -45,11 +41,57 @@
 				this.$.download.url = url;
 				this.$.download.generateRequest();
 			},
-			_onGetOne: function(r){
+			_onGetOne: function(r) {
+				var tree = new Tree({});
+				for (var it in r.detail.response) {
+					files.push()
+				}
 				this.download(r.detail.response[0]);
 			},
 			_onTemplate: function(r) {
 				this.template = r.detail.response;
+			}
+			getTemplates: function(language) {
+				this.app.startLoading();
+				this.templates = [];
+				this.$.getTemplateList.url = util.build('/tasks/' + this.task.id + '/templates' + (language ? '?language=' + language : ''));
+				this.$.getTemplateList.generateRequest();
+			},
+			_onList: function(e) {
+				var urls = e.detail.response;
+				if (!urls || urls.length === 0) {
+					// No template available.
+					this.app.stopLoading();
+					return;
+				}
+				this.templateCount = urls.length;
+				for (var i = 0; i < urls.length; i++) {
+					this.$.getTemplate.url = urls[i];
+					this.$.getTemplate.generateRequest();
+				}
+			},
+			_onTemplate: function(e, req) {
+				// NOTE(flowlo): This matches a sensible subset of
+				// Content-Disposition filename parameters. It diverges
+				// from the spec as it does not allow omitting quotes if
+				// the filename contains no space (because there is no
+				// support for lookbehinds in JS RegExes), and also is a
+				// bit more strict with path names (only allows '/') and
+				// special chars (only allows '.'). So a colon in a
+				// filename won't match for example.
+				var match = /filename\s*=\s*"([\w\.\/]+)"/.exec(
+					req.xhr.getResponseHeader('Content-Disposition')
+				);
+				if (!match) {
+					console.log('Got malformed Content-Disposition!');
+					this.templateCount--;
+					return;
+				}
+				e.detail.response.name = match[1];
+				this.templates.push(e.detail.response);
+				if (this.templateCount <= this.templates.length) {
+					this.fire('templates', this.templates);
+				}
 			}
 		});
 	</script>

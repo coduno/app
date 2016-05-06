@@ -1,0 +1,48 @@
+<link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="/bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="/bower_components/paper-menu/paper-menu.html">
+
+<dom-module id="template-chooser">
+	<style include="iron-flex iron-flex-alignment">
+		paper-dropdown-menu {
+			width: 200px;
+		}
+		option {
+			width: 200px;
+		}
+		paper-menu {
+			background-color: white;
+		}
+		.container {
+		}
+	</style>
+	<template>
+		<div class="container">
+			<div>When you are ready to go, pick a template that will get you started:</div>
+			<div>
+				<paper-dropdown-menu>
+					<paper-menu id="dropdown" class="dropdown-content">
+						<template is="dom-repeat" items="{{templates}}">
+							<option value="{{item.tag}}">{{item.name}}</option>
+						</template>
+					</paper-menu>
+				</paper-dropdown-menu>
+			</div>
+			<div class="horizontal end-justified layout">
+				<paper-button raised on-click="chooseScratch">Start from Scratch</paper-button>
+				<paper-button raised on-click="chooseSelected">OK</paper-button>
+			</div>
+		</div>
+	</template>
+	<script>
+		Polymer({
+			is: 'template-chooser',
+			chooseSelected: function() {
+				this.fire('template-chosen', this.$.dropdown.selectedItem.value);
+			},
+			chooseScratch: function() {
+				this.fire('template-chosen', '');
+			}
+		});
+	</script>
+</dom-module>
