@@ -1,0 +1,19 @@
+<script>
+window.Behaviors = window.Behaviors || {};
+window.Behaviors.CodeEditorWithActionsBehavior = {
+	selected: function(){
+	},
+	deselected: function(){
+	},
+	_addPropertiesTo: function(element){
+		element.task = this.task;
+		return element;
+	},
+	_extractData: function(parent){
+		this.task = parent.task;
+	},
+	process: function(){
+
+	}
+};
+</script>

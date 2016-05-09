@@ -1,0 +1,28 @@
+<script>
+window.Behaviors = window.Behaviors || {};
+window.Behaviors.LeaderboardBehavior = {
+	selected: function(){
+		var self = this;
+		self._refresh();
+		this.intervalId = setInterval(function(){
+			self._refresh();
+		}, 5000);
+	},
+	deselected: function(){
+		clearInterval(this.intervalId);
+	},
+	_refresh: function(){
+		this.$$(this.item.element).refresh();
+	},
+	_addPropertiesTo: function(element){
+		element.challengeId = this.challengeId;
+		return element;
+	},
+	_extractData: function(parent){
+		this.challengeId = parent.challengeId;
+	},
+	process: function(){
+
+	}
+};
+</script>

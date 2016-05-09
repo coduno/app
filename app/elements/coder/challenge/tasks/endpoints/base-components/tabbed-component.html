@@ -1,0 +1,78 @@
+<link rel="import" href="/bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="/bower_components/paper-tabs/paper-tab.html">
+<link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+
+<link rel="import" href="simple-component.html">
+
+<dom-module id="tabbed-component">
+<style include="iron-flex">
+	:host{
+		display: block;
+		height: 100%;
+		--paper-tabs-selection-bar-color: #87CEFA;
+		--paper-tab-ink: #87CEFA;
+	}
+	.header{
+		background: white;
+		color: black;
+		height: 50px;
+	}
+	paper-material{
+		width: 100%;
+		margin: auto;
+		background: white;
+	}
+	.halfScreen {
+		width: 50%;
+	}
+	.tabCard{
+		height: calc(100% - 98px);
+	}
+	.item {
+		width: calc(100% - 16px);
+		margin: 16px 8px 16px 8px;
+	}
+</style>
+	<template>
+			<paper-material elevation="1" class="header item">
+				<paper-tabs selected="{{tab}}" align-bottom="true" no-ink="true">
+					<template is="dom-repeat" items="{{tabs}}">
+						<paper-tab>{{item.label}}</paper-tab>
+					</template>
+				</paper-tabs>
+			</paper-material>
+
+			<iron-pages id="pages" selected="{{tab}}" class="tabCard item">
+				<template is="dom-repeat" items="{{tabs}}">
+					<simple-component id="{{item.id}}" item="[[item]]" class="fullHeight"></simple-component>
+				</template>
+			</iron-pages>
+	</template>
+	<script>
+		Polymer({
+			is: 'tabbed-component',
+			properties: {
+				tab: {
+					type: Number,
+					notify: true,
+					observer: '_selectedTabChanged',
+					value: 0
+				}
+			},
+			passDown: function(elementId, eventName, data){
+				this.$$('#' + elementId).process(eventName, data);
+			},
+			_selectedTabChanged: function(){
+				if(!this.tabs){
+					return;
+				}
+				this.$$('#' + this.tabs[this.tab].id).selected();
+				for(var i=0; i<this.tabs.length;i++){
+					if(this.tab !== i){
+						this.$$('#' + this.tabs[i].id).deselected();
+					}
+				}
+			}
+		});
+	</script>
+</dom-module>

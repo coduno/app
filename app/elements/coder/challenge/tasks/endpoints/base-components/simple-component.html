@@ -1,0 +1,79 @@
+<link rel="import" href="/elements/coder/code-editor/consoles/tabbed-console.html">
+<link rel="import" href="/elements/coder/code-editor/code-editor-with-actions.html">
+<link rel="import" href="/elements/coder/input-view/input-view.html">
+<link rel="import" href="/elements/common/leaderboard/challenge-leaderboard.html">
+
+<link rel="import" href="/bower_components/paper-material/paper-material.html">
+<link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+
+<dom-module id="simple-component">
+<style include="iron-flex">
+	:host{
+		display: block;
+		height: 100%;
+	}
+	paper-material{
+		height: 100%;
+		width: 100%;
+		margin: auto;
+		background: white;
+	}
+</style>
+	<template>
+		<paper-material elevation="1">
+			<div id="wrapper" class="fullHeight">
+
+			</div>
+		</paper-material>
+	</template>
+	<script>
+		/*global Behaviors:false */
+		Polymer({
+			is: 'simple-component',
+			observers: [
+				'_afterPropertiesSet(item)'
+			],
+			listeners: {
+				'behavior-imported': '_onBehaviorImported'
+			},
+			_afterPropertiesSet: function(){
+				this._importAndBindBehaviorFor(this.item.element);
+			},
+			_createElement: function(){
+				var item = this._addPropertiesTo(document.createElement(this.item.element));
+				item.id = this.item.id;
+				this.$$('#wrapper').innerHTML = '';
+				this.$$('#wrapper').appendChild(item);
+			},
+			_onBehaviorImported: function(e, behavior){
+				this._bindBehavior(behavior);
+				this.fire('require-data', this);
+				this._createElement();
+			},
+			_bindBehavior: function(Behavior){
+				for(var key in Behavior){
+					this[key] = Behavior[key];
+				}
+			},
+			_importAndBindBehaviorFor: function(element){
+				var self = this;
+				Polymer.Base.importHref('/elements/coder/challenge/tasks/endpoints/base-components/behaviors/' + element + '-behavior.html', function(){
+					switch(element){
+						case 'challenge-leaderboard':
+							self.fire('behavior-imported', Behaviors.LeaderboardBehavior);
+							break;
+						case 'tabbed-console':
+							self.fire('behavior-imported', Behaviors.TabbedConsoleBehavior);
+							break;
+						case 'code-editor-with-actions':
+							self.fire('behavior-imported', Behaviors.CodeEditorWithActionsBehavior);
+							break;
+						case 'input-view':
+							self.fire('behavior-imported', Behaviors.InputViewBehavior);
+							break;
+					}
+				});
+			}
+		});
+	</script>
+</dom-module>

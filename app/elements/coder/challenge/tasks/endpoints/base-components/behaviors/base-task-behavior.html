@@ -1,0 +1,20 @@
+<script>
+window.Behaviors = window.Behaviors || {};
+window.BaseTaskBehavior = {
+	listeners: {
+		'ws-message': '_onMessage',
+		'require-data': '_onDataRequired'
+	},
+	_onDataRequired: function(e, element){
+		element._extractData(this);
+	},
+	_onMessage: function(m){
+		var result = JSON.parse(m.detail);
+		if(result && result.levelState === 'completed' && this.task.id === result.task){
+			this.fire('level-completed');
+			return;
+		}
+		this.setResult(result);
+	}
+};
+</script>

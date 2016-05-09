@@ -1,0 +1,21 @@
+<script>
+window.Behaviors = window.Behaviors || {};
+window.Behaviors.InputViewBehavior = {
+	selected: function(){
+	},
+	deselected: function(){
+	},
+	_addPropertiesTo: function(element){
+		element.task = this.task;
+		return element;
+	},
+	_extractData: function(parent){
+		this.task = parent.task;
+	},
+	process: function(eventName, data){
+		if(eventName === 'result'){
+			this.$$(this.item.element).setResult(data);
+		}
+	}
+};
+</script>

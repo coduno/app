@@ -1,0 +1,33 @@
+<link rel="import" href="/bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="/bower_components/paper-tabs/paper-tab.html">
+<link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+
+<link rel="import" href="simple-component.html">
+
+<dom-module id="top-bottom-component">
+<style include="iron-flex">
+	:host{
+		display: block;
+		height: 100%;
+		--paper-tabs-selection-bar-color: #87CEFA;
+		--paper-tab-ink: #87CEFA;
+	}
+	.item {
+		width: calc(100% - 16px);
+		height: calc(50% - 24px);
+		margin: 16px 8px 16px 8px;
+	}
+</style>
+	<template>
+		<simple-component id="{{config.top.id}}" item="[[config.top]]" class="item"></simple-component>
+		<simple-component id="{{config.bot.id}}" item="[[config.bot]]" class="item"></simple-component>
+	</template>
+	<script>
+		Polymer({
+			is: 'top-bottom-component',
+			passDown: function(elementId, eventName, data){
+				this.$$('#' + elementId).process(eventName, data);
+			}
+		});
+	</script>
+</dom-module>
