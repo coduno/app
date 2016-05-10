@@ -59,13 +59,19 @@
 			paper-icon-button {
 				@apply(--layout-self-center)
 			}
+
+			template-chooser {
+				margin: auto;
+			}
 		</style>
 		<template-service id="templateService" template="{{template}}"></template-service>
 		<user-submission-service id="submissionService"></user-submission-service>
 		<ws-element url="{{wsUrl}}"></ws-element>
 		<template is="dom-if" if="[[choose]]">
-			<div class="layout horizontal wrap">
-				<template-chooser templates="{{task.languages}}"></template-chooser>
+			<div fit layout vertical center-justified>
+				<div self-center>
+					<template-chooser templates="{{task.languages}}"></template-chooser>
+				</div>
 			</div>
 		</template>
 		<template is="dom-if" if="[[!choose]]">
@@ -122,7 +128,8 @@
 				}
 			},
 			listeners: {
-				'template-chosen': 'handleTemplate'
+				'template-chosen': 'handleTemplate',
+				'template-fetched': 'handleTemplateFetched'
 			},
 			_goToInstructions: function(){
 				window.open(this.task.instructions, '', '_blank');
@@ -143,6 +150,11 @@
 			},
 			ready: function() {
 				console.log(this.task);
+
+				// TODO: Check how many templates (i.e. how many languages) there are.
+				// If it's only one, skip the chooser, if it's multiple show the
+				// template-chooser by setting choose.
+
 				//this._setValue(this._getCachedCode());
 				this.wsUrl = util.getWSUrl('/ws');
 			},
@@ -162,13 +174,13 @@
 				this.$$('#codeEditor').setValue(value);
 			},
 			_setCachedCode: function(e, code){
-				if(!this.language){
+				if (!this.language) {
 					return;
 				}
 				localStorage.setItem(this.language, JSON.stringify(code));
 			},
-			_getCachedCode: function(){
-				if(!this.language){
+			_getCachedCode: function() {
+				if (!this.language) {
 					return undefined;
 				}
 				return JSON.parse(localStorage.getItem(this.language));
@@ -187,14 +199,12 @@
 					return;
 				}
 
-				this.$.templateService.getById(this.task.languages.filter(function(it) {
+				this.$.templateService.getTemplates(this.task.id, this.task.languages.filter(function(it) {
 					return it.tag === detail;
-				}).pop(0).id);
+				}).pop(0).tag);
 			},
-			_templateChanged: function() {
-				if(this.template && !this._getCachedCode()){
-					this.$codeEditor.addFile(this.template);
-				}
+			handleTemplateFetched: function(e, detail) {
+				this.$$('#codeEditor').handleAdd(e, detail);
 			}
 		});
 	</script>

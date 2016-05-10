@@ -3,19 +3,18 @@
 <dom-module id="template-service">
 	<template>
 		<iron-ajax
-			id="download"
+			id="getList"
 			method="GET"
-			handle-as="blob"
-			last-response="{{template}}"
-			on-response="_onTemplate"
+			handle-as="json"
+			with-credentials="true"
+			on-response="_onList"
 			on-error="_onError">
 		</iron-ajax>
 		<iron-ajax
 			id="getOne"
 			method="GET"
-			handle-as="json"
-			with-credentials="true"
-			on-response="_onGetOne"
+			handle-as="text"
+			on-response="_onSingle"
 			on-error="_onError">
 		</iron-ajax>
 	</template>
@@ -26,51 +25,23 @@
 			behaviors: [
 				Behaviors.ServiceBehavior
 			],
-			properties: {
-				tree: {
-					type: Object,
-					reflectToAttribute: true,
-					notify: true
-				}
-			},
-			getById: function(id) {
-				this.$.getOne.url = util.build('/templates/' + id);
-				this.$.getOne.generateRequest();
-			},
-			download: function(url) {
-				this.$.download.url = url;
-				this.$.download.generateRequest();
-			},
-			_onGetOne: function(r) {
-				var tree = new Tree({});
-				for (var it in r.detail.response) {
-					files.push()
-				}
-				this.download(r.detail.response[0]);
-			},
-			_onTemplate: function(r) {
-				this.template = r.detail.response;
-			}
-			getTemplates: function(language) {
-				this.app.startLoading();
-				this.templates = [];
-				this.$.getTemplateList.url = util.build('/tasks/' + this.task.id + '/templates' + (language ? '?language=' + language : ''));
-				this.$.getTemplateList.generateRequest();
+			getTemplates: function(taskId, language) {
+				this.$.getList.url = util.build('/tasks/' + taskId + '/templates/' + language);
+				this.$.getList.generateRequest();
 			},
 			_onList: function(e) {
 				var urls = e.detail.response;
 				if (!urls || urls.length === 0) {
 					// No template available.
-					this.app.stopLoading();
 					return;
 				}
-				this.templateCount = urls.length;
 				for (var i = 0; i < urls.length; i++) {
-					this.$.getTemplate.url = urls[i];
-					this.$.getTemplate.generateRequest();
+					this.$.getOne.url = urls[i];
+					this.$.getOne.generateRequest();
 				}
 			},
-			_onTemplate: function(e, req) {
+			_onSingle: function(e, req) {
+				var contentDisposition = req.xhr.getResponseHeader('Content-Disposition');
 				// NOTE(flowlo): This matches a sensible subset of
 				// Content-Disposition filename parameters. It diverges
 				// from the spec as it does not allow omitting quotes if
@@ -79,19 +50,15 @@
 				// bit more strict with path names (only allows '/') and
 				// special chars (only allows '.'). So a colon in a
 				// filename won't match for example.
-				var match = /filename\s*=\s*"([\w\.\/]+)"/.exec(
-					req.xhr.getResponseHeader('Content-Disposition')
-				);
+				var match = /filename\s*=\s*"([\w\.\/]+)"/.exec(contentDisposition);
 				if (!match) {
-					console.log('Got malformed Content-Disposition!');
-					this.templateCount--;
+					console.log('Got malformed Content-Disposition "' + contentDisposition + '"');
 					return;
 				}
-				e.detail.response.name = match[1];
-				this.templates.push(e.detail.response);
-				if (this.templateCount <= this.templates.length) {
-					this.fire('templates', this.templates);
-				}
+				this.fire('template-fetched', {
+					path:    '/' + match[1],
+					content: e.detail.response
+				});
 			}
 		});
 	</script>

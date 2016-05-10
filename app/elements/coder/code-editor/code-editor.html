@@ -63,6 +63,9 @@
 				tree: {
 					type: Object,
 					notify: true,
+					value: function() {
+						return new Tree({});
+					},
 					observer: '_treeChanged'
 				},
 				explorerStyle: {
@@ -137,6 +140,14 @@
 					return;
 				}
 				this.tree.add(detail.path);
+				this.notifyPath('tree', this.tree);
+			},
+			handleAdd: function(e, detail) {
+				if (this.tree.contains(detail.path)) {
+					return;
+				}
+				console.log('Adding file', detail);
+				this.tree.add(detail.path, detail.content);
 				this.notifyPath('tree', this.tree);
 			},
 			_fileSelected: function(e, detail) {
@@ -215,7 +226,10 @@
 					if (that._clickInsideElement(e, 'explorer-folder')) {
 						return;
 					}
-					document.querySelector('context-menu').hideMenu();
+					var cm = document.querySelector('context-menu');
+					if (cm) {
+						cm.hideMenu();
+					}
 				});
 			},
 			_clickInsideElement: function(e, elName) {
