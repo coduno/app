@@ -1,0 +1,26 @@
+<link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout-classes.html"/>
+
+<link rel="import" href="available-challenges-table.html"/>
+<dom-module id="available-challenges-page">
+	<style include="iron-flex iron-flex-reverse">
+		:host {
+			height: 100%;
+			display: block;
+		}
+		paper-material {
+			background: white;
+			margin-top: 0;
+		}
+	</style>
+	<template>
+		<paper-material class="mainContent" elevation="1">
+			<available-challenges-table></available-challenges-table>
+		</paper-material>
+		</div>
+	</template>
+	<script>
+		Polymer({
+			is: 'available-challenges-page'
+		});
+	</script>
+</dom-module>

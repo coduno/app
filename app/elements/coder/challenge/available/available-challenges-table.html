@@ -1,0 +1,81 @@
+<link rel="import" href="/bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="/bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="/bower_components/iron-icons/social-icons.html">
+<link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="/bower_components/paper-button/paper-button.html">
+<link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+
+<link rel="import" href="/elements/common/data-providers/challenge/challenges-provider.html"/>
+
+<dom-module id="available-challenges-table">
+	<style include="iron-flex">
+		:host {
+			display: block;
+			height: 100%;
+		}
+		paper-icon-button {
+			@apply(--layout-self-center);
+		}
+	</style>
+	<template>
+		<challenges-provider data="{{challenges}}"></challenges-provider>
+		<vaadin-grid id="availableChallengesGrid" class="fullHeight" items="[[challenges]]">
+			<table>
+				<thead>
+					<tr>
+						<th>Name</th>
+						<th>Organization</th>
+						<th>Start date</th>
+						<th>End date</th>
+						<th>Actions</th>
+					</tr>
+				</thead>
+				<colgroup>
+					<col name="name"/>
+					<col name="organization.name"/>
+					<col name="startDate"/>
+					<col name="endDate"/>
+					<col name="id"/>
+				</colgroup>
+			</table>
+		</vaadin-grid>
+	</template>
+	<script>
+		Polymer({
+			is: 'available-challenges-table',
+			properties: {
+				isAdmin: {
+					value: true
+				}
+			},
+			observers: [
+				'_dataChanged(challenges)'
+			],
+			_dataChanged: function(){
+				var element = this;
+				this.$.availableChallengesGrid.columns[2].renderer = element._formatDate;
+				this.$.availableChallengesGrid.columns[3].renderer = element._formatDate;
+				this.$.availableChallengesGrid.columns[4].renderer = function(cell){
+					cell.element.innerHTML = '';
+					cell.element.appendChild(element._createButton('Register', function(){
+						console.log('register to challenge');
+					}));
+				};
+				this.$.availableChallengesGrid.refreshItems();
+			},
+			_formatDate: function(cell){
+				if(!cell.data){
+					return '';
+				}
+				cell.element.innerHTML = util.formatDate(cell.data);
+			},
+			_createButton: function(label, clickListener){
+				var button = document.createElement('paper-button');
+				Polymer.dom(button).textContent = label;
+				button.addEventListener('click', clickListener);
+				button.raised = true;
+				return button;
+			}
+		});
+	</script>
+</dom-module>

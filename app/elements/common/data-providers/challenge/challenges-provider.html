@@ -1,0 +1,32 @@
+<link rel="import" href="/bower_components/iron-ajax/iron-ajax.html">
+
+<dom-module id="challenges-provider">
+	<style>
+		:host {
+			display: none;
+		}
+	</style>
+	<template>
+		<iron-ajax
+			id="request"
+			auto
+			method="GET"
+			url="[[baseUrl]]/challenges"
+			handle-as="json"
+			last-response="{{data}}"
+			with-credentials="true">
+		</iron-ajax>
+	</template>
+	<script type="application/javascript" src="/scripts/behaviors/providers/general-provider-behavior.js"></script>
+	<script>
+		Polymer({
+			is: 'challenges-provider',
+			behaviors: [
+				Behaviors.Providers.General
+			],
+			refresh: function(){
+				this.$.request.generateRequest();
+			}
+		});
+	</script>
+</dom-module>
