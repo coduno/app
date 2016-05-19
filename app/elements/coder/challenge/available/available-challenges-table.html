@@ -30,7 +30,7 @@
 			on-error="_onError">
 		</iron-ajax>
 		<challenges-provider data="{{challenges}}"></challenges-provider>
-		<vaadin-grid id="availableChallengesGrid" class="fullHeight" items="[[challenges]]">
+		<vaadin-grid id="availableChallengesGrid" class="fullHeight" items="[[challenges]]" on-selected-items-changed="_selectedItemsChanged">
 			<table>
 				<thead>
 					<tr>
@@ -65,6 +65,17 @@
 			observers: [
 				'_dataChanged(challenges)'
 			],
+			_selectedItemsChanged: function(){
+				var selected = this.$.availableChallengesGrid.selection.selected();
+				if(!this.clickedOnOption && !!selected && selected.length > 0){
+					var dto = this.challenges[selected[0]];
+					if(dto.status === 'REGISTERED'||dto.status === 'IN_PROGRESS'||dto.status === 'INVITED'){
+						page('/contest/' + dto.challenge.id);
+					}
+					return;
+				}
+				this.clickedOnOption = false;
+			},
 			_dataChanged: function(){
 				var element = this;
 				this.$.availableChallengesGrid.columns[2].renderer = element._formatDate;
@@ -81,6 +92,7 @@
 					}
 					cell.element.appendChild(element._createButton('Register', function(){
 						element._registerTo(dto.challenge.canonicalName);
+						element.clickedOnOption = true;
 					}));
 				};
 				this.$.availableChallengesGrid.refreshItems();

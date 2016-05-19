@@ -186,6 +186,7 @@
 				if(this.loggedInAs.value !== this.user.id){
 					activeOrganization = this.loggedInAs.value;
 				}
+				localStorage.activeOrganization = activeOrganization;
 				this.$$('#switchOrganizationRequest').body = {id: activeOrganization};
 				this.$$('#switchOrganizationRequest').url = util.build('/user/organizations/active');
 				this.$$('#switchOrganizationRequest').generateRequest();

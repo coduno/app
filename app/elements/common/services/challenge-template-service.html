@@ -86,7 +86,7 @@
 			},
 			getAll: function(){
 				this.app.startLoading();
-				this.$.getMultiChallengeTemplates.url = util.build('/challenges/templates');
+				this.$.getMultiChallengeTemplates.url = util.build('/challenges/templates?organization=' + localStorage.activeOrganization);
 				this.$.getMultiChallengeTemplates.generateRequest();
 			},
 			_onResponse: function(){
