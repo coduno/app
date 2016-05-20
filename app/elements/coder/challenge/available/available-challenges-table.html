@@ -114,6 +114,7 @@
 			},
 			_registerTo: function(canonicalName){
 				this.$.registerRequest.url = util.build('/challenges/' + canonicalName + '/register');
+				this.$.registerRequest.body = {"team": undefined}; // TODO: set teamname here (which you are member of) to participate as a team
 				this.$.registerRequest.generateRequest();
 			},
 			_formatDate: function(cell){
