@@ -31,27 +31,21 @@
 		#wrapper {
 			@apply(--layout-vertical);
 		}
-		#inviteWrapper {
+		.layout-horizontal {
 			@apply(--layout-horizontal);
 		}
-		#challengeName {
+
+		.flex {
 			@apply(--layout-flex);
 		}
 	</style>
 	<template>
 		<challenge-service id="challengeService" challenge="{{challenge}}"></challenge-service>
 		<invitation-service id="invitationService" invitations="{{invitations}}"></invitation-service>
-		<invite-candidates id="inviteCandidates" challenge="{{challenge}}" on-invitation-sent="_onInvitationSent"></invite-candidates>
 
 		<div id="wrapper" class="grid mainContent">
 				<paper-material class="card" elevation="1">
-					<div id="inviteWrapper">
-						<h1 id="challengeName">{{challenge.name}}</h1>
-						<paper-button on-click="_inviteCandidates">
-							<iron-icon icon="mail"></iron-icon>
-							Invite candidates
-						</paper-button>
-					</div>
+					<h1>{{challenge.name}}</h1>
 					<description-list>
 						<description-list-item label="Canonical name" value="{{challenge.canonicalName}}"></description-list-item>
 						<description-list-item label="Start date" value="{{challenge.startDate}}" date></description-list-item>
@@ -60,7 +54,19 @@
 				</paper-material>
 
 				<paper-material class="card">
-					<h3>Invited users</h3>
+					<div class="layout-horizontal">
+						<h3 class="flex">Invited users</h3>
+						<paper-button on-click="inviteCandidates">
+							<iron-icon icon="{{inviteIcon}}"></iron-icon>
+							Invite candidates
+						</paper-button>
+					</div>
+					<invite-candidates
+						id="inviteCandidates"
+						style="display: none"
+						challenge-id="{{challenge.id}}"
+						on-invitation-sent="_onInvitationSent">
+					</invite-candidates>
 					<table style="width:100%">
 						<tr>
 							<th>Username</th>
@@ -107,6 +113,7 @@
 			},
 			_challengeIdChanged: function(){
 				this._refresh();
+				this.inviteIcon = 'add';
 			},
 			_refresh: function(){
 				this.$.challengeService.getById(this.challengeId);
@@ -117,10 +124,19 @@
 					return util.formatDate(date);
 				}
 			},
-			_inviteCandidates: function(){
-				this.$.inviteCandidates.toggle();
+			inviteCandidates: function(){
+				if (!this.showInvitation){
+					this.inviteIcon = 'remove';
+					this.$.inviteCandidates.style.display = '';
+					this.$.inviteCandidates.reset();
+				}else{
+					this.inviteIcon = 'add';
+					this.$.inviteCandidates.style.display = 'none';
+				}
+				this.showInvitation = !this.showInvitation;
 			},
 			_onInvitationSent: function(){
+				this.$.inviteCandidates.reset();
 				this._refresh();
 			}
 		});

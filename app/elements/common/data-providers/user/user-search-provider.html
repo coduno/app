@@ -1,0 +1,60 @@
+<link rel="import" href="/bower_components/iron-ajax/iron-ajax.html">
+
+<dom-module id="user-search-provider">
+	<style>
+		:host {
+			display: none;
+		}
+	</style>
+	<template>
+		<iron-ajax
+			id="request"
+			auto
+			method="GET"
+			url="{{url}}"
+			handle-as="json"
+			last-response="{{data}}"
+			with-credentials="true">
+		</iron-ajax>
+	</template>
+	<script type="application/javascript" src="/scripts/behaviors/providers/general-provider-behavior.js"></script>
+	<script type="application/javascript" src="/scripts/behaviors/providers/user-provider-behavior.js"></script>
+	<script>
+		Polymer({
+			is: 'user-search-provider',
+			properties: {
+				searchString: {
+					type: String,
+					notify: true,
+					observer: '_searchPropertyChanged'
+				}
+			},
+			behaviors: [
+				Behaviors.Providers.General,
+				Behaviors.Providers.User
+			],
+			observers: [
+				'_dataLoaded(data)'
+			],
+			_searchPropertyChanged: function(){
+				if (!!this.searchString && this.searchString.length > 2){
+					this.url = this.baseUrl + '/users/search?searchValue=' + this.searchString;
+				}
+			},
+			_dataLoaded: function(data){
+				for (var i = 0; i < data.length; i++){
+					data[i].label = this._getUserLabel(data[i]);
+				}
+			},
+			_getUserLabel: function(user){
+				if (!user){
+					return '';
+				}
+				var label = this._getFullName(user);
+				label = label === '' ? user.username : label + ' - ' + user.username;
+				label = label + ' - ' + user.email;
+				return label;
+			}
+		});
+	</script>
+</dom-module>

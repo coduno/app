@@ -47,7 +47,6 @@
 				New challenge
 			</paper-button>
 		</paper-material>
-		<invite-candidates id="inviteCandidatesModal"></invite-candidates>
 	</template>
 	<script>
 		Polymer({
@@ -62,8 +61,7 @@
 				page('/challenge/template/'+ this.challengeTemplate.id + '/create');
 			},
 			_inviteCandidates: function (e) {
-				this.$.inviteCandidatesModal.challenge = e.model.__data__.item;
-				this.$.inviteCandidatesModal.toggle();
+				page('/challenges/' + e.model.__data__.item.id + '?invite=true');
 			},
 			_formatDate: function(date){
 				if (!!date){

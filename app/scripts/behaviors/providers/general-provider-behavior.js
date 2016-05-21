@@ -8,7 +8,6 @@ Behaviors.Providers.General = {
 			value: util.baseUrl()
 		},
 		data: {
-			type: Object,
 			reflectToAttribute: true,
 			notify: true
 		}

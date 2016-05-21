@@ -4,13 +4,16 @@
 <link rel="import" href="/bower_components/paper-item/paper-item.html">
 <link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 
+<link rel="import" href="/bower_components/vaadin-combo-box/vaadin-combo-box.html">
+<link rel="import" href="/elements/common/data-providers/user/user-search-provider.html">
+
 <dom-module id="invite-candidate-input">
 	<style  include="iron-flex">
 		:host {
 			display: block;
 		}
 		#address {
-			width: 325px;
+			width: 100%;
 			@apply(--layout-self-center);
 		}
 
@@ -26,16 +29,20 @@
 		}
 	</style>
 	<template>
+		<user-search-provider search-string="[[inputValue]]" data="{{users}}"></user-search-provider>
 		<div id="row">
-			<paper-input
+			<vaadin-combo-box
 				id="address"
-				label="person@example.com"
-				value="{{candidate.email}}"
-				type="email"
-				error-message="Address should match the example above"
-				required>
-			</paper-input>
-			<iron-icon icon="remove" on-click="_removeItem"></iron-icon>
+				value="{{email}}"
+				item-label-path="label"
+				item-value-path="email"
+				on-input-value-changed="_inputValueChanged"
+				allow-custom-value
+				items="[[users]]">
+			</vaadin-combo-box>
+			<template is="dom-if" if="{{removable}}">
+				<iron-icon icon="remove" on-click="_removeItem"></iron-icon>
+			</template>
 		</div>
 	</template>
 	<script>
@@ -46,18 +53,27 @@
 				Polymer.IronValidatableBehavior
 			],
 			properties: {
-				candidate: {
-					type: Object,
-					reflectToAttribute: true,
+				email: {
+					notify: true
+				},
+				inputValue: {
+					notify: true
+				},
+				removable: {
+					type: Boolean,
 					notify: true
 				}
+
 			},
-			validate: function(){
-				return this.$.address.validate();
+			_inputValueChanged: function(e){
+				this.inputValue = e.detail;
+				this.email = e.detail;
+				if (!!this.inputValue && this.inputValue.length < 3){
+					this.users = [];
+				}
 			},
 			_removeItem: function () {
-				this.fire('candidate-removed', this.candidate);
-				this.remove();
+				this.fire('candidate-removed', this.email);
 			}
 		});
 	</script>

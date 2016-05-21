@@ -2,81 +2,67 @@
 <link rel="import" href="/elements/common/services/user-service.html">
 
 <link rel="import" href="/bower_components/paper-button/paper-button.html">
-<link rel="import" href="/bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="/bower_components/paper-material/paper-material.html">
 <link rel="import" href="/bower_components/paper-dialog-scrollable/paper-dialog-scrollable.html">
 <link rel="import" href="/bower_components/iron-form/iron-form.html">
 <link rel="import" href="/bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 
 <dom-module id="invite-candidates">
-	<style>
-		.buttonGroup {
+	<style include="iron-flex">
+		.button-group {
+			@apply(--layout-horizontal-reverse);
 			margin: 16px;
-			float: right;
 		}
 
 		#addCandidate {
 			margin-top: 10px;
 			cursor: pointer;
 		}
-
-		#dialog {
-			position: fixed;
-			top: 10%;
-		}
-		paper-dialog-scrollable {
-			height: 100%;
-		}
 	</style>
 	<template>
 		<user-service id="userService"></user-service>
 
-		<paper-dialog id="dialog" modal style="background: white;">
-			<h2>Invite candidates</h2>
-
-			<p>The address format must be: Name (first and last name or a combination) &lt;email address&gt;</p>
-			<paper-dialog-scrollable>
-				<form is="iron-form" id="form">
-					<template is="dom-repeat" items="{{candidates}}">
-						<invite-candidate-input name="inviteCandidateInput" candidate="{{item}}" required></invite-candidate-input>
-					</template>
-
-				</form>
-			</paper-dialog-scrollable>
+		<p>Start typing the candidates email address</p>
+		<form is="iron-form" id="form">
+			<template is="dom-repeat" items="{{candidates}}">
+				<invite-candidate-input name="inviteCandidateInput" email="{{item}}" required removable="{{multi}}"></invite-candidate-input>
+			</template>
+		</form>
+		<template is="dom-if" if="{{multi}}">
 			<div id="addCandidate" on-click="_addCandidate">
-					<iron-icon icon="add"></iron-icon>
-					<span>Add another candidate</span>
-				</div>
-				<div class="buttonGroup">
-					<paper-button class="primary" dialog-dismiss>Cancel</paper-button>
-					<paper-button class="primary" raised on-click="inviteCandidates">Invite
-					</paper-button>
-				</div>
-
-		</paper-dialog>
-		<paper-toast id="toast" text="Candidates invited."></paper-toast>
+				<iron-icon icon="add"></iron-icon>
+				<span>Add another candidate</span>
+			</div>
+		</template>
+		<div class="button-group">
+			<paper-button id="inviteButton" class="primary" raised on-click="inviteCandidates">Invite</paper-button>
+		</div>
 	</template>
 	<script>
 		Polymer({
 			is: 'invite-candidates',
 			properties: {
-				challenge: {
-					type: Object,
+				challengeId: {
 					notify: true
 				},
 				candidates: {
 					type: Array,
 					notify: true,
 					value: []
+				},
+				multi: {
+					type: Boolean,
+					value: false
 				}
 			},
 			listeners: {
 				'candidate-removed': '_removeCandidate',
 				'user-invited': '_userInvited'
 			},
-			toggle: function () {
+			reset: function(){
 				this._clearCandidates();
 				this._addCandidate();
-				this.$.dialog.toggle();
 			},
 			inviteCandidates: function () {
 				if (!this.$.form.validate()){
@@ -84,14 +70,13 @@
 				}
 				for (var i = 0; i < this.candidates.length; i++) {
 					this.$.userService.invite({
-						'email': this.candidates[i].email,
-						'challengeId': this.candidates[i].challengeId
+						'email': this.candidates[i],
+						'challengeId': this.challengeId
 					});
 				}
-				this.$.dialog.close();
 			},
 			_addCandidate: function () {
-				this.push('candidates', {'challengeId': this.challenge.id});
+				this.push('candidates', '');
 			},
 			_removeCandidate: function(event){
 				var index = this.candidates.indexOf(event.detail);
@@ -101,7 +86,6 @@
 				this.candidates = [];
 			},
 			_userInvited: function(){
-				this.$.toast.show();
 				this.fire('invitation-sent');
 			}
 		});
