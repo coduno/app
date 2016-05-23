@@ -66,6 +66,16 @@ window.addEventListener('WebComponentsReady', function() {
 			page.username = ctx.params.username;
 			page.isCurrentUser = (ctx.params.username === app.user.username);
 			app.swapContent(page);
+			if(!ctx.querystring){
+				return;
+			}
+			var qs = ctx.querystring.split('&');
+			for(var i=0;i<qs.length;i++) {
+				if(qs[i].indexOf('teamCreate=')===0 && qs[i].split('=')[1]==='true') {
+					page.createTeam();
+					return;
+				}
+			}
 		});
 	});
 

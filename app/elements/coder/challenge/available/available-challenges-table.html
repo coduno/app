@@ -9,6 +9,7 @@
 
 <link rel="import" href="/elements/common/data-providers/challenge/challenges-provider.html"/>
 <link rel="import" href="/bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="register-to-challenge-dialog.html">
 
 <dom-module id="available-challenges-table">
 	<style include="iron-flex">
@@ -21,15 +22,8 @@
 		}
 	</style>
 	<template>
-		<iron-ajax id="registerRequest"
-			method="PUT"
-			handle-as="text"
-			content-type="application/json"
-			with-credentials="true"
-			on-response="_onResponse"
-			on-error="_onError">
-		</iron-ajax>
 		<challenges-provider data="{{challenges}}"></challenges-provider>
+		<register-to-challenge-dialog id="registerToChallengeDialog" on-challenge-registered="refresh"></register-to-challenge-dialog>
 		<vaadin-grid id="availableChallengesGrid" class="fullHeight" items="[[challenges]]" on-selected-items-changed="_selectedItemsChanged">
 			<table>
 				<thead>
@@ -91,7 +85,7 @@
 						return;
 					}
 					cell.element.appendChild(element._createButton('Register', function(){
-						element._registerTo(dto.challenge.canonicalName);
+						element.$.registerToChallengeDialog.toggle(dto.challenge);
 						element.clickedOnOption = true;
 					}));
 				};
@@ -134,6 +128,9 @@
 				button.icon = icon;
 				button.addEventListener('click', clickListener);
 				return button;
+			},
+			refresh: function(){
+				this.$$('challenges-provider').refresh();
 			},
 			_onResponse: function(){
 				this.toastText = 'You registered successfully.';

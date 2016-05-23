@@ -30,15 +30,6 @@
 			}
 		</style>
 		<template is="dom-if" if="{{isLoggedIn}}">
-			<iron-ajax
-				id="switchOrganizationRequest"
-				method="PUT"
-				last-response="{{user}}"
-				handle-as="json"
-				content-type="application/json"
-				with-credentials="true"
-				on-error="_onSwitchOrganizationError">
-			</iron-ajax>
 			<paper-material elevation="1">
 			<paper-toolbar class="higher">
 				<iron-icon src="/images/logo.svg" class="big"></iron-icon>
@@ -187,9 +178,8 @@
 					activeOrganization = this.loggedInAs.value;
 				}
 				localStorage.activeOrganization = activeOrganization;
-				this.$$('#switchOrganizationRequest').body = {id: activeOrganization};
-				this.$$('#switchOrganizationRequest').url = util.build('/user/organizations/active');
-				this.$$('#switchOrganizationRequest').generateRequest();
+				this.set('user.activeOrganization', activeOrganization);
+				this._userChanged();
 			},
 			_getLoginAsName: function(item){
 				if(!item){
@@ -216,9 +206,6 @@
 				setTimeout(function(){
 					element.$$('#loginAsMenu').selected = index;
 				}, 500);
-			},
-			__onSwitchOrganizationError: function(err){
-				util.error(err);
 			}
 		});
 	</script>

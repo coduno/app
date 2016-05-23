@@ -117,7 +117,7 @@
 				<template is="dom-if" if="[[showUserTeams]]">
 					<user-teams-table id="teamsGrid" user="[[user]]" is-current-user="[[isCurrentUser]]"></user-teams-table>
 					<div id="teamsButtons">
-						<paper-button icon="add" on-click="_createTeam">New team</paper-button>
+						<paper-button icon="add" on-click="createTeam">New team</paper-button>
 					</div>
 				</template>
 				<template is="dom-if" if="[[showInvitations]]">
@@ -151,7 +151,7 @@
 			_computeShowInvitations: function(isCurrentUser, selectedTab){
 				return isCurrentUser && selectedTab === 1;
 			},
-			_createTeam: function(){
+			createTeam: function(){
 				this.$.createTeamDialog.toggle();
 			},
 			_refreshTeams: function(){

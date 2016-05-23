@@ -1,0 +1,106 @@
+<link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="/bower_components/paper-material/paper-material.html">
+<link rel="import" href="/bower_components/paper-input/paper-input.html">
+<link rel="import" href="/bower_components/paper-button/paper-button.html">
+<link rel="import" href="/bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="/bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="/bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="/bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="/bower_components/paper-listbox/paper-listbox.html">
+
+<link rel="import" href="/elements/common/data-providers/team/my-teams-provider.html">
+<dom-module id="register-to-challenge-dialog">
+	<style include="iron-flex iron-flex-reverse">
+		.fieldList {
+			@apply(--layout-vertical);
+		}
+		paper-input {
+			width: 250px;
+		}
+		paper-dialog {
+			padding: 10px;
+		}
+		paper-listbox {
+			width: 200px;
+		}
+		#buttons {
+			@apply(--layout-horizontal-reverse);
+		}
+	</style>
+	<template>
+		<my-teams-provider data="{{teams}}"></my-teams-provider>
+		<iron-ajax id="registerRequest"
+			method="PUT"
+			handle-as="text"
+			content-type="application/json"
+			with-credentials="true"
+			on-response="_onResponse"
+			on-error="_onError">
+		</iron-ajax>
+		<paper-dialog id="registerToChallengeModal" class="fieldList" modal>
+			<h4>Register to <span>{{challenge.name}}</span></h4>
+			<template is="dom-if" if="{{hasTeams}}">
+				<paper-dropdown-menu label="Team" selected-item="{{selectedTeam}}" >
+					<paper-listbox class="dropdown-content" selected="0">
+						<template is="dom-repeat" items="{{teams}}">
+							<option value="{{item.canonicalName}}">{{item.name}}</option>
+						</template>
+					</paper-listbox>
+				</paper-dropdown-menu>
+			</template>
+			<template is="dom-if" if="{{!hasTeams}}">
+				<p>You are currently not part of any team, if you wish to participate as a team,
+					 head to your profile or click <a on-click="_goToCreateTeam">here</a> to create one. </p>
+			</template>
+			<div id="buttons">
+				<paper-button class="primary" raised dialog-confirm on-click="_register">Register</paper-button>
+				<paper-button class="secondary" dialog-dismiss>Cancel</paper-button>
+			</div>
+		</paper-dialog>
+		<paper-toast id="toast" text="{{toastText}}"></paper-toast>
+	</template>
+	<script type="application/javascript" src="/scripts/behaviors/app-connection-behavior.js"></script>
+	<script>
+		Polymer({
+			is: 'register-to-challenge-dialog',
+			behaviors: [
+				Behaviors.AppConnection
+			],
+			observers: [
+				'_teamsLoaded(teams)'
+			],
+			toggle: function(challenge){
+				this.challenge = challenge;
+				this.$.registerToChallengeModal.toggle();
+			},
+			_goToCreateTeam: function(){
+				page('/u/' + this._getCurrentUser().username + '?teamCreate=true');
+			},
+			_teamsLoaded: function(){
+				if(!this.teams || this.teams.length === 0){
+					this.hasTeams = false;
+					return;
+				}
+				this.hasTeams = true;
+				this.unshift('teams', {canonicalName: '', name: 'No team'});
+			},
+			_register: function(){
+				this.$.registerRequest.body = {team: this.selectedTeam.value};
+				this.$.registerRequest.url = util.build('/challenges/' + this.challenge.canonicalName + '/register');
+				this.$.registerRequest.generateRequest();
+			},
+			_onResponse: function(){
+				this.toastText = 'Successfuly registered.';
+				this.$.toast.show();
+				this.fire('challenge-registered');
+			},
+			_onError: function(e, r){
+				this.toastText = 'An error occured when registering this challenge.';
+				if(!!r.request.xhr.responseText){
+					this.toastText = r.request.xhr.responseText;
+				}
+				this.$.toast.show();
+			}
+		});
+	</script>
+</dom-module>
