@@ -77,7 +77,6 @@
 		<template is="dom-if" if="[[!choose]]">
 			<div id="codeEditorWrapper" class$="{{codeEditorWrapperClass}}">
 				<div id="codeEditorCommands">
-					<paper-input value="[[selectedFile.path]]"></paper-input>
 					<paper-icon-button on-click="_maximize" icon="{{maximizeIcon}}"></paper-icon-button>
 				</div>
 				<code-editor id="codeEditor" on-code-changed="_setCachedCode" selected-file="{{selectedFile}}"></code-editor>
@@ -140,12 +139,12 @@
 			run: function(){
 				//todo: submission service
 				this.fire('start-loading');
-				var files = this.$codeEditor.getFiles();
+				var files = this.$$('#codeEditor').getFiles();
 				this.$.submissionService.run(this.task.id, this.language, files);
 			},
 			submit: function() {
 				this.fire('start-loading');
-				var files = this.$.codeEditor.getFiles();
+				var files = this.$$('#codeEditor').getFiles();
 				this.$.submissionService.submit(this.task.id, this.language, files);
 			},
 			ready: function() {
@@ -198,6 +197,8 @@
 				if (detail === '' || !this.task || !this.task.templates) {
 					return;
 				}
+
+				this.set('language', detail);
 
 				this.$.templateService.getTemplates(this.task.id, this.task.languages.filter(function(it) {
 					return it.tag === detail;

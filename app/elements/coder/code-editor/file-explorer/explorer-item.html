@@ -52,7 +52,8 @@
 				node: {
 					type: Object,
 					notify: true,
-					reflectToAttribute: true
+					reflectToAttribute: true,
+					observer: '_nodeChanged'
 				},
 				path: {
 					type: String,
@@ -85,6 +86,9 @@
 			},
 			listeners: {
 				'contextmenu': 'showContextMenu'
+			},
+			ready: function() {
+				console.log("Got node:", this.node);
 			},
 			factoryImpl: function(node, path, renaming) {
 				this.node = node;
@@ -147,15 +151,18 @@
 				this.set('renaming', false);
 
 				if (!name || name === '') {
+					console.log('Firing create event!');
 					this.fire('create', {
 						path: name
 					});
 				} else {
+					console.log('Firing rename event');
 					this.fire('rename', {
 						from: this.path,
 						to:   name
 					});
 				}
+				this.fire('file-selected', this);
 				this.set('path', name);
 			},
 			startRenaming: function() {
@@ -195,6 +202,9 @@
 			},
 			appendChildItem: function(item) {
 				this.$$('#children').appendChild(item);
+			},
+			_nodeChanged: function() {
+				console.log('Node changed.');
 			}
 		});
 	</script>

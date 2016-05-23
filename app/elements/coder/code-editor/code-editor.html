@@ -96,7 +96,7 @@
 				this.$.editor.getSession().on('change', function() {
 					var content = that.$.editor.getValue();
 					that.selectedFile.setContent(content);
-					that.fire('code-changed', that.tree.root);
+					console.log(that.tree.root);
 				});
 				this.$.editor.commands.addCommand({
 					name: 'run',
@@ -112,6 +112,8 @@
 			},
 			_treeChanged: function(current, previous) {
 				console.log('Tree changed from', (previous ? previous.root : undefined), 'to', current.root);
+				this.$.rootFolder.set('node', current.root);
+				//Polymer.dom(this.$.rootFolder).setAttribute('node', this.tree.root);
 			},
 			clearFiles: function() {
 				this.tree = new Tree({});
@@ -133,22 +135,26 @@
 				var value = this.tree.get(detail.from);
 				this.tree.remove(detail.from);
 				this.tree.add(detail.to, value);
-				this.notifyPath('tree', this.tree);
+				this.tree = new Tree(JSON.parse(JSON.stringify(this.tree.root)));
+				this.set('tree', this.tree);
 			},
 			handleCreate: function(e, detail) {
 				if (this.tree.contains(detail.path)) {
 					return;
 				}
-				this.tree.add(detail.path);
-				this.notifyPath('tree', this.tree);
+				this.tree.add(detail.path, '');
+				console.log('Notifying for tree change after create.');
+				this.tree = new Tree(JSON.parse(JSON.stringify(this.tree.root)))
+				this.set('tree', this.tree);
 			},
 			handleAdd: function(e, detail) {
 				if (this.tree.contains(detail.path)) {
 					return;
 				}
-				console.log('Adding file', detail);
 				this.tree.add(detail.path, detail.content);
-				this.notifyPath('tree', this.tree);
+				console.log('Notifying for tree change after add.');
+				this.tree = new Tree(JSON.parse(JSON.stringify(this.tree.root)))
+				this.set('tree', this.tree);
 			},
 			_fileSelected: function(e, detail) {
 				if (!!this.selectedFile) {
@@ -172,13 +178,14 @@
 			},
 			getFiles: function() {
 				return this.tree.all().map(function(it) {
-					var blob = new Blob([this.tree.get(it).value]);
+					var blob = new Blob([this.tree.get(it)]);
 					blob.name = it;
+					console.log(blob);
 					return blob;
 				}, this);
 			},
 			setValue: function(text) {
-				if (!text) {
+				if (text === null || text === undefined) {
 					return;
 				}
 				if (!((typeof(text) === 'string' || text instanceof String))) {
