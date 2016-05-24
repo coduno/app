@@ -8,3 +8,6 @@ test/bower_components/
 
 # secrets
 service-account.json
+
+# archives
+*.tar

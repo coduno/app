@@ -15,6 +15,8 @@ before_install:
 script:
 - find . -path ./bower_components -prune -o -print | egrep "(html|js|json)$" | xargs jshint --extract=auto
 
+after_success: ./git-lfs.sh
+
 deploy:
   provider: gae
   project: coduno
