@@ -41,7 +41,6 @@ paper-material > div:first-child {
 	height: 15%;
 	max-height: 248px;
 	padding: 5%;
-	background: #373b50;
 	color: white;
 
 	@apply(--layout-horizontal);
@@ -53,6 +52,17 @@ paper-material > div:first-child > div {
 
 	@apply(--layout-vertical);
 	@apply(--layout-center);
+}
+
+paper-material > div:first-child > div > img {
+	width: auto;
+	height: auto;
+	max-height: 50%;
+	max-width: 50%;
+}
+
+paper-material > div:nth-child(2) {
+	text-align: center;
 }
 
 paper-material > div > paper-button {
@@ -71,8 +81,14 @@ span {
 		<paper-material elevation="1">
 			<div>
 				<div>
-					<iron-icon class="huge" icon="account-circle"></iron-icon>
+					<img src="/images/logo.svg" />
 				</div>
+			</div>
+			<div>
+				<h1>Coduno</h1>
+			</div>
+			<div>
+				<p>Are you here for the Hyperloop Transportation Technologies Digital Challenge powered by Catalysts? Great! If you want to take part in a team, just carry on, we'll deal with it later.</p>
 			</div>
 			<div>
 				<form is="iron-form" id="userForm">

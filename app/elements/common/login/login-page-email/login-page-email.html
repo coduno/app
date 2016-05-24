@@ -31,7 +31,6 @@ paper-material > div:first-child {
 	height: 15%;
 	max-height: 248px;
 	padding: 10%;
-	background: #373b50;
 	color: white;
 
 	@apply(--layout-horizontal);
@@ -43,6 +42,17 @@ paper-material > div:first-child > div {
 
 	@apply(--layout-vertical);
 	@apply(--layout-center);
+}
+
+paper-material > div:first-child > div > img {
+	width: auto;
+	height: auto;
+	max-height: 50%;
+	max-width: 50%;
+}
+
+paper-material > div:nth-child(2) {
+	text-align: center;
 }
 
 paper-material > div > paper-button {
@@ -64,7 +74,7 @@ span {
 		<paper-material elevation="1">
 			<div>
 				<div>
-					<iron-icon class="huge" icon="account-circle"></iron-icon>
+					<img src="/images/logo.svg" />
 				</div>
 			</div>
 			<div>
@@ -73,7 +83,7 @@ span {
 			</div>
 			<div id="signupWrapper">
 				<span></span>
-				<a href="/register">Do not have an account? Sign up here.</a>
+				<a href="/register">Need an account? Sign up here.</a>
 				<span></span>
 			</div>
 		</paper-material>
