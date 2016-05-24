@@ -9,6 +9,7 @@
 <link rel="import" href="/bower_components/paper-toast/paper-toast.html">
 <link rel="import" href="/bower_components/iron-form/iron-form.html">
 <link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="/elements/common/services/cookie-service.html">
 
 <dom-module id="register-page">
 	<style type="text/css" include="iron-flex">
@@ -78,6 +79,7 @@ span {
 	</style>
 	<template>
 		<user-service id="userService" on-response="_onResponse" on-error="_onError"></user-service>
+		<cookie-service id="cookieService" on-user-error="_onUserError" on-user-ok="_userOk"></cookie-service>
 		<paper-material elevation="1">
 			<div>
 				<div>
@@ -153,7 +155,7 @@ Polymer({
 		Polymer.NeonAnimatableBehavior
 	],
 	_onResponse: function(){
-		page('/login');
+		this.$.cookieService.login('Basic ' + btoa(this.user.nick + ':' + this.user.password));
 	},
 	register: function() {
 		if (!this.$.userForm.validate()){
@@ -170,6 +172,13 @@ Polymer({
 		if (e.keyCode === 13) {
 			this.register();
 		}
+	},
+	_userOk: function(e, user){
+		app.login(user);
+	},
+	_onUserError: function() {
+		this.$.toast.text = 'There was a problem when trying to login. Please try again later.';
+		this.$.toast.show();
 	},
 	_onError: function(e, err){
 		if (err.detail.request.xhr.status === 409){

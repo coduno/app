@@ -6,7 +6,7 @@ window.addEventListener('WebComponentsReady', function() {
 		if (app.user.activeOrganization) {
 			page('/challengetemplates');
 		} else if(app.user){
-			page('/u/' + app.user.username);
+			page('/contests');
 		} else {
 			page('/login');
 		}
