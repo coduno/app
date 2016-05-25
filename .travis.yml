@@ -15,7 +15,7 @@ before_install:
 - rm -rf bower_components/prism/tests
 
 script:
-- find . -path ./bower_components -prune -o -print | egrep "(html|js|json)$" | xargs jshint --extract=auto
+- find . -path ./app/bower_components -prune -o -print | egrep "(html|js|json)$" | xargs jshint --extract=auto
 
 after_success: ./git-lfs.sh
 
