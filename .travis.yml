@@ -12,6 +12,7 @@ before_install:
 - bower install
 - npm install
 - gulp
+- rm -rf node_modules app/bower_components
 - rm -rf bower_components/prism/tests
 
 script:
