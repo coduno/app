@@ -1,5 +1,3 @@
-<link rel="import" href="../../../../bower_components/iron-ajax/iron-ajax.html">
-
 <dom-module id="tasks-for-active-organization-provider">
 	<style>
 		:host {
@@ -26,11 +24,11 @@
 			],
 			properties: {
 				activeOrganization: {
-					type: String,
-					value: localStorage.activeOrganization
+					type: String
 				}
 			},
 			refresh: function(){
+				this.activeOrganization = localStorage.activeOrganization;
 				this.$.request.generateRequest();
 			}
 		});

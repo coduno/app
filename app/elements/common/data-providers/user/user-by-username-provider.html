@@ -1,5 +1,3 @@
-<link rel="import" href="../../../../bower_components/iron-ajax/iron-ajax.html">
-
 <dom-module id="user-by-username-provider">
 	<style>
 		:host {
@@ -33,9 +31,15 @@
 			},
 			observers: [
 				'_dataLoaded(data)',
-				'_usernameChanged(username)'
+				'_usernameChanged(baseUrl, username)'
 			],
-			_usernameChanged: function(username){
+			// ready: function(){
+			// 	this.baseUrl = 'http://localhost:8080';
+			// },
+			_usernameChanged: function(baseUrl, username){
+				if(!username){
+					return;
+				}
 				this.url = this.baseUrl + '/users/' + username;
 			},
 			_dataLoaded: function(){

@@ -13,16 +13,12 @@ window.addEventListener('WebComponentsReady', function() {
 	});
 
 	page('/settings', function() {
-		Polymer.Base.importHref('/elements/common/settings/settings-page.html', function(){
-			app.swapContent(document.createElement('settings-page'));
-		});
+		app.swapContent(document.createElement('settings-page'));
 	});
 
 	page('/register', function() {
 		app.initUserInfo = false;
-		Polymer.Base.importHref('/elements/common/register/register-page.html', function(){
-			app.swapContent(document.createElement('register-page'));
-		});
+		app.swapContent(document.createElement('register-page'));
 	});
 
 	page('/unauthorized', function() {
@@ -32,20 +28,18 @@ window.addEventListener('WebComponentsReady', function() {
 
 	page('/login', function(ctx) {
 		app.initUserInfo = false;
-		Polymer.Base.importHref('/elements/common/login/login-wizard/login-wizard.html', function(){
-			var page = document.createElement('login-wizard');
-			app.swapContent(page);
-			if(!ctx.querystring){
+		var page = document.createElement('login-wizard');
+		app.swapContent(page);
+		if(!ctx.querystring){
+			return;
+		}
+		var qs = ctx.querystring.split('&');
+		for(var i=0;i<qs.length;i++) {
+			if(qs[i].indexOf('address=')===0) {
+				app.$.loginWizard.setEmail(qs[i].split('=')[1]);
 				return;
 			}
-			var qs = ctx.querystring.split('&');
-			for(var i=0;i<qs.length;i++) {
-				if(qs[i].indexOf('address=')===0) {
-					app.$.loginWizard.setEmail(qs[i].split('=')[1]);
-					return;
-				}
-			}
-		});
+		}
 	});
 
 	page('/logout', function() {
@@ -53,127 +47,85 @@ window.addEventListener('WebComponentsReady', function() {
 	});
 
 	page('/error', function() {
-		Polymer.Base.importHref('/elements/common/error/error-page.html', function(){
-			var page = document.createElement('error-page');
-			page.error = app.error;
-			app.swapContent(page);
-		});
+		var page = document.createElement('error-page');
+		page.error = app.error;
+		app.swapContent(page);
 	});
 
 	page('/u/:username', function(ctx) {
-		Polymer.Base.importHref('/elements/coder/profile/profile-page.html', function(){
-			var page = document.createElement('profile-page');
-			page.username = ctx.params.username;
-			page.isCurrentUser = (ctx.params.username === app.user.username);
-			app.swapContent(page);
-			if(!ctx.querystring){
+		var page = document.createElement('profile-page');
+		page.username = ctx.params.username;
+		page.isCurrentUser = (ctx.params.username === app.user.username);
+		app.swapContent(page);
+		if(!ctx.querystring){
+			return;
+		}
+		var qs = ctx.querystring.split('&');
+		for(var i=0;i<qs.length;i++) {
+			if(qs[i].indexOf('teamCreate=')===0 && qs[i].split('=')[1]==='true') {
+				page.createTeam();
 				return;
 			}
-			var qs = ctx.querystring.split('&');
-			for(var i=0;i<qs.length;i++) {
-				if(qs[i].indexOf('teamCreate=')===0 && qs[i].split('=')[1]==='true') {
-					page.createTeam();
-					return;
-				}
-			}
-		});
+		}
 	});
 
 	page('/t/:canonicalName', function(ctx) {
-		Polymer.Base.importHref('/elements/coder/team/profile/team-profile-page.html', function(){
-			var page = document.createElement('team-profile-page');
-			page.canonicalName = ctx.params.canonicalName;
-			app.swapContent(page);
-		});
+		var page = document.createElement('team-profile-page');
+		page.canonicalName = ctx.params.canonicalName;
+		app.swapContent(page);
 	});
 	// admin
 	page('/admin', function() {
-		Polymer.Base.importHref('/elements/admin/admin-page.html', function(){
-			app.swapContent(document.createElement('admin-page'));
-		});
+		app.swapContent(document.createElement('admin-page'));
 	});
 
 	// COMPANY
 	page('/challenge/create', function() {
-		Polymer.Base.importHref('/elements/company/task/task-list.html', function(){
-			var page = document.createElement('task-list');
-			page.startChallengeCreation();
-			app.swapContent(page);
-		});
+		var page = document.createElement('task-list');
+		page.startChallengeCreation();
+		app.swapContent(page);
 	});
 
 	page('/challenges/:id', function(ctx) {
-		Polymer.Base.importHref('/elements/company/challenge/challenge-detail.html', function(){
-			var page = document.createElement('challenge-detail');
-			page.challengeId = ctx.params.id;
-			app.swapContent(page);
-		});
+		var page = document.createElement('challenge-detail');
+		page.challengeId = ctx.params.id;
+		app.swapContent(page);
 	});
 
 	page('/challengetemplates', function () {
-		Polymer.Base.importHref('/elements/company/challenge-template/challenge-template-list.html', function(){
-			app.swapContent(document.createElement('challenge-template-list'));
-		});
+		app.swapContent(document.createElement('challenge-template-list'));
 	});
 
 	page('/challenges/template/:id', function(ctx){
-		Polymer.Base.importHref('/elements/company/challenge-template/challenge-template-detail.html', function(){
-			var page = document.createElement('challenge-template-detail');
-			page.challengeTemplateId = ctx.params.id;
-			app.swapContent(page);
-		});
+		var page = document.createElement('challenge-template-detail');
+		page.challengeTemplateId = ctx.params.id;
+		app.swapContent(page);
 	});
 
 	page('/challenge/template/:templateId/create', function(ctx) {
-		Polymer.Base.importHref('/elements/company/challenge/challenge-create.html', function(){
-			var page = document.createElement('challenge-create');
-			page.challengeTemplate = ctx.params.templateId;
-			app.swapContent(page);
-		});
+		var page = document.createElement('challenge-create');
+		page.challengeTemplate = ctx.params.templateId;
+		app.swapContent(page);
 	});
 
 	page('/tasks', function() {
-		Polymer.Base.importHref('/elements/company/task/task-list.html', function(){
-			app.swapContent(document.createElement('task-list'));
-		});
+		app.swapContent(document.createElement('task-list'));
 	});
 
 	page('/tasks/:id', function(ctx) {
-		Polymer.Base.importHref('/elements/company/task/task-detail.html', function() {
-			var page = document.createElement('task-detail');
-			page.getTask(ctx.params.id);
-			app.swapContent(page);
-		});
+		var page = document.createElement('task-detail');
+		page.getTask(ctx.params.id);
+		app.swapContent(page);
 	});
 
 	page('/task/create', function(){
-		Polymer.Base.importHref('/elements/company/task/task-form.html', function(){
-			app.swapContent(document.createElement('task-form'));
-		});
+		app.swapContent(document.createElement('task-form'));
 	});
 
 	page('/task/edit/:id', function(ctx){
-		Polymer.Base.importHref('/elements/company/task/task-form.html', function(){
-			var page = document.createElement('task-form');
-			page.taskId = ctx.params.id;
-			app.swapContent(page);
-		});
-	});
-
-	page('/user/:id', function(ctx){
-		Polymer.Base.importHref('/elements/company/user/user-detail.html', function(){
-			var page = document.createElement('user-detail');
-			page.getData(ctx.params.id);
-			app.swapContent(page);
-		});
-	});
-
-	page('/user/:userId/challenge/:challengeId', function(ctx){
-		Polymer.Base.importHref('/elements/company/user/challenge/user-challenge-detail.html', function(){
-			var page = document.createElement('user-challenge-detail');
-			page.getData(ctx.ctx.userId, ctx.ctx.challengeId);
-			app.swapContent(page);
-		});
+		var page = document.createElement('task-form');
+		page.taskId = ctx.params.id;
+		app.swapContent(page);
 	});
 
 	// CODER
@@ -183,17 +135,13 @@ window.addEventListener('WebComponentsReady', function() {
 	});
 
 	page('/contests', function() {
-		Polymer.Base.importHref('/elements/coder/challenge/available/available-challenges-page.html', function(){
-			app.swapContent(document.createElement('available-challenges-page'));
-		});
+		app.swapContent(document.createElement('available-challenges-page'));
 	});
 
 	page('/contest/:id', function(ctx) {
-		Polymer.Base.importHref('/elements/coder/challenge/page/challenge-page.html', function(){
-			var page = document.createElement('challenge-page');
-			page.challengeId = ctx.params.id;
-			app.swapContent(page);
-		});
+		var page = document.createElement('challenge-page');
+		page.challengeId = ctx.params.id;
+		app.swapContent(page);
 	});
 
 	page('/contest/:id/result', function(ctx) {
