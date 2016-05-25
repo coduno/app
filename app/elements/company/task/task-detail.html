@@ -2,9 +2,9 @@
 <link rel="import" href="/elements/common/markdown/render-markdown.html">
 <link rel="import" href="/elements/common/services/task-service.html">
 
-<link rel="import" href="/bower_components/paper-material/paper-material.html">
-<link rel="import" href="/bower_components/iron-ajax/iron-ajax.html">
-<link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../../../bower_components/paper-material/paper-material.html">
+<link rel="import" href="../../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 
 <dom-module id="task-detail">
 	<style include="iron-flex">
@@ -49,7 +49,7 @@
 		</div>
 		<task-service id="taskService" task="{{task}}"></task-service>
 	</template>
-	<script src="/scripts/util.js"></script>
+	<script src="../../../scripts/util.js"></script>
 	<script>
 		Polymer({
 			is: 'task-detail',
