@@ -8,8 +8,9 @@ notifications:
 before_install:
 - $(! $TRAVIS_SECURE_ENV_VARS) || openssl aes-256-cbc -K $encrypted_afa9cea1b82d_key -iv $encrypted_afa9cea1b82d_iv
   -in service-account.json.enc -out service-account.json -d
-- npm install --global bower jshint
+- npm install --global bower jshint gulp-cli
 - bower install
+- gulp
 - rm -rf bower_components/prism/tests
 
 script:
