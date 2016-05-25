@@ -8,6 +8,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 */
 
 'use strict';
+/* jshint undef: false, unused: false */
 
 // Include promise polyfill for node 0.10 compatibility
 require('es6-promise').polyfill();

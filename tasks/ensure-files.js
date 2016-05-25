@@ -1,3 +1,5 @@
+/* jshint undef: false, unused: false */
+
 var fs = require('fs');
 
 /**
@@ -20,8 +22,9 @@ function ensureFiles(files, cb) {
     return prev;
   }, []);
 
+	var err;
   if (missingFiles.length) {
-    var err = new Error('Missing Required Files\n' + missingFiles.join('\n'));
+    err = new Error('Missing Required Files\n' + missingFiles.join('\n'));
   }
 
   if (cb) {
