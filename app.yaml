@@ -12,9 +12,49 @@ handlers:
     http_headers:
       strict-transport-security: max-age=15552000
 
-  - url: /(.+)
-    static_files: dist/\1
-    upload: app/(.+)
+  - url: /bower_components/(.+)
+    static_files: dist/bower_components/\1
+    upload: dist/bower_components/(.+)
+    secure: always
+    expiration: 4d
+    http_headers:
+      strict-transport-security: max-age=15552000
+
+  - url: /scripts/(.+)
+    static_files: dist/scripts/\1
+    upload: dist/scripts/(.+)
+    secure: always
+    expiration: 4d
+    http_headers:
+      strict-transport-security: max-age=15552000
+
+  - url: /styles/(.+)
+    static_files: dist/styles/\1
+    upload: dist/styles/(.+)
+    secure: always
+    expiration: 4d
+    http_headers:
+      strict-transport-security: max-age=15552000
+
+  - url: /images/(.+)
+    static_files: dist/images/\1
+    upload: dist/images/(.+)
+    secure: always
+    expiration: 4d
+    http_headers:
+      strict-transport-security: max-age=15552000
+
+  - url: /elements/(.+)
+    static_files: dist/elements/\1
+    upload: dist/elements/(.+)
+    secure: always
+    expiration: 4d
+    http_headers:
+      strict-transport-security: max-age=15552000
+
+  - url: /.*
+    static_files: dist/index.html
+    upload: dist/index.html
     secure: always
     expiration: 4d
     http_headers:
