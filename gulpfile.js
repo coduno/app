@@ -28,6 +28,7 @@ var historyApiFallback = require('connect-history-api-fallback');
 var packageJson = require('./package.json');
 var crypto = require('crypto');
 var ensureFiles = require('./tasks/ensure-files.js');
+var jshint = require('gulp-jshint');
 
 // var ghPages = require('gulp-gh-pages');
 
@@ -271,6 +272,7 @@ gulp.task('serve:dist', ['default'], function() {
 gulp.task('default', ['clean'], function(cb) {
   // Uncomment 'cache-config' if you are going to use service workers.
   runSequence(
+    'lint',
     ['ensureFiles', 'copy', 'styles'],
     ['images', 'fonts', 'html'],
     'vulcanize', // 'cache-config',
@@ -295,6 +297,13 @@ gulp.task('deploy-gh-pages', function() {
       silent: true,
       branch: 'gh-pages'
     }), $.ghPages()));
+});
+
+gulp.task('lint', function() {
+  return gulp.src('./app/*.{js,html,json}')
+    .pipe(jshint.extract('auto'))
+    .pipe(jshint())
+    .pipe(jshint.reporter('unix'))
 });
 
 // Load tasks for web-component-tester
