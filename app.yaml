@@ -59,3 +59,4 @@ handlers:
     expiration: 4d
     http_headers:
       strict-transport-security: max-age=15552000
+      link: '</bower_components/webcomponentsjs/webcomponents-lite.min.js>; rel=preload; as=script, </elements/elements.html>; rel=preload; </styles/coduno.css>; rel=preload; as=style, </styles/main.css>; rel=preload; as=style, </scripts/util.js>; rel=preload; as=script, </images/logo.svg>; rel=preload; as=image'
