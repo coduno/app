@@ -1,0 +1,35 @@
+<dom-module id="participants-by-challenge-canonical-name-provider">
+	<style>
+		:host {
+			display: none;
+		}
+	</style>
+	<template>
+		<iron-ajax
+			id="request"
+			method="GET"
+			url="[[baseUrl]]/challenges/[[canonicalName]]/participants"
+			handle-as="json"
+			last-response="{{data}}"
+			with-credentials="true">
+		</iron-ajax>
+	</template>
+	<script type="application/javascript" src="../../../../../scripts/behaviors/providers/general-provider-behavior.js"></script>
+	<script>
+		Polymer({
+			is: 'participants-by-challenge-canonical-name-provider',
+			behaviors: [
+				Behaviors.Providers.General
+			],
+			observers: [
+				'_urlChanged(baseUrl, canonicalName)'
+			],
+			_urlChanged: function(){
+				this.refresh();
+			},
+			refresh: function(){
+				this.$.request.generateRequest();
+			}
+		});
+	</script>
+</dom-module>
