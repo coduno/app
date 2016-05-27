@@ -21,8 +21,8 @@
 			@apply(--layout-horizontal);
 		}
 	</style>
-
 	<template>
+		<task-by-id-provider task-id="[[taskId]]" data="{{task}}"></task-by-id-provider>
 		<div id="wrapper" class="mainContent">
 			<div id="description">
 				<paper-material class="card grid-element" elevation="1">
@@ -43,7 +43,6 @@
 				<render-markdown markdown="{{task.instructions}}"></render-markdown>
 			</paper-material>
 		</div>
-		<task-service id="taskService" task="{{task}}"></task-service>
 	</template>
 	<script src="../../../scripts/util.js"></script>
 	<script>
@@ -58,9 +57,6 @@
 					type: String,
 					computed: '_computeDuration(task)'
 				}
-			},
-			getTask: function(id){
-				this.$.taskService.getById(id);
 			},
 			_computeDuration: function (task) {
 				return util.computeDuration(task.duration);

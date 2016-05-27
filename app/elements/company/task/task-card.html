@@ -45,12 +45,8 @@
 		}
 	</style>
 	<template>
-		<task-service id="taskService" task="{{task}}"></task-service>
-		<paper-material
-			id="task"
-			animated
-			elevation="{{elevation}}"
-			class="card">
+		<task-by-id-provider task-id="[[taskId]]" data="{{task}}"></task-by-id-provider>
+		<paper-material id="task" animated elevation="{{elevation}}" class="card">
 			<template is="dom-if" if="{{showSelect}}">
 				<paper-icon-button id="taskSelector" class="task-selector"
 				icon="{{selectorIcon}}" on-click="_toggleSelectTask" style$="{{addButtonStyle}}"></paper-icon-button>
@@ -116,12 +112,6 @@
 					reflectToAttribute: true,
 					observer: '_taskIdChanged'
 				}
-			},
-			_taskIdChanged: function(){
-				var self = this;
-				Polymer.Base.importHref('/elements/common/services/task-service.html', function(){
-					self.$.taskService.getById(self.taskId);
-				});
 			},
 			_onHovered: function () {
 				this.showSelect = !this.noSelect && true;

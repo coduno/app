@@ -10,9 +10,9 @@
 		}
 	</style>
 	<template>
-		<challenge-template-service id="challengeTemplateService" challenge-templates="{{challengeTemplates}}"></challenge-template-service>
+		<challenge-templates-for-active-organization-provider data="{{challengeTemplates}}"></challenge-templates-for-active-organization-provider>
 
-		<div class="challenge-template-list ">
+		<div class="challenge-template-list">
 			<template is="dom-repeat" items="{{challengeTemplates}}">
 				<challenge-template-card challenge-template="{{item}}"></challenge-template-card>
 			</template>
@@ -20,16 +20,7 @@
 	</template>
 	<script>
 		Polymer({
-			is: 'challenge-template-list',
-			properties: {
-				challengeTemplates: {
-					type: Array,
-					notify: true,
-				}
-			},
-			ready: function(){
-				this.$.challengeTemplateService.getAll();
-			}
+			is: 'challenge-template-list'
 		});
 	</script>
 </dom-module>

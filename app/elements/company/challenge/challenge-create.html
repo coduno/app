@@ -5,6 +5,7 @@
 <link rel="import" href="../../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
 <link rel="import" href="../../../bower_components/paper-menu/paper-menu.html">
 <link rel="import" href="../../../bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../../../bower_components/iron-ajax/iron-ajax.html">
 
 <dom-module id="challenge-create">
 	<style>
@@ -18,7 +19,16 @@
 		}
 	</style>
 	<template>
-		<challenge-service id="challengeService" challenge="{{savedChallenge}}"></challenge-service>
+		<iron-ajax
+			id="saveChallenge"
+			method="POST"
+			body="{{challenge}}"
+			content-type="application/json"
+			last-response="{{savedChallenge}}"
+			with-credentials="true"
+			on-response="_onResponse"
+			on-error="_onError">
+		</iron-ajax>
 		<div class="mainContent">
 			<paper-material class="card" elevation="1">
 				<form is="iron-form" id="challengeForm">
@@ -54,11 +64,13 @@
 					return;
 				}
 				this.challenge.templateId = this.challengeTemplate;
-				this.$.challengeService.save(this.challenge);
+				this.$.saveChallenge.generateRequest();
 			},
-			_savedChallengeChanged: function(){
-				this.set('challenge', {});
-				page('/challenges/' + this.savedChallenge);
+			_onResponse: function(){
+				page('/challenges/' + this.savedChallenge.canonicalName);
+			},
+			_onError: function(e){
+				util.error(err);
 			}
 		});
 	</script>

@@ -33,7 +33,7 @@
 		}
 	</style>
 	<template>
-		<challenge-template-service id="challengeTemplateService" challenge-template="{{challengeTemplate}}"></challenge-template-service>
+		<challenge-template-by-id-provider template-id="[[challengeTemplateId]]" data="{{challengeTemplate}}"></challenge-template-by-id-provider>
 		<tasks-for-challenge-template-provider challenge-template-id="[[challengeTemplate.id]]" data="{{tasks}}"></tasks-for-challenge-template-provider>
 
 		<div id="wrapper" class="grid mainContent">
@@ -73,14 +73,7 @@
 				duration: {
 					type: String,
 					computed: 'computeDuration(challengeTemplate)'
-				},
-				challengeTemplateId: {
-					reflectToAttribute: true,
-					observer: '_challengeTemplateIdChanged'
 				}
-			},
-			_challengeTemplateIdChanged: function(){
-				this.$.challengeTemplateService.getById(this.challengeTemplateId);
 			},
 			computeDuration: function (challengeTemplate) {
 				if (!!challengeTemplate){

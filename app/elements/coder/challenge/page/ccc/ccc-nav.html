@@ -40,7 +40,7 @@
 		}
 	</style>
 	<template>
-		<task-service id="taskService" task="{{clickedTask}}"></task-service>
+		<task-by-id-provider task-id="[[clickedTaskId]]" data="{{clickedTask}}"></task-by-id-provider>
 		<paper-material id="taskNavHeader" elevation="1">
 			<div class="timer"></div>
 			<span class="flex"></span>
@@ -126,7 +126,7 @@
 			},
 			_onTaskSwitch: function(e, taskIndex){
 				if(taskIndex < this.taskIndex){
-					this.$.taskService.getById(this.challengeTemplate.tasks[taskIndex]);
+					this.clickedTaskId = this.challengeTemplate.tasks[taskIndex];
 				}else if(taskIndex > this.taskIndex){
 					alert('You must finish all levels to this level');
 				}

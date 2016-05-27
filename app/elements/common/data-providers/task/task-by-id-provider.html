@@ -1,4 +1,4 @@
-<dom-module id="tasks-for-active-organization-provider">
+<dom-module id="task-by-id-provider">
 	<style>
 		:host {
 			display: none;
@@ -8,7 +8,7 @@
 		<iron-ajax
 			id="request"
 			method="GET"
-			url="[[baseUrl]]/tasks?organization=[[organization]]"
+			url="[[baseUrl]]/tasks/[[taskId]]"
 			handle-as="json"
 			last-response="{{data}}"
 			with-credentials="true">
@@ -17,7 +17,7 @@
 	<script type="application/javascript" src="../../../../scripts/behaviors/providers/general-provider-behavior.js"></script>
 	<script>
 		Polymer({
-			is: 'tasks-for-active-organization-provider',
+			is: 'task-by-id-provider',
 			behaviors: [
 				Behaviors.Providers.General
 			],
@@ -27,13 +27,12 @@
 				}
 			},
 			observers: [
-				'_urlChanged(baseUrl)'
+				'_urlChanged(baseUrl, taskId)'
 			],
 			_urlChanged: function(){
 				this.refresh();
 			},
 			refresh: function(){
-				this.organization = localStorage.activeOrganization;
 				this.$.request.generateRequest();
 			}
 		});

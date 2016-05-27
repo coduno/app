@@ -1,6 +1,3 @@
-<link rel="import" href="/elements/common/services/task-service.html">
-<link rel="import" href="/elements/common/services/language-service.html">
-
 <link rel="import" href="../../../../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../../../../bower_components/iron-form/iron-form.html">
 <link rel="import" href="../../../../bower_components/paper-input/paper-input.html">
@@ -37,7 +34,7 @@
 		</iron-ajax>
 
 		<task-service id="taskService" tasks="{{tasks}}"></task-service>
-		<language-service id="languageService" languages="{{languages}}"></language-service>
+		<languages-provider data="{{languages}}"></languages-provider>
 
 		<div class="mainContent">
 			<paper-material class="card">

@@ -32,8 +32,8 @@
 	</style>
 	<template>
 		<task-service id="taskService" task="{{savedTask}}"></task-service>
-		<runner-service id="runnerService" runners="{{runners}}"></runner-service>
-		<endpoint-service id="endpointService" endpoints="{{endpoints}}"></endpoint-service>
+		<runners-provider data="{{runners}}"></runners-provider>
+		<endpoints-provider data="{{endpoints}}"></endpoints-provider>
 
 		<div class="mainContent">
 			<paper-material class="card">
@@ -113,10 +113,6 @@
 				}else{
 					this.saveButtonLabel = 'Update';
 				}
-			},
-			ready: function(){
-				this.$.endpointService.getEndpoints();
-				this.$.runnerService.getAll();
 			},
 			_saveTask: function(){
 				this.task.duration = this.task.duration * 60;

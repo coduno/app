@@ -25,8 +25,17 @@
 		}
 	</style>
 	<template>
-		<challenge-template-service id="challengeTemplateService"></challenge-template-service>
-		<endpoint-service id="endpointService" endpoints="{{endpoints}}"></endpoint-service>
+		<iron-ajax
+			id="saveChallengeTemplate"
+			method="POST"
+			body="{{challengeTemplateToSave}}"
+			content-type="application/json"
+			last-response="{{savedChallengeTemplate}}"
+			with-credentials="true"
+			on-response="_onResponse"
+			on-error="_onError">
+		</iron-ajax>
+		<endpoints-provider data="{{endpoints}}"></endpoints-provider>
 
 		<paper-dialog id="dialog" modal>
 			<h2>These are the tasks you selected: </h2>
@@ -77,7 +86,6 @@
 			toggle: function () {
 				this._clearChallenge();
 				this._computeDefaultDuration();
-				this.$.endpointService.getEndpoints();
 				this.$.dialog.toggle();
 			},
 			_saveChallengeTemplate: function () {
@@ -91,8 +99,7 @@
 				this.challengeTemplateToSave.tasks = taskIds;
 				this.challengeTemplateToSave.duration = 60 * this.challengeTemplateDuration;
 				this.challengeTemplateToSave.endpointId = this.selectedEndpoint.value;
-				this.$.challengeTemplateService.save(this.challengeTemplateToSave);
-				this.fire('challenge-template-created');
+				this.$.saveChallengeTemplate.generateRequest();
 				this.$.dialog.close();
 			},
 			_clearChallenge: function(){
@@ -107,6 +114,12 @@
 			},
 			_computeIndex: function (index) {
 				return index + 1;
+			},
+			_onResponse: function(){
+				this.fire('challenge-template-created');
+			},
+			_onError: function(e){
+				util.error(err);
 			}
 		});
 	</script>

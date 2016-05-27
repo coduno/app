@@ -1,4 +1,4 @@
-<dom-module id="tasks-for-active-organization-provider">
+<dom-module id="challenge-template-by-id-provider">
 	<style>
 		:host {
 			display: none;
@@ -8,32 +8,26 @@
 		<iron-ajax
 			id="request"
 			method="GET"
-			url="[[baseUrl]]/tasks?organization=[[organization]]"
+			url="[[baseUrl]]/challenges/templates/[[templateId]]"
 			handle-as="json"
 			last-response="{{data}}"
 			with-credentials="true">
 		</iron-ajax>
 	</template>
-	<script type="application/javascript" src="../../../../scripts/behaviors/providers/general-provider-behavior.js"></script>
+	<script type="application/javascript" src="../../../../../scripts/behaviors/providers/general-provider-behavior.js"></script>
 	<script>
 		Polymer({
-			is: 'tasks-for-active-organization-provider',
+			is: 'challenge-template-by-id-provider',
 			behaviors: [
 				Behaviors.Providers.General
 			],
-			properties: {
-				activeOrganization: {
-					type: String
-				}
-			},
 			observers: [
-				'_urlChanged(baseUrl)'
+				'_urlChanged(baseUrl, templateId)'
 			],
 			_urlChanged: function(){
 				this.refresh();
 			},
 			refresh: function(){
-				this.organization = localStorage.activeOrganization;
 				this.$.request.generateRequest();
 			}
 		});

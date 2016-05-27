@@ -114,7 +114,7 @@ window.addEventListener('WebComponentsReady', function() {
 
 	page('/tasks/:id', function(ctx) {
 		var page = document.createElement('task-detail');
-		page.getTask(ctx.params.id);
+		page.taskId = ctx.params.id;
 		app.swapContent(page);
 	});
 
