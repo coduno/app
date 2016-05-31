@@ -22,8 +22,8 @@
 					</tr>
 				</thead>
 				<colgroup>
-					<col name="user.username"/>
-					<col name="team.name"/>
+					<col name="username"/>
+					<col name="teamName"/>
 				</colgroup>
 			</table>
 		</vaadin-grid>
@@ -36,19 +36,12 @@
 					value: true
 				}
 			},
-			observers: [
-				'_dataChanged(participants)'
-			],
 			_selectedItemsChanged: function(){
 				var selected = this.$.participantsGrid.selection.selected();
 				if(!this.clickedOnOption && !!selected && selected.length > 0){
 					var participation = this.participants[selected[0]];
 					page('/u/' + participation.user.username);
 				}
-			},
-			_dataChanged: function(){
-				var element = this;
-				this.$.participantsGrid.columns[2].renderer = element._formatDate;
 			},
 			_formatDate: function(cell){
 				if(!cell.data){
