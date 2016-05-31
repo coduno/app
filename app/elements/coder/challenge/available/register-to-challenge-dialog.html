@@ -69,6 +69,7 @@
 				'_teamsLoaded(teams)'
 			],
 			toggle: function(challenge){
+				this.$$('my-teams-provider').refresh();
 				this.challenge = challenge;
 				this.$.registerToChallengeModal.toggle();
 			},

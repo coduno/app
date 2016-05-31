@@ -1,0 +1,70 @@
+<link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+
+<dom-module id="challenge-info-step">
+	<style include="iron-flex">
+		:host{
+			display: block;
+		}
+		.horizontal-layout {
+			@apply(--layout-horizontal);
+		}
+		#wrapper {
+			@apply(--layout-vertical);
+			padding: 24px;
+			background: white;
+		}
+		.icon-text {
+			padding: 0 32px 0px 4px;
+		}
+	</style>
+	<template>
+		<paper-material id="wrapper" class="mainContent">
+			<h1>{{challenge.name}}</h1>
+			<div id="infoIcons" class="horizontal-layout">
+				<iron-icon icon="communication:business"></iron-icon>
+				<span class="icon-text">{{challenge.organization.name}}</span>
+				<template is="dom-if" if="[[showStartDate]]">
+					<iron-icon icon="event"></iron-icon>
+					<span class="icon-text">{{startDate}}</span>
+				</template>
+				<template is="dom-if" if="[[showStartDate]]">
+					<iron-icon icon="device:access-time"></iron-icon>
+					<span class="icon-text">{{startTime}}</span>
+				</template>
+				<template is="dom-if" if="[[showDuration]]">
+					<iron-icon icon="alarm"></iron-icon>
+					<span class="icon-text">{{duration}}</span>
+				</template>
+				<div class="flex"></div>
+				<paper-button raised on-click="_onRegister">Register</paper-button>
+			</div>
+			<render-markdown markdown="{{challenge.description}}"></render-markdown>
+		</paper-material>
+	</template>
+	<script type="application/javascript" src="../../../../scripts/behaviors/datetime-behavior.js"></script>
+	<script>
+		Polymer({
+			is: 'challenge-info-step',
+			behaviors: [
+				Behaviors.DateTimeBehavior
+			],
+			observers: [
+				'_challengeSet(challenge)'
+			],
+			_challengeSet: function(challenge){
+				this.duration = this._computeDuration(challenge.endDate - challenge.startDate)
+				if(this.duration > 0){
+					this.showDuration = true;
+				}
+				if(!!challenge.startDate){
+					this.startTime = this._getTime(challenge.startDate)
+					this.startDate = this._getDate(challenge.startDate);
+					this.showStartDate = true;
+				}
+			},
+			_onRegister: function(){
+				this.fire('next-step');
+			}
+		});
+	</script>
+</dom-module>

@@ -7,7 +7,7 @@
 	<template>
 		<cookie-service id="cookieService" on-user-error="_onUserError" on-user-ok="_userOk"></cookie-service>
 		<neon-animated-pages id="pages" class="flex" selected="[[selected]]" entry-animation="[[entryAnimation]]" exit-animation="[[exitAnimation]]">
-			<login-page-email email="{{email}}" on-next="next"></login-page-email>
+			<login-page-email context="[[context]]" email="{{email}}" on-next="next" on-prev="prev"></login-page-email>
 			<login-page-password email="{{email}}" password="{{password}}" on-next="next" on-prev="prev"></login-page-password>
 			<login-page-u2f on-next="next"></login-page-u2f>
 		</neon-animated-pages>
@@ -54,7 +54,6 @@ Polymer({
 		this.next();
 	},
 	prev: function() {
-		// Can not get before e-mail.
 		if (this.selected === pageEmail) {
 			return;
 		}
@@ -95,6 +94,10 @@ Polymer({
 		this.selected = pageEmail;
 	},
 	_userOk: function(e, user){
+		if(this.context === 'challenge-register'){
+			this.fire('next-step', user);
+			return;
+		}
 		app.login(user);
 	}
 });

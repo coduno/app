@@ -1,0 +1,57 @@
+<link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+
+<dom-module id="challenge-register-step">
+	<style include="iron-flex">
+		:host{
+			display: block;
+		}
+		.horizontal-layout {
+			@apply(--layout-horizontal);
+		}
+		#wrapper {
+			@apply(--layout-vertical);
+			padding: 24px;
+			background: white;
+		}
+		.icon-text {
+			padding: 0 32px 0px 4px;
+		}
+		#buttons {
+			@apply(--layout-horizontal);
+		}
+	</style>
+	<template>
+		<create-team-modal id="createTeamDialog"></create-team-modal>
+		<register-to-challenge-dialog id="registerToChallengeDialog" on-challenge-registered="_challengeRegistered"></register-to-challenge-dialog>
+		<paper-material id="wrapper" class="mainContent">
+			<h3>Welcome <span>[[user.username]]</span></h3>
+			<p>You can register to <span>[[challenge.name]]</span> alone or with a team</p>
+			<p>If you are new to Coduno or if you don`t have a team yet and you want to join as a team
+				you can create a team <a on-click="_openTeamModal">here</a></p>
+			<div id="buttons">
+				<span class="flex"></span>
+				<paper-button raised on-click="_register">Register</paper-button>
+				<span class="flex"></span>
+			</div>
+		</paper-material>
+	</template>
+	<script type="application/javascript" src="../../../../scripts/behaviors/app-connection-behavior.js"></script>
+	<script>
+		Polymer({
+			is: 'challenge-register-step',
+			behaviors: [
+				Behaviors.AppConnection
+			],
+			_openTeamModal: function(){
+				this.$.createTeamDialog.toggle();
+			},
+			_register: function(){
+				this.$.registerToChallengeDialog.toggle(this.challenge);
+			},
+			_challengeRegistered: function(){
+				this._mainApp.setUser(this.user);
+				page('/contest/' + this.challenge.canonicalName + '/info');
+			}
+		});
+	</script>
+</dom-module>

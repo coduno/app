@@ -1,0 +1,81 @@
+<link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../../../../bower_components/neon-animation/neon-animation.html">
+<link rel="import" href="../../../../bower_components/neon-animation/neon-animated-pages.html">
+
+<dom-module id="challenge-register-wizard">
+	<style include="iron-flex">
+		:host{
+			display: block;
+		}
+		.horizontal-layout {
+			@apply(--layout-horizontal);
+		}
+		#wrapper {
+			@apply(--layout-vertical);
+			padding: 24px;
+			background: white;
+		}
+		.icon-text {
+			padding: 0 32px 0px 4px;
+		}
+	</style>
+	<template>
+		<challenge-by-canonical-name-provider canonical-name="[[canonicalName]]" data="{{challenge}}"></challenge-by-canonical-name-provider>
+		<neon-animated-pages id="pages" class="flex" selected="[[selected]]" entry-animation="[[entryAnimation]]" exit-animation="[[exitAnimation]]">
+			<challenge-info-step challenge="[[challenge]]"></challenge-info-step>
+			<register-page context="[[context]]" on-redirect-login="_login"></register-page>
+			<login-wizard context="[[context]]" on-redirect-register="_register"></login-wizard>
+			<challenge-register-step user="[[user]]" challenge="[[challenge]]"></challenge-register-step>
+		</neon-animated-pages>
+	</template>
+	<script>
+		var pageInfo = 0, pageUserRegister = 1, pageLogin = 2, pageChallengeRegister = 3;
+		Polymer({
+			is: 'challenge-register-wizard',
+			properties: {
+				selected: {
+					type: Number,
+					value: 0
+				},
+				context: {
+					value: 'challenge-register'
+				},
+				entryAnimation: String,
+				exitAnimation: String
+			},
+			listeners: {
+				'neon-animation-finish': '_afterNeon',
+				'next-step': 'next',
+				'prev-step': 'prev'
+			},
+			prev: function() {
+				if(this.selected === 0){
+					return;
+				}
+				this.entryAnimation = 'slide-from-left-animation';
+				this.exitAnimation = 'slide-right-animation';
+				this.selected --;
+			},
+			next: function(e, d) {
+				this.entryAnimation = 'slide-from-right-animation';
+				this.exitAnimation = 'slide-left-animation';
+				if (this.selected === 1 || this.selected === 2) {
+					this.selected = 3;
+					this.user = d;
+					return;
+				}
+				this.selected++;
+			},
+			_login: function(){
+				this.entryAnimation = 'slide-from-right-animation';
+				this.exitAnimation = 'slide-left-animation';
+				this.selected = 2;
+			},
+			_register: function(){
+				this.entryAnimation = 'slide-from-left-animation';
+				this.exitAnimation = 'slide-right-animation';
+				this.selected = 1;
+			}
+		});
+	</script>
+</dom-module>

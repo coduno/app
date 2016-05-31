@@ -138,6 +138,16 @@ window.addEventListener('WebComponentsReady', function() {
 		app.swapContent(document.createElement('available-challenges-page'));
 	});
 
+	page('/contest/:canonicalName/register', function(ctx) {
+		app.customUserOk = function(e){
+			page('/contest/' + ctx.params.canonicalName + '/info');
+		}
+		app.customUserError = function(){};
+		var wizard = document.createElement('challenge-register-wizard');
+		wizard.canonicalName = ctx.params.canonicalName;
+		app.swapContent(wizard);
+	});
+
 	page('/contest/:canonicalName', function(ctx) {
 		var page = document.createElement('challenge-page');
 		page.canonicalName = ctx.params.canonicalName;

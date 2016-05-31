@@ -1,6 +1,7 @@
 <link rel="import" href="../../../bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="../../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../../bower_components/paper-input/all-imports.html">
 <link rel="import" href="../../../bower_components/gold-email-input/gold-email-input.html">
 <link rel="import" href="../../../bower_components/paper-material/paper-material.html">
@@ -39,7 +40,6 @@ paper-material > div:first-child {
 	height: 15%;
 	max-height: 248px;
 	padding: 5%;
-	color: white;
 
 	@apply(--layout-horizontal);
 	@apply(--layout-center);
@@ -73,12 +73,20 @@ paper-material > div > paper-button {
 span {
 	@apply(--layout-flex);
 }
+paper-icon-button {
+	left: 10px;
+	margin-left: -24px;
+	padding: 0;
+}
 	</style>
 	<template>
 		<user-service id="userService" on-response="_onResponse" on-error="_onError"></user-service>
 		<cookie-service id="cookieService" on-user-error="_onUserError" on-user-ok="_userOk"></cookie-service>
 		<paper-material elevation="1">
 			<div>
+				<template is="dom-if" if="[[challengeRegisterContext]]">
+					<paper-icon-button flat icon="chevron-left" on-click="prev"></paper-icon-button>
+				</template>
 				<div>
 					<img src="/images/logo.svg" />
 				</div>
@@ -127,7 +135,7 @@ span {
 			</div>
 			<div class="horizontal layout">
 				<span class="flex"></span>
-				<a href="/login">Already have an account? Sign in here.</a>
+				<a on-click="_login">Already have an account? Sign in here.</a>
 				<span class="flex"></span>
 			</div>
 		</paper-material>
@@ -151,8 +159,26 @@ Polymer({
 	behaviors: [
 		Polymer.NeonAnimatableBehavior
 	],
+	observers: [
+		'_contextSet(context)'
+	],
+	_contextSet: function(context){
+		this.challengeRegisterContext = (context === 'challenge-register');
+	},
 	_onResponse: function(){
 		this.$.cookieService.login('Basic ' + btoa(this.user.nick + ':' + this.user.password));
+	},
+	_login: function(){
+		if(this.challengeRegisterContext){
+			this.fire('redirect-login');
+			return;
+		}
+		page('/login');
+	},
+	prev: function() {
+		if(this.challengeRegisterContext){
+			this.fire('prev-step');
+		}
 	},
 	register: function() {
 		if (!this.$.userForm.validate()){
@@ -171,6 +197,10 @@ Polymer({
 		}
 	},
 	_userOk: function(e, user){
+		if(this.challengeRegisterContext){
+			this.fire('next-step', user);
+			return;
+		}
 		app.login(user);
 	},
 	_onUserError: function() {

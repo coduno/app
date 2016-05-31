@@ -64,14 +64,26 @@
 				});
 			},
 			initializeUserInfo: function(){
+				var defaultUserError = function(){
+					page('/login');
+				}
 				var self = this;
 				var cookieService = document.createElement('cookie-service');
 				cookieService.addEventListener('user-ok', function(e){
 					self.user = e.detail;
 					self.refreshMenu();
+					if(!!self.customUserOk){
+						self.customUserOk(e);
+						self.customUserOk = null;
+					}
 				});
 				cookieService.addEventListener('user-error', function(){
-					page('/login');
+					if(!!self.customUserError){
+						self.customUserError();
+						self.customUserError = null;
+						return;
+					}
+					defaultUserError();
 				});
 				cookieService.login();
 			},
@@ -84,8 +96,7 @@
 				this.ironPagesStyle = '';
 			},
 			login: function(user) {
-				this.user = user;
-				this.refreshMenu();
+				this.setUser(user);
 				page('/');
 			},
 			logout: function() {
@@ -93,6 +104,10 @@
 				localStorage.clear();
 				this.refreshMenu();
 				page('/login');
+			},
+			setUser: function(user){
+				this.user = user;
+				this.refreshMenu();
 			},
 			refreshMenu: function() {
 				this.$.appNav.refresh();

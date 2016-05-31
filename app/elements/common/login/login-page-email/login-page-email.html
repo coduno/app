@@ -1,6 +1,7 @@
 <link rel="import" href="../../../../bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="../../../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../../../bower_components/paper-input/all-imports.html">
 <link rel="import" href="../../../../bower_components/paper-material/paper-material.html">
 <link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
@@ -31,7 +32,6 @@ paper-material > div:first-child {
 	height: 15%;
 	max-height: 248px;
 	padding: 10%;
-	color: white;
 
 	@apply(--layout-horizontal);
 	@apply(--layout-center);
@@ -69,10 +69,18 @@ paper-material > div > paper-button {
 span {
 	@apply(--layout-flex);
 }
+paper-icon-button {
+	left: 10px;
+	margin-left: -24px;
+	padding: 0;
+}
 	</style>
 	<template>
 		<paper-material elevation="1">
 			<div>
+				<template is="dom-if" if="[[challengeRegisterContext]]">
+					<paper-icon-button flat icon="chevron-left" on-click="prev"></paper-icon-button>
+				</template>
 				<div>
 					<img src="/images/logo.svg" />
 				</div>
@@ -83,7 +91,7 @@ span {
 			</div>
 			<div id="signupWrapper">
 				<span></span>
-				<a href="/register">Need an account? Sign up here.</a>
+				<a on-click="_register">Need an account? Sign up here.</a>
 				<span></span>
 			</div>
 		</paper-material>
@@ -106,11 +114,29 @@ Polymer({
 	behaviors: [
 		Polymer.NeonAnimatableBehavior
 	],
+	observers: [
+		'_contextSet(context)'
+	],
+	_contextSet: function(context){
+		this.challengeRegisterContext = (context === 'challenge-register');
+	},
+	_register: function(){
+		if(this.challengeRegisterContext){
+			this.fire('redirect-register');
+			return;
+		}
+		page('/register');
+	},
 	next: function() {
 		if (this.email === '') {
 			return;
 		}
 		this.fire('next', { value: this.email });
+	},
+	prev: function() {
+		if(this.challengeRegisterContext){
+			this.fire('prev-step');
+		}
 	},
 	checkEmpty: function() {
 		this.empty = this.email === '' ? 'empty' : '';
