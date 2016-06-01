@@ -28,10 +28,14 @@
 			<challenge-register-step user="[[user]]" challenge="[[challenge]]"></challenge-register-step>
 		</neon-animated-pages>
 	</template>
+	<script type="application/javascript" src="../../../../scripts/behaviors/app-connection-behavior.js"></script>
 	<script>
 		var pageInfo = 0, pageUserRegister = 1, pageLogin = 2, pageChallengeRegister = 3;
 		Polymer({
 			is: 'challenge-register-wizard',
+			behaviors: [
+				Behaviors.AppConnection
+			],
 			properties: {
 				selected: {
 					type: Number,
@@ -59,9 +63,14 @@
 			next: function(e, d) {
 				this.entryAnimation = 'slide-from-right-animation';
 				this.exitAnimation = 'slide-left-animation';
-				if (this.selected === 1 || this.selected === 2) {
+				if (this.selected === 1) {
 					this.selected = 3;
 					this.user = d;
+					return;
+				}
+				if(this.selected === 2 ){
+					this._mainApp.setUser(d);
+					page('/contest/' + this.challenge.canonicalName + '/info');
 					return;
 				}
 				this.selected++;
