@@ -1,1 +1,15 @@
 *.png filter=lfs diff=lfs merge=lfs -text
+app/images/coin.png filter=lfs diff=lfs merge=lfs -text
+app/images/default_user.png filter=lfs diff=lfs merge=lfs -text
+app/images/explosion.png filter=lfs diff=lfs merge=lfs -text
+app/images/finish.png filter=lfs diff=lfs merge=lfs -text
+app/images/logo-1024.png filter=lfs diff=lfs merge=lfs -text
+app/images/logo-128.png filter=lfs diff=lfs merge=lfs -text
+app/images/logo-16.png filter=lfs diff=lfs merge=lfs -text
+app/images/logo-256.png filter=lfs diff=lfs merge=lfs -text
+app/images/logo-32.png filter=lfs diff=lfs merge=lfs -text
+app/images/logo-512.png filter=lfs diff=lfs merge=lfs -text
+app/images/logo-64.png filter=lfs diff=lfs merge=lfs -text
+app/images/not-ok.png filter=lfs diff=lfs merge=lfs -text
+app/images/ok.png filter=lfs diff=lfs merge=lfs -text
+app/images/robot.png filter=lfs diff=lfs merge=lfs -text
