@@ -14,56 +14,11 @@
 :host {
 	/* layout properties for the host element */
 	@apply(--layout-vertical);
+	display: block;
+	height: calc(100% + 56px);
 }
 
-iron-icon.huge {
-	--iron-icon-height: 50%;
-	--iron-icon-width: 50%;
-}
-
-paper-material {
-	width: 70%;
-	background-color: white;
-
-	/* four times the width of iron-icon.huge */
-	max-width: 576px;
-
-	/* places this in the middle */
-	margin: auto;
-}
-
-paper-material > div {
-	padding: 24px;
-}
-
-paper-material > div:first-child {
-	height: 15%;
-	max-height: 248px;
-	padding: 5%;
-
-	@apply(--layout-horizontal);
-	@apply(--layout-center);
-}
-
-paper-material > div:first-child > div {
-	width: 100%;
-
-	@apply(--layout-vertical);
-	@apply(--layout-center);
-}
-
-paper-material > div:first-child > div > img {
-	width: auto;
-	height: auto;
-	max-height: 50%;
-	max-width: 50%;
-}
-
-paper-material > div:nth-child(2) {
-	text-align: center;
-}
-
-paper-material > div > paper-button {
+paper-button {
 	width: 100%;
 
 	margin: 0 !important;
@@ -73,72 +28,54 @@ paper-material > div > paper-button {
 span {
 	@apply(--layout-flex);
 }
-paper-icon-button {
-	left: 10px;
-	margin-left: -24px;
-	padding: 0;
+paper-input {
+	margin: 1px;
 }
 	</style>
 	<template>
 		<user-service id="userService" on-response="_onResponse" on-error="_onError"></user-service>
 		<cookie-service id="cookieService" on-user-error="_onUserError" on-user-ok="_userOk"></cookie-service>
-		<paper-material elevation="1">
-			<div>
-				<template is="dom-if" if="[[challengeRegisterContext]]">
-					<paper-icon-button flat icon="chevron-left" on-click="prev"></paper-icon-button>
-				</template>
-				<div>
-					<img src="/images/logo.svg" />
+		<base-wizard show-back-button="[[externalWidget]]" on-back="prev">
+					<form is="iron-form" id="userForm">
+						<gold-email-input
+							label="Email"
+							value="{{user.email}}"
+							autofocus="[[!externalWidget]]"
+							on-keydown="onKeydown"
+							error-message="Please enter a valid email"
+							required>
+						</gold-email-input>
+						<paper-input
+							type="text"
+							label="Username"
+							value="{{user.nick}}"
+							autofocus="[[!externalWidget]]"
+							minLength="5"
+							maxLength="60"
+							on-keydown="onKeydown"
+							error-message="Username must be between 5 and 60 characters and only contain alphanumerical characters."
+							required>
+						</paper-input>
+						<paper-input
+							type="password"
+							label="Password"
+							value="{{user.password}}"
+							autofocus="[[!externalWidget]]"
+							on-keydown="onKeydown"
+							minLength="6"
+							maxLength="40"
+							error-message="Password must be between 6 and 40 characters."
+							required>
+						</paper-input>
+						<paper-input type="password" label="Repeat password" value="{{repeatedPassword}}" autofocus="[[!externalWidget]]" on-keydown="onKeydown" required></paper-input>
+					</form>
+					<paper-button flat colorful on-change="checkEmpty" on-click="register">Register</paper-button>
+				<div class="horizontal layout">
+					<span></span>
+					<a on-click="_login">Already have an account? Sign in here.</a>
+					<span></span>
 				</div>
-			</div>
-			<div>
-				<h1>Coduno</h1>
-			</div>
-			<div>
-				<p>Are you here for the Hyperloop Transportation Technologies Digital Challenge powered by Catalysts? Great! If you want to take part in a team, just carry on, we'll deal with it later.</p>
-			</div>
-			<div>
-				<form is="iron-form" id="userForm">
-					<gold-email-input
-						label="Email"
-						value="{{user.email}}"
-						autofocus="true"
-						on-keydown="onKeydown"
-						error-message="Please enter a valid email"
-						required>
-					</gold-email-input>
-					<paper-input
-						type="text"
-						label="Username"
-						value="{{user.nick}}"
-						autofocus="true"
-						minLength="5"
-						maxLength="60"
-						on-keydown="onKeydown"
-						error-message="Username must be between 5 and 60 characters and only contain alphanumerical characters."
-						required>
-					</paper-input>
-					<paper-input
-						type="password"
-						label="Password"
-						value="{{user.password}}"
-						autofocus="true"
-						on-keydown="onKeydown"
-						minLength="6"
-						maxLength="40"
-						error-message="Password must be between 6 and 40 characters."
-						required>
-					</paper-input>
-					<paper-input type="password" label="Repeat password" value="{{repeatedPassword}}" autofocus="true" on-keydown="onKeydown" required></paper-input>
-				</form>
-				<paper-button flat colorful on-change="checkEmpty" on-click="register">Register</paper-button>
-			</div>
-			<div class="horizontal layout">
-				<span class="flex"></span>
-				<a on-click="_login">Already have an account? Sign in here.</a>
-				<span class="flex"></span>
-			</div>
-		</paper-material>
+			</base-wizard>
 		<paper-toast id="toast"></paper-toast>
 	</template>
 </dom-module>
@@ -154,6 +91,9 @@ Polymer({
 		user: {
 			type: Object,
 			value: {}
+		},
+		externalWidget: {
+			value: false
 		}
 	},
 	behaviors: [
@@ -163,20 +103,20 @@ Polymer({
 		'_contextSet(context)'
 	],
 	_contextSet: function(context){
-		this.challengeRegisterContext = (context === 'challenge-register');
+		this.externalWidget = (context === 'challenge-register');
 	},
 	_onResponse: function(){
 		this.$.cookieService.login('Basic ' + btoa(this.user.nick + ':' + this.user.password));
 	},
 	_login: function(){
-		if(this.challengeRegisterContext){
+		if(this.externalWidget){
 			this.fire('redirect-login');
 			return;
 		}
 		page('/login');
 	},
 	prev: function() {
-		if(this.challengeRegisterContext){
+		if(this.externalWidget){
 			this.fire('prev-step');
 		}
 	},
@@ -197,7 +137,7 @@ Polymer({
 		}
 	},
 	_userOk: function(e, user){
-		if(this.challengeRegisterContext){
+		if(this.externalWidget){
 			this.fire('next-step', user);
 			return;
 		}

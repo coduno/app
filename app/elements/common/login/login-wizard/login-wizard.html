@@ -4,9 +4,15 @@
 <link rel="import" href="../../../../bower_components/paper-toast/paper-toast.html">
 
 <dom-module id="login-wizard">
+	<style>
+	:host {
+		display: block;
+		height: 100%;
+	}
+	</style>
 	<template>
 		<cookie-service id="cookieService" on-user-error="_onUserError" on-user-ok="_userOk"></cookie-service>
-		<neon-animated-pages id="pages" class="flex" selected="[[selected]]" entry-animation="[[entryAnimation]]" exit-animation="[[exitAnimation]]">
+		<neon-animated-pages id="pages" class="flex fullHeight" selected="[[selected]]" entry-animation="[[entryAnimation]]" exit-animation="[[exitAnimation]]">
 			<login-page-email context="[[context]]" email="{{email}}" on-next="next" on-prev="prev"></login-page-email>
 			<login-page-password email="{{email}}" password="{{password}}" on-next="next" on-prev="prev"></login-page-password>
 			<login-page-u2f on-next="next"></login-page-u2f>

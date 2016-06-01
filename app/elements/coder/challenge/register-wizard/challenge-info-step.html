@@ -4,6 +4,7 @@
 	<style include="iron-flex">
 		:host{
 			display: block;
+			height: calc(100% + 118px);
 		}
 		.horizontal-layout {
 			@apply(--layout-horizontal);
@@ -12,9 +13,17 @@
 			@apply(--layout-vertical);
 			padding: 24px;
 			background: white;
+			height: 100%;
+			width: calc(70% - 48px);
 		}
 		.icon-text {
 			padding: 0 32px 0px 4px;
+		}
+		h1 {
+			margin: 0px 0px 16px 0px;
+		}
+		#buttonLogo {
+			margin-right: 4px;
 		}
 	</style>
 	<template>
@@ -36,7 +45,7 @@
 					<span class="icon-text">{{duration}}</span>
 				</template>
 				<div class="flex"></div>
-				<paper-button raised on-click="_onRegister">Register</paper-button>
+				<paper-button raised on-click="_onRegister"><iron-icon id="buttonLogo" src="/images/logo.svg"></iron-icon>Register</paper-button>
 			</div>
 			<render-markdown markdown="{{challenge.description}}"></render-markdown>
 		</paper-material>

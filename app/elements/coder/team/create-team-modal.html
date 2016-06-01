@@ -32,8 +32,11 @@
 				<form is="iron-form" id="form">
 					<paper-input autofocus="true" label="Name" value="{{team.name}}"
 						required minlength="6" maxlength="40" auto-validate error-message="Must be between 6 and 40 chars."></paper-input>
-					<paper-input label="Canonical name" value="{{team.canonicalName}}"
+					<paper-input label="Tag" value="{{team.canonicalName}}"
 						required minlength="6" maxlength="40" auto-validate error-message="Must be between 6 and 40 chars."></paper-input>
+						<p>The tag is a unique identifier for your team.</p>
+						<p>You will find your team at</p>
+						<p>https://app.cod.uno/t/[[team.canonicalName]]</p>
 				</form>
 			</div>
 			<div class="buttons">

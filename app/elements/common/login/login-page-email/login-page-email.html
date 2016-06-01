@@ -8,54 +8,13 @@
 
 <dom-module id="login-page-email">
 	<style type="text/css" include="iron-flex">
-iron-icon.huge {
-	--iron-icon-height: 50%;
-	--iron-icon-width: 50%;
+:host {
+	/* layout properties for the host element */
+	display: block;
+	height: calc(100% + 56px);
 }
 
-paper-material {
-	width: 70%;
-	background-color: white;
-
-	/* three times the width of iron-icon.huge */
-	max-width: 432px;
-
-	/* places this in the middle */
-	margin: auto;
-}
-
-paper-material > div {
-	padding: 24px;
-}
-
-paper-material > div:first-child {
-	height: 15%;
-	max-height: 248px;
-	padding: 10%;
-
-	@apply(--layout-horizontal);
-	@apply(--layout-center);
-}
-
-paper-material > div:first-child > div {
-	width: 100%;
-
-	@apply(--layout-vertical);
-	@apply(--layout-center);
-}
-
-paper-material > div:first-child > div > img {
-	width: auto;
-	height: auto;
-	max-height: 50%;
-	max-width: 50%;
-}
-
-paper-material > div:nth-child(2) {
-	text-align: center;
-}
-
-paper-material > div > paper-button {
+paper-button {
 	width: 100%;
 
 	margin: 0 !important;
@@ -69,24 +28,11 @@ paper-material > div > paper-button {
 span {
 	@apply(--layout-flex);
 }
-paper-icon-button {
-	left: 10px;
-	margin-left: -24px;
-	padding: 0;
-}
 	</style>
 	<template>
-		<paper-material elevation="1">
+		<base-wizard show-back-button="[[externalWidget]]" on-back="prev">
 			<div>
-				<template is="dom-if" if="[[challengeRegisterContext]]">
-					<paper-icon-button flat icon="chevron-left" on-click="prev"></paper-icon-button>
-				</template>
-				<div>
-					<img src="/images/logo.svg" />
-				</div>
-			</div>
-			<div>
-				<paper-input type="text" label="Username or e-mail" value="{{email}}" autofocus="true" on-keydown="onKeydown"></paper-input>
+				<paper-input type="text" label="Username or e-mail" value="{{email}}" autofocus="[[!externalWidget]]" on-keydown="onKeydown"></paper-input>
 				<paper-button class$="{{empty}}" flat colorful on-change="checkEmpty" on-click="next">Next</paper-button>
 			</div>
 			<div id="signupWrapper">
@@ -94,7 +40,7 @@ paper-icon-button {
 				<a on-click="_register">Need an account? Sign up here.</a>
 				<span></span>
 			</div>
-		</paper-material>
+		</base-wizard>
 	</template>
 </dom-module>
 
@@ -118,10 +64,10 @@ Polymer({
 		'_contextSet(context)'
 	],
 	_contextSet: function(context){
-		this.challengeRegisterContext = (context === 'challenge-register');
+		this.externalWidget = (context === 'challenge-register');
 	},
 	_register: function(){
-		if(this.challengeRegisterContext){
+		if(this.externalWidget){
 			this.fire('redirect-register');
 			return;
 		}
@@ -134,7 +80,7 @@ Polymer({
 		this.fire('next', { value: this.email });
 	},
 	prev: function() {
-		if(this.challengeRegisterContext){
+		if(this.externalWidget){
 			this.fire('prev-step');
 		}
 	},

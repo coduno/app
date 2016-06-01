@@ -4,6 +4,7 @@
 	<style include="iron-flex">
 		:host{
 			display: block;
+			height: 100%;
 		}
 		.horizontal-layout {
 			@apply(--layout-horizontal);
@@ -19,21 +20,48 @@
 		#buttons {
 			@apply(--layout-horizontal);
 		}
+		paper-dropdown-menu {
+			width: 100%;
+		}
+		.title {
+			text-align: center;
+		}
 	</style>
 	<template>
-		<create-team-modal id="createTeamDialog"></create-team-modal>
-		<register-to-challenge-dialog id="registerToChallengeDialog" on-challenge-registered="_challengeRegistered"></register-to-challenge-dialog>
-		<paper-material id="wrapper" class="mainContent">
-			<h3>Welcome <span>[[user.username]]</span></h3>
+		<create-team-modal id="createTeamDialog" on-team-created="refresh"></create-team-modal>
+		<my-teams-provider data="{{teams}}"></my-teams-provider>
+		<iron-ajax id="registerRequest"
+			method="PUT"
+			handle-as="text"
+			content-type="application/json"
+			with-credentials="true"
+			on-response="_onResponse"
+			on-error="_onError">
+		</iron-ajax>
+		<base-wizard>
+			<div class="title">
+				<h3>Welcome <span>[[user.username]]</span></h3>
+			</div>
 			<p>You can register to <span>[[challenge.name]]</span> alone or with a team</p>
-			<p>If you are new to Coduno or if you don`t have a team yet and you want to join as a team
-				you can create a team <a on-click="_openTeamModal">here</a></p>
+			<template is="dom-if" if="{{hasTeams}}">
+				<paper-dropdown-menu label="Team" selected-item="{{selectedTeam}}" >
+					<paper-listbox class="dropdown-content" selected="0">
+						<template is="dom-repeat" items="{{teams}}">
+							<option value="{{item.canonicalName}}">{{item.name}}</option>
+						</template>
+					</paper-listbox>
+				</paper-dropdown-menu>
+			</template>
+			<template is="dom-if" if="{{!hasTeams}}">
+				<p>You are currently not part of any team, if you wish to participate as a team
+					 click <a on-click="_openTeamModal">here</a> to create one. </p>
+			</template>
 			<div id="buttons">
 				<span class="flex"></span>
 				<paper-button raised on-click="_register">Register</paper-button>
 				<span class="flex"></span>
 			</div>
-		</paper-material>
+		</base-wizard>
 	</template>
 	<script type="application/javascript" src="../../../../scripts/behaviors/app-connection-behavior.js"></script>
 	<script>
@@ -42,15 +70,31 @@
 			behaviors: [
 				Behaviors.AppConnection
 			],
+			observers: [
+				'_teamsLoaded(teams)'
+			],
+			_teamsLoaded: function(){
+				if(!this.teams || this.teams.length === 0){
+					this.hasTeams = false;
+					return;
+				}
+				this.hasTeams = true;
+				this.unshift('teams', {canonicalName: '', name: 'No team'});
+			},
 			_openTeamModal: function(){
 				this.$.createTeamDialog.toggle();
 			},
 			_register: function(){
-				this.$.registerToChallengeDialog.toggle(this.challenge);
+				this.$.registerRequest.body = {team: this.selectedTeam ? this.selectedTeam.value : ''};
+				this.$.registerRequest.url = util.build('/challenges/' + this.challenge.canonicalName + '/register');
+				this.$.registerRequest.generateRequest();
 			},
-			_challengeRegistered: function(){
+			_onResponse: function(){
 				this._mainApp.setUser(this.user);
 				page('/contest/' + this.challenge.canonicalName + '/info');
+			},
+			refresh: function(){
+				this.$$('my-teams-provider').refresh();
 			}
 		});
 	</script>
