@@ -29,6 +29,7 @@ var packageJson = require('./package.json');
 var crypto = require('crypto');
 var ensureFiles = require('./tasks/ensure-files.js');
 var jshint = require('gulp-jshint');
+var googleWebFonts = require('gulp-google-webfonts');
 
 // var ghPages = require('gulp-gh-pages');
 
@@ -101,6 +102,12 @@ var optimizeHtmlTask = function(src, dest) {
     }));
 };
 
+gulp.task('fonts', function() {
+	return gulp.src('./fonts.list')
+		.pipe(googleWebFonts({}))
+		.pipe(gulp.dest(dist('fonts')));
+});
+
 // Compile and automatically prefix stylesheets
 gulp.task('styles', function() {
   return styleTask('styles', ['**/*.css']);
@@ -144,15 +151,6 @@ gulp.task('copy', function() {
   return merge(app, bower)
     .pipe($.size({
       title: 'copy'
-    }));
-});
-
-// Copy web fonts to dist
-gulp.task('fonts', function() {
-  return gulp.src(['app/fonts/**'])
-    .pipe(gulp.dest(dist('fonts')))
-    .pipe($.size({
-      title: 'fonts'
     }));
 });
 

@@ -17,7 +17,8 @@
     "web-component-tester": "Polymer/web-component-tester#^4.2.2",
     "gold-elements": "~1.0.1",
     "vaadin-grid": "^1.0.0",
-    "paper-listbox": "polymerelements/paper-listbox#^1.1.2"
+    "paper-listbox": "polymerelements/paper-listbox#^1.1.2",
+    "google-fonts": "*"
   },
   "devDependencies": {
     "web-component-tester": "*",
