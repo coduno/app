@@ -13,12 +13,13 @@ before_install:
   -in secrets.tar.enc -out secrets.tar -d && tar xvf secrets.tar )
 - $(! $TRAVIS_SECURE_ENV_VARS) || ( if [ "$TRAVIS_BRANCH" == "master" ]; then tar xvf secrets-prod.tar; else tar xvf secrets-lab.tar; fi; rm secrets*.tar )
 
-script: npm run build
+script:
+- cat /dev/null > app/bower_components/font-roboto/roboto.html
+- npm run build
 
 after_success:
 - ./git-lfs.sh
 - rm -rf node_modules app/bower_components
-- cat /dev/null > dist/bower_components/font-roboto/roboto.html
 
 deploy:
   - provider: gae
