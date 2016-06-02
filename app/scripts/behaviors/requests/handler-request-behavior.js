@@ -41,5 +41,6 @@ Behaviors.Requests.Handler = {
 	},
 	onRequest: function(){
 		//request was sent
+		this.fire('request-sent');
 	}
 };

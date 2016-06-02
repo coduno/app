@@ -82,7 +82,7 @@
 		}
 	</style>
 	<template>
-		<user-by-username-provider username="[[username]]" data="{{user}}" with-mocked-skills></user-by-username-provider>
+		<user-by-username-provider show-progress username="[[username]]" data="{{user}}" with-mocked-skills></user-by-username-provider>
 
 		<paper-material id="top" class="mainContent" elevation="1">
 			<div id="userInfo">
@@ -109,7 +109,7 @@
 					</template>
 				</div>
 				<template is="dom-if" if="[[showUserTeams]]">
-					<user-teams-table id="teamsGrid" user="[[user]]" is-current-user="[[isCurrentUser]]"></user-teams-table>
+					<user-teams-table id="teamsGrid" show-progress="true" user="[[user]]" is-current-user="[[isCurrentUser]]"></user-teams-table>
 					<div id="teamsButtons">
 						<paper-button icon="add" on-click="createTeam">New team</paper-button>
 					</div>

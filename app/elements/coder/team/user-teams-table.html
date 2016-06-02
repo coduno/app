@@ -16,7 +16,7 @@
 		}
 	</style>
 	<template>
-		<teams-for-user-provider username="[[user.username]]" data="{{data}}"></teams-for-user-provider>
+		<teams-for-user-provider show-progress="[[showProgress]]" username="[[user.username]]" data="{{data}}"></teams-for-user-provider>
 		<paper-datatable data="{{teams}}" style="height: 100%; overflow-y: auto;" on-cell-tap="_onClick">
 			<paper-datatable-column header="Name" property="name" >
 			</paper-datatable-column>
@@ -82,6 +82,7 @@
 				dialog.toggle();
 			},
 			_teamDeleted: function(){
+				this.showProgress = false;
 				this.refresh();
 			},
 			_selectedItemsChanged: function(){

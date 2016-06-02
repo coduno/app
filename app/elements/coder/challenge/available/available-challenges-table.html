@@ -19,7 +19,7 @@
 		}
 	</style>
 	<template>
-		<challenges-provider data="{{challenges}}"></challenges-provider>
+		<challenges-provider show-progress data="{{challenges}}"></challenges-provider>
 		<register-to-challenge-dialog id="registerToChallengeDialog" on-challenge-registered="refresh"></register-to-challenge-dialog>
 
 		<paper-datatable data="{{challenges}}" style="height: 100%; overflow-y: auto;" on-row-tap="_onClick">
