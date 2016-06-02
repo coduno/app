@@ -38,10 +38,6 @@
 					notify: true,
 					value: -1
 				},
-				ironPagesStyle: {
-					type: String,
-					notify: true
-				},
 				error: {
 					type: Object,
 					notify: true
@@ -50,6 +46,9 @@
 					type: Object,
 					notify: true,
 					value: {}
+				},
+				inProgressRequests: {
+					value: 0
 				}
 			},
 			ready: function(){
@@ -88,12 +87,18 @@
 				cookieService.login();
 			},
 			startLoading: function(){
-				this.$.appNav.startLoading();
-				this.ironPagesStyle = 'display: none;';
+				this.inProgressRequests ++;
+				if(this.inProgressRequests > 1){
+					return;
+				}
+				this.$.sections.style.display = 'none';
 			},
 			stopLoading: function(){
-				this.$.appNav.stopLoading();
-				this.ironPagesStyle = '';
+				this.inProgressRequests --;
+				if(this.inProgressRequests > 0){
+					return;
+				}
+				this.$.sections.style.display = '';
 			},
 			login: function(user) {
 				this.setUser(user);

@@ -1,4 +1,3 @@
-<link rel="import" href="../../../../bower_components/vaadin-grid/vaadin-grid.html">
 <link rel="import" href="../../../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../../../bower_components/iron-icons/notification-icons.html">
 <link rel="import" href="../../../../bower_components/iron-icons/communication-icons.html">
@@ -7,6 +6,7 @@
 <link rel="import" href="../../../../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 <link rel="import" href="../../../../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../../../../bower_components/paper-datatable/paper-datatable.html">
 
 <dom-module id="available-challenges-table">
 	<style include="iron-flex">
@@ -21,28 +21,34 @@
 	<template>
 		<challenges-provider data="{{challenges}}"></challenges-provider>
 		<register-to-challenge-dialog id="registerToChallengeDialog" on-challenge-registered="refresh"></register-to-challenge-dialog>
-		<vaadin-grid id="availableChallengesGrid" class="fullHeight" items="[[challenges]]" on-selected-items-changed="_selectedItemsChanged">
-			<table>
-				<thead>
-					<tr>
-						<th>Name</th>
-						<th>Organization</th>
-						<th>Start date</th>
-						<th>End date</th>
-						<th>Status</th>
-						<th>Actions</th>
-					</tr>
-				</thead>
-				<colgroup>
-					<col name="challenge.name"/>
-					<col name="challenge.organization.name"/>
-					<col name="challenge.startDate"/>
-					<col name="challenge.endDate"/>
-					<col name="status"/>
-					<col name="challenge.canonicalName"/>
-				</colgroup>
-			</table>
-		</vaadin-grid>
+
+		<paper-datatable data="{{challenges}}" style="height: 100%; overflow-y: auto;" on-row-tap="_onClick">
+			<paper-datatable-column header="Name" property="challenge" type="Object" sortable>
+				<template>
+					<p>{{value.name}}</p>
+				</template>
+			</paper-datatable-column>
+			<paper-datatable-column header="Organization" property="challenge" type="Object" sortable>
+				<template>
+					<p>{{value.organization.name}}</p>
+				</template>
+			</paper-datatable-column>
+			<paper-datatable-column header="Start date" property="challenge" type="Object" sortable>
+				<template>
+					<p>{{_formatDate(value.startDate)}}</p>
+				</template>
+			</paper-datatable-column>
+			<paper-datatable-column header="End date" property="challenge" type="Object" sortable>
+				<template>
+					<p>{{_formatDate(value.endDate)}}</p>
+				</template>
+			</paper-datatable-column>
+			<paper-datatable-column header="Status" property="status" type="Object" sortable>
+				<template>
+					<paper-icon-button icon="{{_iconForStatus(value)}}"></paper-icon-button>
+				</template>
+			</paper-datatable-column>
+		</paper-datatable>
 		<paper-toast id="toast" text="{{toastText}}"></paper-toast>
 	</template>
 	<script>
@@ -53,38 +59,8 @@
 					value: true
 				}
 			},
-			observers: [
-				'_dataChanged(challenges)'
-			],
-			_selectedItemsChanged: function(){
-				var selected = this.$.availableChallengesGrid.selection.selected();
-				if(!this.clickedOnOption && !!selected && selected.length > 0){
-					var dto = this.challenges[selected[0]];
-					page('/contest/' + dto.challenge.canonicalName + '/info');
-					return;
-				}
-				this.clickedOnOption = false;
-			},
-			_dataChanged: function(){
-				var element = this;
-				this.$.availableChallengesGrid.columns[2].renderer = element._formatDate;
-				this.$.availableChallengesGrid.columns[3].renderer = element._formatDate;
-				this.$.availableChallengesGrid.columns[4].renderer = function(cell){
-					cell.element.innerHTML = '';
-					cell.element.appendChild(element._createIconButton(element._iconForStatus(cell.data)));
-				};
-				this.$.availableChallengesGrid.columns[5].renderer = function(cell){
-					cell.element.innerHTML = '';
-					var dto = cell.row.data;
-					if(dto.status !== 'OPEN'){
-						return;
-					}
-					cell.element.appendChild(element._createButton('Register', function(){
-						element.$.registerToChallengeDialog.toggle(dto.challenge);
-						element.clickedOnOption = true;
-					}));
-				};
-				this.$.availableChallengesGrid.refreshItems();
+			_onClick: function(e, d){
+				page('/contest/' + d.item.challenge.canonicalName + '/info');
 			},
 			_iconForStatus: function(status){
 				switch(status){
@@ -103,43 +79,11 @@
 				}
 				return '';
 			},
-			_registerTo: function(canonicalName){
-				this.$.registerRequest.url = util.build('/challenges/' + canonicalName + '/register');
-				this.$.registerRequest.generateRequest();
-			},
-			_formatDate: function(cell){
-				if(!cell.data){
-					return '';
-				}
-				cell.element.innerHTML = util.formatDate(cell.data);
-			},
-			_createButton: function(label, clickListener){
-				var button = document.createElement('paper-button');
-				Polymer.dom(button).textContent = label;
-				button.addEventListener('click', clickListener);
-				button.raised = true;
-				return button;
-			},
-			_createIconButton: function(icon, clickListener){
-				var button = document.createElement('paper-icon-button');
-				button.icon = icon;
-				button.addEventListener('click', clickListener);
-				return button;
+			_formatDate: function(date){
+				return util.formatDate(date);
 			},
 			refresh: function(){
 				this.$$('challenges-provider').refresh();
-			},
-			_onResponse: function(){
-				this.toastText = 'You registered successfully.';
-				this.$.toast.show();
-				this.$$('challenges-provider').refresh();
-			},
-			_onError: function(e, r){
-				this.toastText = 'An error occured when processing your request.';
-				if(!!r.request.xhr.responseText){
-					this.toastText = r.request.xhr.responseText;
-				}
-				this.$.toast.show();
 			}
 		});
 	</script>

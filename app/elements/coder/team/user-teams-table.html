@@ -1,13 +1,9 @@
-<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid.html">
 <link rel="import" href="../../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../../bower_components/iron-icons/editor-icons.html">
 <link rel="import" href="../../../bower_components/iron-icons/social-icons.html">
 <link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../bower_components/paper-datatable/paper-datatable.html">
 <link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
-
-<!-- <link rel="import" href="/elements/coder/team/invite-to-team-modal.html">
-<link rel="import" href="/elements/coder/team/delete-team-modal.html">
-<link rel="import" href="/elements/coder/team/edit-team-modal.html"> -->
 
 <dom-module id="user-teams-table">
 	<style include="iron-flex">
@@ -20,23 +16,25 @@
 		}
 	</style>
 	<template>
-		<teams-for-user-provider username="[[user.username]]" data="{{teams}}"></teams-for-user-provider>
-		<vaadin-grid id="teamsGrid" class="fullHeight" items="[[teams]]" on-selected-items-changed="_selectedItemsChanged">
-			<table>
-				<thead>
-					<tr>
-						<th>Name</th>
-						<th>Members</th>
-						<th>Options</th>
-					</tr>
-				</thead>
-				<colgroup>
-					<col name="name"/>
-					<col name="members.length"/>
-					<col name="id" hidden="[[!isCurrentUser]]"/>
-				</colgroup>
-			</table>
-		</vaadin-grid>
+		<teams-for-user-provider username="[[user.username]]" data="{{data}}"></teams-for-user-provider>
+		<paper-datatable data="{{teams}}" style="height: 100%; overflow-y: auto;" on-cell-tap="_onClick">
+			<paper-datatable-column header="Name" property="name" >
+			</paper-datatable-column>
+			<paper-datatable-column header="Members" property="members" type="Array" sortable>
+				<template>
+					<span>{{value.length}}</span>
+				</template>
+			</paper-datatable-column>
+			<template is="dom-if" if="[[isCurrentUser]]">
+				<paper-datatable-column header="Options" property="isUserAdmin" width="200">
+					<template is="dom-if" if="[[value]]">
+						<paper-icon-button icon="social:group-add" on-click="_invite"></paper-icon-button>
+						<paper-icon-button icon="editor:mode-edit" on-click="_edit"></paper-icon-button>
+						<paper-icon-button icon="delete" on-click="_delete"></paper-icon-button>
+					</template>
+				</paper-datatable-column>
+			</template>
+		</paper-datatable>
 		<invite-to-team-modal id="inviteToTeamDialog"></invite-to-team-modal>
 		<delete-team-modal id="deleteTeamDialog" on-team-deleted="_teamDeleted"></delete-team-modal>
 		<edit-team-modal id="editTeamDialog"></edit-team-modal>
@@ -51,8 +49,38 @@
 				}
 			},
 			observers: [
-				'_userChanged(user)'
+				'_dataLoaded(user, data)'
 			],
+			_dataLoaded: function(user, teams){
+				if(!user || !teams){
+					return;
+				}
+				for(var i = 0; i < teams.length; i ++){
+					teams[i].isUserAdmin = this._isAdmin(user, teams[i]);
+				}
+				this.teams = teams;
+			},
+			_onClick: function(e, d){
+				if(d.column.header === 'Options'){
+					return;
+				}
+				page('/t/' + d.item.canonicalName);
+			},
+			_invite: function (e) {
+				var dialog = this.$.inviteToTeamDialog;
+				dialog.team = e.model.__data__.item;
+				dialog.toggle();
+			},
+			_edit: function (e) {
+				var dialog = this.$.editTeamDialog;
+				dialog.team = e.model.__data__.item;
+				dialog.toggle();
+			},
+			_delete: function (e) {
+				var dialog = this.$.deleteTeamDialog;
+				dialog.team = e.model.__data__.item;
+				dialog.toggle();
+			},
 			_teamDeleted: function(){
 				this.refresh();
 			},
@@ -64,34 +92,6 @@
 				}
 				this.clickedOnOption = false;
 			},
-			_userChanged: function(user){
-				var element = this;
-				this.$.teamsGrid.columns[2].renderer = function(cell){
-					var team = cell.row.data;
-					cell.element.innerHTML = '';
-					if(!element._isAdmin(user, team)){
-						return;
-					}
-					cell.element.appendChild(element._createIconButton('social:group-add', function(){
-						var dialog = element.$.inviteToTeamDialog;
-						dialog.team = team;
-						dialog.toggle();
-						element.clickedOnOption = true;
-					}));
-					cell.element.appendChild(element._createIconButton('editor:mode-edit', function(){
-						var dialog = element.$.editTeamDialog;
-						dialog.team = team;
-						dialog.toggle();
-						element.clickedOnOption = true;
-					}));
-					cell.element.appendChild(element._createIconButton('delete', function(){
-						var dialog = element.$.deleteTeamDialog;
-						dialog.team = team;
-						dialog.toggle();
-						element.clickedOnOption = true;
-					}));
-				};
-			},
 			_createTeam: function(){
 				this.$.createTeamDialog.toggle();
 			},
@@ -99,12 +99,6 @@
 				return team.members.some(function(it) {
 					return it.admin && it.username === user.username;
 				});
-			},
-			_createIconButton: function(icon, clickListener){
-				var button = document.createElement('paper-icon-button');
-				button.icon = icon;
-				button.addEventListener('click', clickListener);
-				return button;
 			},
 			refresh: function(){
 				this.$$('teams-for-user-provider').refresh();
