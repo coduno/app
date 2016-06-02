@@ -30,13 +30,16 @@ span {
 }
 paper-input {
 	margin: 1px;
+		--paper-input-error: {
+			white-space: normal;
+		};
 }
 	</style>
 	<template>
 		<user-service id="userService" on-response="_onResponse" on-error="_onError"></user-service>
 		<cookie-service id="cookieService" on-user-error="_onUserError" on-user-ok="_userOk"></cookie-service>
 		<base-wizard show-back-button="[[externalWidget]]" on-back="prev">
-					<form is="iron-form" id="userForm">
+					<form is="iron-form" id="form">
 						<gold-email-input
 							label="Email"
 							value="{{user.email}}"
@@ -53,7 +56,8 @@ paper-input {
 							minLength="5"
 							maxLength="60"
 							on-keydown="onKeydown"
-							error-message="Username must be between 5 and 60 characters and only contain alphanumerical characters."
+							pattern="^[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*$"
+							error-message="Must be between 5 and 40 chars and only contain letters and numbers."
 							required>
 						</paper-input>
 						<paper-input
@@ -69,7 +73,7 @@ paper-input {
 						</paper-input>
 						<paper-input type="password" label="Repeat password" value="{{repeatedPassword}}" autofocus="[[!externalWidget]]" on-keydown="onKeydown" required></paper-input>
 					</form>
-					<paper-button flat colorful on-change="checkEmpty" on-click="register">Register</paper-button>
+					<paper-button class="primary" disabled="{{saveDisabled}}" on-click="register">Register</paper-button>
 				<div class="horizontal layout">
 					<span></span>
 					<a on-click="_login">Already have an account? Sign in here.</a>
@@ -102,6 +106,12 @@ Polymer({
 	observers: [
 		'_contextSet(context)'
 	],
+	listeners: {
+		'keyup': '_keyup'
+	},
+	_keyup: function(){
+		this.saveDisabled = !this.$.form.validate();
+	},
 	_contextSet: function(context){
 		this.externalWidget = (context === 'challenge-register');
 	},
