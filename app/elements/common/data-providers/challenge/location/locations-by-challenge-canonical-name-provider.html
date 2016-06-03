@@ -1,0 +1,43 @@
+<dom-module id="locations-by-challenge-canonical-name-provider">
+	<style>
+		:host {
+			display: none;
+		}
+	</style>
+	<template>
+		<iron-ajax
+			id="request"
+			method="GET"
+			url="[[baseUrl]]/challenges/[[canonicalName]]/locations"
+			handle-as="json"
+			with-credentials="true"
+			bubbles>
+		</iron-ajax>
+	</template>
+	<script type="application/javascript" src="../../../../../scripts/behaviors/providers/general-provider-behavior.js"></script>
+	<script>
+		Polymer({
+			is: 'locations-by-challenge-canonical-name-provider',
+			properties: {
+				auto: {
+					value: false
+				}
+			},
+			behaviors: [
+				Behaviors.Providers.General
+			],
+			observers: [
+				'_urlChanged(baseUrl, canonicalName)'
+			],
+			_urlChanged: function(){
+				if(!this.auto){
+					return;
+				}
+				this.refresh();
+			},
+			refresh: function(){
+				this.$.request.generateRequest();
+			}
+		});
+	</script>
+</dom-module>
