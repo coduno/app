@@ -1,4 +1,4 @@
-<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="../../../bower_components/paper-datatable/paper-datatable.html">
 <link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 
 <dom-module id="participants-table">
@@ -13,20 +13,16 @@
 	</style>
 	<template>
 		<participants-by-challenge-canonical-name-provider canonical-name="[[challenge]]" data="{{participants}}"></participants-by-challenge-canonical-name-provider>
-		<vaadin-grid id="participantsGrid" class="fullHeight" items="[[participants]]" on-selected-items-changed="_selectedItemsChanged">
-			<table>
-				<thead>
-					<tr>
-						<th>Username</th>
-						<th>Team</th>
-					</tr>
-				</thead>
-				<colgroup>
-					<col name="user.username"/>
-					<col name="team.name"/>
-				</colgroup>
-			</table>
-		</vaadin-grid>
+
+		<paper-datatable data="{{participants}}" style="overflow-y: auto;" on-row-tap="_onClick">
+			<paper-datatable-column header="Username" property="username" sortable>
+			</paper-datatable-column>
+			<paper-datatable-column header="Team" property="teamName" type="String">
+				<template>
+					<span>{{value}}</span>
+				</template>
+			</paper-datatable-column>
+		</paper-datatable>
 	</template>
 	<script>
 		Polymer({
@@ -36,25 +32,12 @@
 					value: true
 				}
 			},
-			observers: [
-				'_dataChanged(participants)'
-			],
-			_selectedItemsChanged: function(){
-				var selected = this.$.participantsGrid.selection.selected();
-				if(!this.clickedOnOption && !!selected && selected.length > 0){
-					var participation = this.participants[selected[0]];
-					page('/u/' + participation.user.username);
+			_onClick: function(e, d){
+				if(!!d.item.teamCanonicalName){
+					page('/t/' + d.item.teamCanonicalName);
+					return;
 				}
-			},
-			_dataChanged: function(){
-				var element = this;
-				this.$.participantsGrid.columns[2].renderer = element._formatDate;
-			},
-			_formatDate: function(cell){
-				if(!cell.data){
-					return '';
-				}
-				cell.element.innerHTML = util.formatDate(cell.data);
+				page('/u/' + d.item.username)
 			}
 		});
 	</script>

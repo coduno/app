@@ -1,5 +1,7 @@
+<link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+
 <dom-module id="error-page">
-	<style>
+	<style include="iron-flex">
 		:host {
 			display: block;
 			height: 100%;
@@ -39,23 +41,19 @@
 				'_afterPropertiesSet(error)'
 			],
 			_afterPropertiesSet: function(){
-				var response = this.error.detail.request.xhr.response;
-				if(!response) {
-					this.message = 'Something went wrong. We are sorry for this experience. You can report it on https://github.com/coduno/api/issues';
-					return;
+				//TODO: after all the request stuff has been refactored, remove the "||"
+				if (this.error.status === 500 || this.error.detail.request.xhr.status === 500){
+					this.message = 'Something went wrong. We are sorry for this experience. You can report it on https://github.com/coduno/api/issues \n';
 				}
-				var message = 'Sorry, Coduno encountered an error: ' + response.StatusText + '\n\n';
-				message += 'If you think this is a bug, please consider filling it at https://github.com/coduno/api/issues\n\n';
-				if(response.RequestID) {
-					message += 'Your request id is ' + response.RequestID + ' (important to track down what went wrong)\n\n';
+				if (this.error.status === 404 || this.error.detail.request.xhr.status === 404){
+					this.message = 'What you were looking for seems to be missing. \n';
 				}
-				if(response.Reason) {
-					message += 'Reason: ' + response.Reason + '\n\n';
+				if (this.error.status === 403 || this.error.detail.request.xhr.status === 403){
+					this.message = 'You don\'t have the required permissions to access what you were looking for. \n';
 				}
-				if(response.Trace) {
-					message += 'Trace: ' + response.Trace;
+				if (!!this.error.message){
+					this.message += this.error.message;
 				}
-				this.message = message;
 			}
 		});
 	</script>

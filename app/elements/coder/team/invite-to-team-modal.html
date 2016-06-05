@@ -17,26 +17,26 @@
 		}
 	</style>
 	<template>
-		<iron-ajax
+		<coduno-iron-ajax
 			id="inviteRequest"
 			method="POST"
-			handle-as="text"
-			content-type="application/json"
-			with-credentials="true"
-			on-response="_onResponse"
-			on-error="_onError">
-		</iron-ajax>
+			path="/teams/[[team.canonicalName]]/invitations"
+			body="[[invitation]]"
+			on-request-finished="_onResponse"
+			error="{{error}}">
+		</coduno-iron-ajax>
 		<paper-dialog id="inviteDialog" modal>
 			<h4>Invite to <span>{{team.name}}</span></h4>
 			<div class="fieldList">
 				<form is="iron-form" id="form">
+					<errors-display error="{{error}}"></errors-display>
 					<paper-input autofocus="true" label="Username" value="{{invitation.username}}"
 						required minlength="5" maxlength="40" auto-validate error-message="Must be between 5 and 40 chars."></paper-input>
 				</form>
 			</div>
 			<div class="buttons">
 				<paper-button class="secondary" dialog-dismiss>Cancel</paper-button>
-				<paper-button on-click="_inviteUser" class="primary" dialog-confirm disabled="{{saveDisabled}}">Save</paper-button>
+				<paper-button on-click="_inviteUser" class="primary" disabled="{{saveDisabled}}">Save</paper-button>
 			</div>
 		</paper-dialog>
 		<paper-toast id="toast" text="{{toastText}}"></paper-toast>
@@ -65,23 +65,16 @@
 				if(!this.$.form.validate()){
 					return;
 				}
-				this.$.inviteRequest.body = this.invitation;
-				this.$.inviteRequest.url = util.build('/teams/' + this.team.canonicalName + '/invitations');
 				this.$.inviteRequest.generateRequest();
-				this.team = {};
 			},
 			_invitationChanged: function(){
 				this.saveDisabled = !this.$.form.validate();
 			},
 			_onResponse: function(){
+				this.team = {};
+				this.invitation = {};
 				this.toastText = 'Invitation successfully sent.';
-				this.$.toast.show();
-			},
-			_onError: function(e, r){
-				this.toastText = 'An error occured when sending your invitation.';
-				if(!!r.request.xhr.responseText){
-					this.toastText = r.request.xhr.responseText;
-				}
+				this.$.inviteDialog.close();
 				this.$.toast.show();
 			}
 		});

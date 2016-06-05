@@ -4,23 +4,37 @@
 
 <dom-module id="import-catcoder-input">
 	<template>
-		<iron-ajax
+		<style>
+			paper-button {
+				margin: 8px 4px ;
+			}
+		</style>
+		<coduno-iron-ajax
 			id="postGame"
 			method="POST"
-			with-credentials="true"
-			on-response="_onResponse"
+			body="[[body]]"
+			path="/contestgameupload"
+			content-type=""
+			response="{{savedTemplate}}"
+			on-request-finished="_onRequestFinished"
 			on-error="_onError">
-		</iron-ajax>
+		</coduno-iron-ajax>
 
+		<errors-display error="{{error}}"></errors-display>
 		You must upload a zip file which contains the game structure
 		<input id="input" type="file" accept="application/zip"><br>
-
-		<paper-button id="uploadButton" on-click="_upload">Upload game</paper-button>
+		<paper-button id="uploadButton" raised on-click="_upload">Upload game</paper-button>
 		<paper-toast id="toast">{{toastText}}</paper-toast>
 	</template>
 	<script>
 		Polymer({
 			is: 'import-catcoder-input',
+			properties: {
+				body: {
+					type: Object,
+					notify: true
+				}
+			},
 			_upload: function(){
 				if (this.$.input.files.length === 0){
 					this.toastText = 'You must upload a zip file.';
@@ -28,29 +42,22 @@
 					return;
 				}
 				var file = this.$.input.files[0];
-				var body = new FormData();
-				body.append('file', file, file.name);
-				body.append('organization', localStorage.activeOrganization);
-				this.$.postGame.body = body;
-				this.$.postGame.url = util.build('/contestgameupload');
-				this.$.postGame.generateRequest();
+				this.body = new FormData();
+				this.body.append('file', file, file.name);
+				this.body.append('organization', localStorage.activeOrganization);
 				app.startLoading();
 				this.$.uploadButton.disabled = true;
+				this.$.postGame.generateRequest();
 			},
-			_onResponse: function(r){
-				this.$.uploadButton.disabled = true;
+			_onRequestFinished: function(e){
+				e.stopPropagation();
+				this.$.uploadButton.disabled = false;
 				app.stopLoading();
-				page('/challenges/template/' + r.detail.response);
+				page('/challenges/template/' + this.savedTemplate);
 			},
 			_onError: function(e, req) {
-				this.$.uploadButton.disabled = true;
 				app.stopLoading();
-				if (e.detail.request.xhr.status === 400) {
-					this.toastText = req.request.xhr.response;
-					this.$.toast.show();
-					return;
-				}
-				util.error(e);
+				this.$.uploadButton.disabled = false;
 			}
 		});
 	</script>

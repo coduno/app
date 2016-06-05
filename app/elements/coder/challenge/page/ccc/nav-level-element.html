@@ -50,10 +50,13 @@
 				 value: 'default'
 			 }
 		 },
+		 observers: [
+			 '_stateChanged(state)'
+		 ],
 		 _onClick: function(){
 			 this.fire('task-switch', this.index);
 		 },
-		 setState: function(state){
+		 _stateChanged: function(state){
 			 if(state === 'completed'){
 				 this.divClass = 'circle green';
 			 }else if(state === 'current'){
@@ -61,6 +64,9 @@
 			 }else{
 				 this.divClass = 'circle gray';
 			 }
+		 },
+		 setState: function(state){
+			 this.state = state;
 		 }
 	 });
  </script>

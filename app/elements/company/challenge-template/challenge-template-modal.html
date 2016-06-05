@@ -25,19 +25,19 @@
 		}
 	</style>
 	<template>
-		<iron-ajax
+		<coduno-iron-ajax
 			id="saveChallengeTemplate"
 			method="POST"
 			body="{{challengeTemplateToSave}}"
-			content-type="application/json"
-			last-response="{{savedChallengeTemplate}}"
-			with-credentials="true"
-			on-response="_onResponse"
-			on-error="_onError">
-		</iron-ajax>
+			response="{{savedChallengeTemplate}}"
+			error="{{error}}"
+			on-request-finished="_onResponse"
+			on-request-failed="_onError">
+		</coduno-iron-ajax>
 		<endpoints-provider data="{{endpoints}}"></endpoints-provider>
 
 		<paper-dialog id="dialog" modal>
+			<errors-display error="{{error}}"></errors-display>
 			<h2>These are the tasks you selected: </h2>
 			<template is="dom-repeat" items="{{selectedTasks}}" as="selectedTask">
 				<div><span>{{_computeIndex(index)}}</span> <span>{{selectedTask.Assignment.Name}}</span></div>

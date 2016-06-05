@@ -1,0 +1,154 @@
+<link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../../../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../../../bower_components/iron-icons/communication-icons.html">
+<link rel="import" href="../../../../bower_components/iron-icons/device-icons.html">
+<dom-module id="challenge-info-page">
+	<style include="iron-flex">
+		:host{
+			display: block;
+			height: 100%;
+		}
+		#wrapper {
+			@apply(--layout-vertical);
+			padding: 24px;
+		}
+		paper-material {
+			background: white;
+		}
+		.horizontal-layout {
+			@apply(--layout-horizontal);
+		}
+		.icon-text {
+			padding: 0 32px 0px 4px;
+		}
+		paper-button {
+			@apply(--layout-self-center);
+		}
+	</style>
+	<template>
+		<challenge-by-canonical-name-provider canonical-name="[[canonicalName]]" data="{{challenge}}"></challenge-by-canonical-name-provider>
+		<user-status-for-challenge-provider canonical-name="[[canonicalName]]" data="{{status}}"></user-status-for-challenge-provider>
+		<register-to-challenge-dialog id="registerToChallengeDialog" on-challenge-registered="refresh"></register-to-challenge-dialog>
+		<paper-material id="wrapper" elevation="1" class="mainContent">
+			<h1>{{challenge.name}}</h1>
+			<div id="infoIcons" class="horizontal-layout">
+				<iron-icon icon="communication:business"></iron-icon>
+				<span class="icon-text">{{challenge.organization.name}}</span>
+				<template is="dom-if" if="[[showStartDate]]">
+					<iron-icon icon="event"></iron-icon>
+					<span class="icon-text">{{startDate}}</span>
+				</template>
+				<template is="dom-if" if="[[showStartDate]]">
+					<iron-icon icon="device:access-time"></iron-icon>
+					<span class="icon-text">{{startTime}}</span>
+				</template>
+				<template is="dom-if" if="[[showDuration]]">
+					<iron-icon icon="alarm"></iron-icon>
+					<span class="icon-text">{{duration}}</span>
+				</template>
+				<iron-icon icon="{{statusIcon}}"></iron-icon>
+				<span class="icon-text">{{statusText}}</span>
+				<div class="flex"></div>
+				<template is="dom-if" if="{{showActions}}">
+					<paper-button raised on-click="_onAction">{{actionText}}</paper-button>
+					<template is="dom-if" if="{{statusInvited}}">
+						<paper-button raised on-click="_onSecondaryAction">Decline</paper-button>
+					</template>
+				</template>
+				<template is="dom-if" if="{{showStart}}">
+					<paper-button raised on-click="_onStart">Start</paper-button>
+				</template>
+			</div>
+			<render-markdown markdown="{{challenge.description}}"></render-markdown>
+		</paper-material>
+	</template>
+	<script type="application/javascript" src="../../../../scripts/behaviors/datetime-behavior.js"></script>
+	<script>
+		Polymer({
+			is: 'challenge-info-page',
+			behaviors: [
+				Behaviors.DateTimeBehavior
+			],
+			observers: [
+				'_dataLoaded(challenge, status)'
+			],
+			_dataLoaded: function(challenge, status){
+				this.timeUntilChallenge = (challenge.startDate * 1000 - new Date().getTime())/1000;
+				this.duration = this._computeDuration(challenge.endDate - challenge.startDate)
+				if(this.duration > 0){
+					this.showDuration = true;
+				}
+				if(!!challenge.startDate){
+					this.startTime = this._getTime(challenge.startDate)
+					this.startDate = this._getDate(challenge.startDate);
+					this.showStartDate = true;
+				}
+				this.showActions = true;
+				switch(status.status){
+					case 'OPEN':
+						this.statusIcon = 'radio-button-unchecked';
+						this.statusText = 'Open for registration';
+						this.actionText = 'Register';
+						break;
+					case 'INVITED':
+						this.statusIcon = 'communication:mail-outline';
+						this.statusText = 'Invited';
+						this.actionText = 'Accept';
+						this.statusInvited = true;
+						this.showActions = false;
+						break;
+					case 'REGISTERED':
+						this.statusIcon = 'notification:event-available';
+						this.statusText = 'Registered as ' + status.registeredAs;
+						this.actionText = 'Unregister';
+						this.showActions = false;
+						if(!challenge.startDate || challenge.startDate * 1000 < new Date().getTime()){
+							this.showStart = true;
+						}
+						break;
+					case 'ENDED':
+						this.statusIcon = 'clear';
+						this.statusText = 'Ended';
+						this.showActions = false;
+						break;
+					case 'IN_PROGRESS':
+						this.statusIcon = 'hourglass-empty';
+						this.statusText = 'In progress';
+						this.actionText = 'Resume';
+						break;
+					case 'COMPLETED':
+						this.statusIcon = 'done-all';
+						this.statusText = 'Finished';
+						this.actionText = 'See results';
+						break;
+				}
+			},
+			_onAction: function(){
+				switch(this.status.status){
+					case 'OPEN':
+						this.$.registerToChallengeDialog.toggle(this.challenge);
+						break;
+					case 'INVITED':
+						break;
+					case 'REGISTERED':
+						break;
+					case 'IN_PROGRESS':
+						page('/contest/' + this.challenge.canonicalName);
+						break;
+					case 'COMPLETED':
+						page('/contest/' + this.challenge.id + '/result');
+						break;
+				}
+			},
+			_onSecondaryAction: function(){
+				// decline invitation
+			},
+			_onStart: function(){
+				page('/contest/' + this.challenge.canonicalName);
+			},
+			refresh: function(){
+				this.$$('user-status-for-challenge-provider').refresh();
+			},
+		});
+	</script>
+</dom-module>

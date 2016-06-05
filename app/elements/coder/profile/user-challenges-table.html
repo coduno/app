@@ -45,6 +45,9 @@
 			observers: [
 				'_dataChanged(challenges)'
 			],
+			ready: function(){
+				this.$$('my-teams-provider').refresh();
+			},
 			_selectedItemsChanged: function(){
 				var selected = this.$.challengesGrid.selection.selected();
 				if(!selected || selected.length === 0){

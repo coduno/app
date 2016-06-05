@@ -17,17 +17,16 @@
 		}
 	</style>
 	<template>
-		<iron-ajax
+		<coduno-iron-ajax
 			id="request"
 			method="PUT"
-			handle-as="text"
-			content-type="application/json"
-			with-credentials="true"
-			on-response="_onResponse"
-			on-error="_onError">
-		</iron-ajax>
+			path="/teams/[[team.canonicalName]]"
+			error="{{error}}"
+			on-request-finished="_onResponse">
+		</coduno-iron-ajax>
 		<paper-dialog id="dialog" modal>
 			<h4>Edit team</h4>
+			<errors-display error="{{error}}"></errors-display>
 			<div class="fieldList">
 				<form is="iron-form" id="form">
 					<paper-input autofocus="true" label="Name" value="{{updatedTeam.name}}"
@@ -38,7 +37,7 @@
 			</div>
 			<div class="buttons">
 				<paper-button class="secondary" dialog-dismiss>Cancel</paper-button>
-				<paper-button on-click="_save" class="primary" dialog-confirm disabled="{{saveDisabled}}">Save</paper-button>
+				<paper-button on-click="_save" class="primary" disabled="{{saveDisabled}}">Save</paper-button>
 			</div>
 		</paper-dialog>
 		<paper-toast id="toast" text="{{toastText}}"></paper-toast>
@@ -72,7 +71,6 @@
 					return;
 				}
 				this.$.request.body = this.updatedTeam;
-				this.$.request.url = util.build('/teams/' + this.team.canonicalName);
 				this.$.request.generateRequest();
 				this.team = {};
 			},
@@ -80,16 +78,10 @@
 				this.saveDisabled = !this.$.form.validate() || (this.team.name === this.updatedTeam.name && this.team.canonicalName === this.updatedTeam.canonicalName);
 			},
 			_onResponse: function(){
+				this.$.dialog.close();
 				this.toastText = 'Team successfully update.';
 				this.$.toast.show();
 				this.fire('team-created');
-			},
-			_onError: function(e, r){
-				this.toastText = 'An error occured when updating the team.';
-				if(!!r.request.xhr.responseText){
-					this.toastText = r.request.xhr.responseText;
-				}
-				this.$.toast.show();
 			}
 		});
 	</script>

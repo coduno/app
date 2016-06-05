@@ -5,13 +5,17 @@ node_js:
 
 notifications:
   email: never
+  slack:
+    secure: "2KA6BrmLAtceCyF3jePExxAHwI/iPNPNgC7qMfSKqZQRT4LYvWzFnF+W7OZjewlFzvhkc/Ih9yENZsmp6ppl/32JEMWylNFYG9c0h5tsIho2GUvoYdcd8nEJbxH01V75YVbb0YcHwosiVPrPWajpXklnuOxMslIWcdbhC2anYnsuNxGZWSMXoVPpP7bZ7b7FXgwawHLog3CTrqQ1vgFrMkcMRdvmhps5bf8qQ0/thr+f5hK8hehYoKdsT9vX8T5/JjoNXfpVgTyq7CfQnZyY+ExXBmIWWWrV/HeMi8QRpcY//LznwcIuZS4SDIJVwCdoRu8XD7j5AkMPNE7n6kaY035VJG6n3BEOksYytGn8qER/TvcFPwcToCwnIqNAuF9In4/ZRf8YXV1XginF1ZLzDAWeM0/RDSPCjgomoOhTr/0yzj83rmnTVswcq4dMWxvdWsDZ4Du3pzfDvVirtjdLKkiQWLyRn4pdBrX6nR4+KNr3ND+M8DIU1YFIDXH04JodINL0z7kd3bAZCDjrdgyBkMlgqUMNnQAznjcWyLqRD+CWkwbdwzPM0J239smcDTOvF9EwZU3LC/j6AWlWKrg444Qs+RpZbLEnEbMltKTL3M9eHdrNDH96Jrd2ImfyHkVAwDQMXe9kKfQZFa7ABFPY6OOWPo/bl4VkfJKyuc9d6ww="
 
 before_install:
 - $(! $TRAVIS_SECURE_ENV_VARS) || (openssl aes-256-cbc -K $encrypted_e1ab82f12a98_key -iv $encrypted_e1ab82f12a98_iv
   -in secrets.tar.enc -out secrets.tar -d && tar xvf secrets.tar )
-- if [ "$TRAVIS_BRANCH" == "master" ]; then tar xvf secrets-prod.tar; else tar xvf secrets-lab.tar; fi; rm secrets*.tar
+- $(! $TRAVIS_SECURE_ENV_VARS) || ( if [ "$TRAVIS_BRANCH" == "master" ]; then tar xvf secrets-prod.tar; else tar xvf secrets-lab.tar; fi; rm secrets*.tar )
 
-script: npm run build
+script:
+- cat /dev/null > app/bower_components/font-roboto/roboto.html
+- npm run build
 
 after_success:
 - ./git-lfs.sh
@@ -28,4 +32,3 @@ deploy:
     skip_cleanup: true
     on:
       branch: dev
-

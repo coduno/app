@@ -1,0 +1,32 @@
+<dom-module id="tests-by-task-provider">
+	<style>
+		:host {
+			display: none;
+		}
+	</style>
+	<template>
+		<iron-ajax
+			id="request"
+			auto
+			method="GET"
+			handle-as="json"
+			with-credentials="true"
+			bubbles>
+		</iron-ajax>
+	</template>
+	<script type="application/javascript" src="../../../../scripts/behaviors/providers/general-provider-behavior.js"></script>
+	<script>
+		Polymer({
+			is: 'tests-by-task-provider',
+			behaviors: [
+				Behaviors.Providers.General
+			],
+			observers: [
+				'_urlChanged(baseUrl, taskId)'
+			],
+			_urlChanged: function(){
+				this.$.request.url= this.baseUrl + '/tasks/' + this.taskId + ' /tests';
+			}
+		});
+	</script>
+</dom-module>

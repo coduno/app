@@ -3,6 +3,8 @@
 <link rel="import" href="../../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../../bower_components/iron-form/iron-form.html">
 
+<link rel="import" href="../error/errors-display.html">
+
 <dom-module id="settings-page">
 	<style include="iron-flex iron-flex-reverse">
 		.list-item {
@@ -33,11 +35,39 @@
 			margin-right: 20%;
 			width: 60%;
 		}
+
+		paper-material > div paper-button {
+			width: 100%;
+
+			margin: 0 !important;
+			margin-top: 12px !important;
+		}
+
+		.google, .facebook, .github, .linkedin {
+			color: #ffffff;
+		}
+
+		.google {
+			background-color: #DD4B39;
+		}
+
+		.facebook {
+			background-color: #3B5998;
+		}
+
+		.github {
+			background-color: #444444;
+		}
+
+		.linkedin {
+			background-color: #007BB6;
+		}
 	</style>
 	<template>
-		<user-service id="userService" user="{{user}}"></user-service>
+		<user-service id="userService" user="{{user}}" error="{{error}}" connections="{{connections}}"></user-service>
 		<paper-material id="wrapper" elevation="1" class="card">
 			<div class="mainContent">
+				<errors-display id="errors" error="{{error}}"></errors-display>
 				<form is="iron-form" id="form">
 					<div>
 						<div class="list-item">
@@ -62,7 +92,7 @@
 						</div>
 						<div class="aligned-item">
 							<p>Your public username is the same as your profile address</p>
-							<p><a href="https://app.cod.uno/#!/u/[[user.username]]">https://app.cod.uno/#!/u/<span>[[user.username]]</span></a></p>
+							<p><a href="https://app.cod.uno/u/[[user.username]]">https://app.cod.uno/u/<span>[[user.username]]</span></a></p>
 						</div>
 					</div>
 					<div>
@@ -79,6 +109,46 @@
 						</div>
 					</div>
 				</form>
+				<div id="socialSignInWrapper">
+					<span></span>
+					<template is="dom-if" if="{{!connectedGoogle}}">
+						<form id="form-google" method="POST" action="[[_build('/connect/google')]]">
+							<input name="scope" value="profile email" type="hidden">
+							<paper-button raised on-click="_submit" provider="google" class="google">Connect with Google</paper-button>
+						</form>
+					</template>
+					<template is="dom-if" if="{{connectedGoogle}}">
+						<paper-button raised on-click="_disconnect" provider="google" class="google">Disconnect from Google</paper-button>
+					</template>
+					<template is="dom-if" if="{{!connectedGithub}}">
+						<form id="form-github" method="POST" action="[[_build('/connect/github')]]"  >
+							<input name="scope" value="user:email" type="hidden">
+							<paper-button raised on-click="_submit" provider="github" class="github">Connect with GitHub</paper-button>
+						</form>
+					</template>
+					<template is="dom-if" if="{{connectedGithub}}">
+						<paper-button raised on-click="_disconnect" provider="github" class="github">Disconnect from GitHub</paper-button>
+					</template>
+					<template is="dom-if" if="{{!connectedFacebook}}">
+						<form id="form-facebook" method="POST" action="[[_build('/connect/facebook')]]">
+							<input name="scope" value="email" type="hidden">
+							<paper-button raised on-click="_submit" provider="facebook" class="facebook">Connect with Facebook</paper-button>
+						</form>
+					</template>
+					<template is="dom-if" if="{{connectedFacebook}}">
+						<paper-button raised on-click="_disconnect" provider="facebook" class="facebook">Disconnect from Facebook</paper-button>
+					</template>
+					<template is="dom-if" if="{{!connectedLinkedin}}">
+						<form id="form-linkedin" method="POST" action="[[_build('/connect/linkedin')]]">
+							<input name="scope" value="r_basicprofile r_emailaddress" type="hidden">
+							<paper-button raised on-click="_submit" provider="linkedin" class="linkedin">Connect with LinkedIn</paper-button>
+						</form>
+					</template>
+					<template is="dom-if" if="{{connectedLinkedin}}">
+						<paper-button raised on-click="_disconnect" provider="linkedin" class="linkedin">Disconnect from LinkedIn</paper-button>
+					</template>
+					<span></span>
+				</div>
 				<div class="aligned-item">
 					<paper-button raised on-click="_saveUser" class="success" disabled="{{saveDisabled}}">Save</paper-button>
 				</div>
@@ -86,7 +156,6 @@
 		</paper-material>
 		<change-password-dialog id="changePasswordDialog"></change-password-dialog>
 	</template>
-</dom-module>
 
 <script>
 	Polymer({
@@ -94,6 +163,25 @@
 		properties: {
 			user: {
 				type: Object
+			},
+			connections: {
+				type: Object
+			},
+			connectedGoogle: {
+				type: Object,
+				computed: '_connected(connections, \'google\')'
+			},
+			connectedGithub: {
+				type: Object,
+				computed: '_connected(connections, \'github\')'
+			},
+			connectedFacebook: {
+				type: Object,
+				computed: '_connected(connections, \'facebook\')'
+			},
+			connectedLinkedin: {
+				type: Object,
+				computed: '_connected(connections, \'linkedin\')'
 			},
 			fullName: {
 				type: String,
@@ -113,6 +201,13 @@
 		},
 		ready: function(){
 			this.$$('user-service').whoAmI();
+			this.$$('user-service').getSocialConnections();
+		},
+		_connected: function(connections, provider) {
+			if (!connections.connections[provider]) {
+				return false;
+			}
+			return connections.connections[provider].length > 0;
 		},
 		_userChanged: function(){
 			this.saveDisabled = !this.$.form.validate();
@@ -124,7 +219,7 @@
 			this.$.userService.updateMe(this.user);
 		},
 		_showChangePasswordDialog: function(){
-			this.$.changePasswordDialog.toggle();
+			this.$.changePasswordDialog.open();
 		},
 		_getFullName: function(firstName, lastName){
 			var name = '';
@@ -135,6 +230,18 @@
 				name = name + lastName;
 			}
 			return name;
+		},
+		_disconnect: function(e) {
+			var provider = e.target.getAttribute('provider');
+			this.$.userService.deleteSocialConnection(provider);
+
+		},
+		_build: function(url) {
+			return util.build(url);
+		},
+		_submit: function(e) {
+			document.getElementById('form-' + e.target.getAttribute('provider')).submit();
 		}
 });
 </script>
+</dom-module>

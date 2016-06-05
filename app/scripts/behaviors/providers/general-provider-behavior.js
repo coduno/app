@@ -1,28 +1,46 @@
 var Behaviors = Behaviors || {};
 Behaviors.Providers = Behaviors.Providers || {};
 
-Behaviors.Providers.General = {
+var NewBehavior = {
 	properties: {
-		baseUrl: {
-			type: String
-		},
 		data: {
 			type: Object,
-			reflectToAttribute: true,
-			notify: true
+			notify: true,
+			reflectToAttribute: true
+		},
+		showProgress: {
+			type: Boolean,
+			value: false
 		}
 	},
+	listeners: {
+		'request-finished': '_requestFinished',
+		'request-sent': '_requestSent',
+		'request-failed': '_requestFailed'
+	},
 	ready: function(){
-		var prefix = 'https://platform.cod.uno';
-
-		if (location.origin.indexOf('localhost') !== -1) {
-			prefix = 'http://localhost:8080';
+		this.appConnection = document.getElementById('app');
+	},
+	_requestFinished: function(e, d){
+		this.data = d;
+		if(this.showProgress){
+			this.appConnection.stopLoading();
 		}
-
-		if (location.origin.indexOf('coduno-lab') !== -1) {
-			prefix = 'https://platform-dot-coduno-lab.appspot.com';
+	},
+	_requestSent: function(){
+		if(this.showProgress){
+			this.appConnection.startLoading();
 		}
-
-		this.baseUrl = prefix;
+	},
+	_requestFailed: function(){
+		if(this.showProgress){
+			this.appConnection.stopLoading();
+		}
 	}
 };
+
+Behaviors.Providers.General = [
+	Behaviors.Requests.Base,
+	Behaviors.Requests.Handler,
+	NewBehavior
+];

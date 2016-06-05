@@ -19,18 +19,18 @@
 		}
 	</style>
 	<template>
-		<iron-ajax
+		<coduno-iron-ajax
 			id="saveChallenge"
 			method="POST"
 			body="{{challenge}}"
-			content-type="application/json"
-			last-response="{{savedChallenge}}"
-			with-credentials="true"
-			on-response="_onResponse"
-			on-error="_onError">
-		</iron-ajax>
+			path="/challenges"
+			response="{{savedChallenge}}"
+			on-request-finished="_onResponse"
+			error="{{error}}">
+		</coduno-iron-ajax>
 		<div class="mainContent">
 			<paper-material class="card" elevation="1">
+				<errors-display error="{{error}}"></errors-display>
 				<form is="iron-form" id="challengeForm">
 					<paper-input id="name" class="margined" label="Name" value="{{challenge.name}}" required></paper-input>
 					<paper-input id="canonicalName" class="margined" label="Canonical name*" value="{{challenge.canonicalName}}" required></paper-input>
@@ -38,7 +38,7 @@
 					<date-time-picker id="startDate" label="Fixed start date" date-time="{{challenge.startDate}}"></date-time-picker>
 				</form>
 				<div class="buttonGroup">
-					<paper-button raised on-click="_saveChallenge">Saved</paper-button>
+					<paper-button raised on-click="_saveChallenge">Save</paper-button>
 				</div>
 			</paper-material>
 		</div>
@@ -53,9 +53,6 @@
 				challenge: {
 					type: Object,
 					value: {}
-				},
-				savedChallenge: {
-					observer: '_savedChallengeChanged'
 				}
 			},
 			_saveChallenge: function () {
@@ -67,10 +64,7 @@
 				this.$.saveChallenge.generateRequest();
 			},
 			_onResponse: function(){
-				page('/challenges/' + this.savedChallenge.canonicalName);
-			},
-			_onError: function(e){
-				util.error(err);
+				page('/challenges/' + this.savedChallenge);
 			}
 		});
 	</script>

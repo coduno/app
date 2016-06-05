@@ -11,8 +11,8 @@
 			method="GET"
 			url="[[baseUrl]]/challenges/public"
 			handle-as="json"
-			last-response="{{data}}"
-			with-credentials="true">
+			with-credentials="true"
+			bubbles>
 		</iron-ajax>
 	</template>
 	<script type="application/javascript" src="../../../../scripts/behaviors/providers/general-provider-behavior.js"></script>

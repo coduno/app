@@ -17,23 +17,24 @@
 		}
 	</style>
 	<template>
-		<iron-ajax
+		<coduno-iron-ajax
 			id="deleteTeamRequest"
 			method="DELETE"
-			with-credentials="true"
-			on-response="_onResponse"
-			on-error="_onError">
-		</iron-ajax>
+			path="/teams/[[team.canonicalName]]"
+			on-request-finished="_onResponse"
+			error="{{error}}">
+		</coduno-iron-ajax>
 		<paper-dialog id="inviteDialog" modal>
 			<h4>Are you sure?</h4>
 			<p><b>This action cannot be undone.</b> It will permanently delete the /t/[[team.canonicalName]] team.</p>
 			<p>Please type the name of the team to continue</p>
 			<div class="fieldList">
+				<errors-display error="{{error}}"></errors-display>
 				<paper-input autofocus="true" label="Team name" value="{{teamName}}"></paper-input>
 			</div>
 			<div class="buttons">
 				<paper-button class="secondary" dialog-dismiss>Cancel</paper-button>
-				<paper-button on-click="_deleteTeam" class="error" dialog-confirm disabled="{{deleteDisabled}}">Delete</paper-button>
+				<paper-button on-click="_deleteTeam" class="error" disabled="{{deleteDisabled}}">Delete</paper-button>
 			</div>
 		</paper-dialog>
 		<paper-toast id="toast" text="{{toastText}}"></paper-toast>
@@ -58,24 +59,17 @@
 				if(this.team.name !== this.teamName){
 					return;
 				}
-				this.$.deleteTeamRequest.url = util.build('/teams/' + this.team.canonicalName);
 				this.$.deleteTeamRequest.generateRequest();
-				this.team = {};
 			},
 			_nameChanged: function(){
 				this.deleteDisabled = this.team.name !== this.teamName;
 			},
-			_onResponse: function(){
+			_onResponse: function(e){
+				e.stopEventPropagation();
+				this.team = {};
 				this.toastText = 'Team successfully deleted.';
 				this.$.toast.show();
 				this.fire('team-deleted');
-			},
-			_onError: function(e, r){
-				this.toastText = 'An error occured when processing your request.';
-				if(!!r.request.xhr.responseText){
-					this.toastText = r.request.xhr.responseText;
-				}
-				this.$.toast.show();
 			}
 		});
 	</script>

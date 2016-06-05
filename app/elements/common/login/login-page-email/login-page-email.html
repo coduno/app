@@ -1,69 +1,54 @@
 <link rel="import" href="../../../../bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="../../../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../../../bower_components/paper-input/all-imports.html">
 <link rel="import" href="../../../../bower_components/paper-material/paper-material.html">
 <link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 
 <dom-module id="login-page-email">
 	<style type="text/css" include="iron-flex">
-iron-icon.huge {
-	--iron-icon-height: 50%;
-	--iron-icon-width: 50%;
+:host {
+	/* layout properties for the host element */
+	display: block;
+	height: calc(100% + 56px);
 }
 
-paper-material {
-	width: 70%;
-	background-color: white;
-
-	/* three times the width of iron-icon.huge */
-	max-width: 432px;
-
-	/* places this in the middle */
-	margin: auto;
-}
-
-paper-material > div {
-	padding: 24px;
-}
-
-paper-material > div:first-child {
-	height: 15%;
-	max-height: 248px;
-	padding: 10%;
-	color: white;
-
-	@apply(--layout-horizontal);
-	@apply(--layout-center);
-}
-
-paper-material > div:first-child > div {
-	width: 100%;
-
-	@apply(--layout-vertical);
-	@apply(--layout-center);
-}
-
-paper-material > div:first-child > div > img {
-	width: auto;
-	height: auto;
-	max-height: 50%;
-	max-width: 50%;
-}
-
-paper-material > div:nth-child(2) {
-	text-align: center;
-}
-
-paper-material > div > paper-button {
+paper-button {
 	width: 100%;
 
 	margin: 0 !important;
 	margin-top: 12px !important;
 }
 
+.google, .facebook, .github, .linkedin {
+	color: #ffffff;
+}
+
+.google {
+	background-color: #DD4B39;
+}
+
+.facebook {
+	background-color: #3B5998;
+}
+
+.github {
+	background-color: #444444;
+}
+
+.linkedin {
+	background-color: #007BB6;
+}
+
+#socialSignInWrapper {
+	padding-top: 12px;
+	padding-bottom: 12px;
+}
+
 #signupWrapper {
 	@apply(--layout-horizontal);
+	padding-top: 24px;
 }
 
 span {
@@ -71,22 +56,37 @@ span {
 }
 	</style>
 	<template>
-		<paper-material elevation="1">
+		<base-wizard show-back-button="[[externalWidget]]" on-back="prev">
 			<div>
-				<div>
-					<img src="/images/logo.svg" />
-				</div>
-			</div>
-			<div>
-				<paper-input type="text" label="Username or e-mail" value="{{email}}" autofocus="true" on-keydown="onKeydown"></paper-input>
+				<paper-input type="text" label="Username or e-mail" value="{{email}}" autofocus="[[!externalWidget]]" on-keydown="onKeydown"></paper-input>
 				<paper-button class$="{{empty}}" flat colorful on-change="checkEmpty" on-click="next">Next</paper-button>
+			</div>
+			<div id="socialSignInWrapper">
+				<span></span>
+				<form id="form-google" method="POST" action="[[_build('/auth/google')]]">
+					<input name="scope" value="profile email" type="hidden">
+					<paper-button raised on-click="_submit" provider="google" class="google">Login with Google</paper-button>
+				</form>
+				<form id="form-github" method="POST" action="[[_build('/auth/github')]]"  >
+					<input name="scope" value="user:email" type="hidden">
+					<paper-button raised on-click="_submit" provider="github" class="github">Login with GitHub</paper-button>
+				</form>
+				<form id="form-facebook" method="POST" action="[[_build('/auth/facebook')]]">
+					<input name="scope" value="email" type="hidden">
+					<paper-button raised on-click="_submit" provider="facebook" class="facebook">Login with Facebook</paper-button>
+				</form>
+				<form id="form-linkedin" method="POST" action="[[_build('/auth/linkedin')]]">
+					<input name="scope" value="r_basicprofile r_emailaddress" type="hidden">
+					<paper-button raised on-click="_submit" provider="linkedin" class="linkedin">Login with LinkedIn</paper-button>
+				</form>
+				<span></span>
 			</div>
 			<div id="signupWrapper">
 				<span></span>
-				<a href="/register">Need an account? Sign up here.</a>
+				<a on-click="_register">Need an account? Sign up here.</a>
 				<span></span>
 			</div>
-		</paper-material>
+		</base-wizard>
 	</template>
 </dom-module>
 
@@ -106,11 +106,29 @@ Polymer({
 	behaviors: [
 		Polymer.NeonAnimatableBehavior
 	],
+	observers: [
+		'_contextSet(context)'
+	],
+	_contextSet: function(context){
+		this.externalWidget = (context === 'challenge-register');
+	},
+	_register: function(){
+		if(this.externalWidget){
+			this.fire('redirect-register');
+			return;
+		}
+		page('/register');
+	},
 	next: function() {
 		if (this.email === '') {
 			return;
 		}
 		this.fire('next', { value: this.email });
+	},
+	prev: function() {
+		if(this.externalWidget){
+			this.fire('prev-step');
+		}
 	},
 	checkEmpty: function() {
 		this.empty = this.email === '' ? 'empty' : '';
@@ -119,6 +137,12 @@ Polymer({
 		if (e.keyCode === 13) {
 			this.fire('next');
 		}
+	},
+	_build: function(url) {
+		return util.build(url);
+	},
+	_submit: function(e) {
+		document.getElementById('form-' + e.target.getAttribute('provider')).submit();
 	}
 });
 </script>

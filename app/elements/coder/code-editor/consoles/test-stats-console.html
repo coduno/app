@@ -20,16 +20,15 @@
 		}
 	</style>
 	<template>
-		<iron-ajax
-			id="getTestsRequest"
-			handle-as="json"
-			on-response="onTestsResponse"
-			on-error="onTestsError"
-			method="GET"
-			with-credentials="true"
-			>
-		</iron-ajax>
+		<tests-by-task-provider
+			task-id="[[task.id]]"
+			data="{{tests}}"
+			error="{{error}}"
+			on-request-failed="onTestsError">
+		</tests-by-task-provider>
+
 		<div id="consoleWrapper" style$="{{style}}">
+			<errors-display error="{{error}}"></errors-display>
 			<p>{{stderr}}</p>
 			<div id="data" style$="{{dataStyle}}">
 			</div>
@@ -57,7 +56,8 @@
 					value: false
 				},
 				tests: {
-					type: Array
+					type: Array,
+					observer: 'testsChanged'
 				},
 				dataStyle: {
 					type: String
@@ -86,8 +86,6 @@
 			},
 			_afterPropertiesSet: function(){
 				this.testStats = {};
-				this.$.getTestsRequest.url = util.build('/tasks/' + this.task.id + '/tests');
-				this.$.getTestsRequest.generateRequest();
 			},
 			setOutput: function(result){
 				if(result.test){
@@ -145,15 +143,10 @@
 				this.$.data.appendChild(element);
 				this.counter ++;
 			},
-			onTestsResponse: function(r){
-				var data = r.detail.response;
-				this.tests = data;
-				for(var i=0;i<data.length;i++){
-					this.initTestElement(data[i].id);
+			testsChanged: function(){
+				for(var i=0;i<this.tests.length;i++){
+					this.initTestElement(this.tests[i].id);
 				}
-			},
-			onTestsError: function(err){
-				util.error(err);
 			},
 			show: function(){
 				this.style = '';

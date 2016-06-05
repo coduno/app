@@ -53,27 +53,8 @@ var util = {
 	},
 	error: function(error) {
 		var app = document.querySelector('#app');
-		if (error.detail.request.xhr.status === 401) {
-			app.isLoggedIn = false;
-			return page.redirect('/login');
-		}
 		app.error = error;
 		page.redirect('/error');
-	},
-	getFormatedTime: function(d) {
-		var w = Math.floor(d / 604800);
-		var days = Math.floor(d / 86400) % 7;
-		var h = Math.floor(d / 3600) % 24;
-		var m = Math.floor(d / 60 % 60);
-		var s = Math.floor(d % 60);
-		var time = ('0' + h).slice(-2) + ':' + ('0' + m).slice(-2) + ':' + ('0' + s).slice(-2);
-		if (days === 0 && w === 0){
-			return time;
-		}
-		time = ' and ' + time;
-		time = days > 0 ? days + ' days ' + time : time;
-		time = w > 0 ? days > 0 ? w + ' weeks, ' + time : w + ' weeks ' + time : time;
-		return time;
 	},
 	padTime: function(i) {
 		var str = String(i);
@@ -92,11 +73,5 @@ var util = {
 		}
 
 		return result + ' ' + util.padTime(date.getUTCHours()) + ':' + util.padTime(date.getUTCMinutes()) + ' UTC';
-	},
-	languages: [
-		'java',
-		'py',
-		'c',
-		'js'
-	]
+	}
 };

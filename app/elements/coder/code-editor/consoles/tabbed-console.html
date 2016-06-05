@@ -27,15 +27,13 @@
 		}
 	</style>
 	<template>
-		<iron-ajax
-			id="getTestsRequest"
-			handle-as="json"
-			on-response="onTestsResponse"
-			on-error="onTestsError"
-			method="GET"
-			with-credentials="true"
-			>
-		</iron-ajax>
+		<tests-by-task-provider
+			task-id="[[task.id]]"
+			data="{{tests}}"
+			error="{{error}}"
+			on-request-failed="onTestsError">
+		</tests-by-task-provider>
+
 		<paper-toast id="toast" text="There was a problem when running your code. Please try again later."></paper-toast>
 		<paper-tabs id="tabs" selected="{{selected}}" no-ink="true">
 			<template is="dom-repeat" items="{{tests}}">
@@ -62,7 +60,8 @@
 					reflectToAttribute: true
 				},
 				tests: {
-					type: Array
+					type: Array,
+					observer: 'testsChanged'
 				},
 				testStats: {
 					type: Object,
@@ -94,8 +93,6 @@
 			},
 			_afterPropertiesSet: function(){
 				this.testStats = {};
-				this.$.getTestsRequest.url = util.build('/tasks/' + this.task.id + '/tests');
-				this.$.getTestsRequest.generateRequest();
 			},
 			setResult: function(result){
 				if(result.successful === undefined){
@@ -135,9 +132,6 @@
 					this.$$('#' + this._getConsoleId(this.tests[i].id)).stopLoading();
 				}
 			},
-			error: function(err){
-				console.log(err);
-			},
 			initTestElement: function(id){
 				var element = document.createElement('tabbed-console-element');
 				element.id = this._getConsoleId(id);
@@ -145,16 +139,16 @@
 				this.$.pages.appendChild(element);
 				this.counter ++;
 			},
-			onTestsResponse: function(r){
-				var data = r.detail.response;
-				this.tests = data;
-				for(var i=0;i<data.length;i++){
-					this.initTestElement(data[i].id);
+			testsChanged: function(){
+				for(var i=0;i<this.tests.length;i++){
+					this.initTestElement(this.tests[i].id);
 				}
 				this.selected = 0;
 			},
-			onTestsError: function(err){
-				util.error(err);
+			onTestsError: function(e){
+				e.stopPropagation();
+				this.$.toast.text = this.error.message;
+				this.$.toast.show();
 			},
 			show: function(){
 				this.style = '';
