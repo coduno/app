@@ -1,8 +1,8 @@
-<link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid.html">
 <link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../bower_components/iron-icons/editor-icons.html">
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../../bower_components/paper-datatable/paper-datatable.html">
 
 <dom-module id="runners-table">
 	<style include="iron-flex">
@@ -16,51 +16,25 @@
 	</style>
 	<template>
 		<runners-provider data="{{runners}}"></runners-provider>
-		<vaadin-grid id="runnersTable" class="fullHeight" items="[[runners]]" visible-rows="5">
-			<table>
-				<thead>
-					<tr>
-						<th>Path</th>
-						<th>Options</th>
-					</tr>
-				</thead>
-				<colgroup>
-					<col name="path"/>
-					<col name="id" width="120"/>
-				</colgroup>
-			</table>
-		</vaadin-grid>
+		<paper-datatable data="[[runners]]" class="fullHeight">
+			<paper-datatable-column header="Path" property="path"></paper-datatable-column>
+			<!-- TODO(vbalan): enable when we have the backend for it -->
+			<!-- <paper-datatable-column header="Options" property="id" width="200">
+				<template>
+					<paper-icon-button icon="editor:mode-edit" on-click="_edit"></paper-icon-button>
+					<paper-icon-button icon="delete" on-click="_delete"></paper-icon-button>
+				</template>
+			</paper-datatable-column> -->
+		</paper-datatable>
 	</template>
 	<script>
 		Polymer({
 			is: 'runners-table',
-			observers: [
-				'_dataChanged(runners)'
-			],
-			_dataChanged: function(){
-				var element = this;
-				this.$.runnersTable.columns[1].renderer = function(cell){
-					var team = cell.row.data;
-					cell.element.innerHTML = '';
-					cell.element.appendChild(element._createIconButton('editor:mode-edit', function(){
-						var dialog = element.$.editTeamDialog;
-						dialog.team = team;
-						dialog.toggle();
-						element.clickedOnOption = true;
-					}));
-					cell.element.appendChild(element._createIconButton('delete', function(){
-						var dialog = element.$.deleteTeamDialog;
-						dialog.team = team;
-						dialog.toggle();
-						element.clickedOnOption = true;
-					}));
-				};
+			_edit: function (e) {
+				console.log('edit', e.model.__data__.item);
 			},
-			_createIconButton: function(icon, clickListener){
-				var button = document.createElement('paper-icon-button');
-				button.icon = icon;
-				button.addEventListener('click', clickListener);
-				return button;
+			_delete: function (e) {
+				console.log('delete', e.model.__data__.item);
 			}
 		});
 	</script>

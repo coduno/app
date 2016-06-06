@@ -16,7 +16,6 @@
     "page": "^1.7.1",
     "sockjs": "^0.3.4",
     "gold-elements": "~1.0.1",
-    "vaadin-grid": "^1.0.0",
     "paper-listbox": "polymerelements/paper-listbox#^1.1.2",
     "google-fonts": "*",
     "paper-datatable": "^0.9.8"

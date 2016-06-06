@@ -1,4 +1,4 @@
-<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="../../../bower_components/paper-datatable/paper-datatable.html">
 <link rel="import" href="../../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../../bower_components/iron-icons/social-icons.html">
 <link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
@@ -23,22 +23,26 @@
 			on-request-failed="_onError">
 		</coduno-iron-ajax>
 		<my-team-invitations-provider data="{{invitations}}"></my-team-invitations-provider>
-		<vaadin-grid id="invitationsGrid" class="fullHeight" items="[[invitations]]">
-			<table>
-				<thead>
-					<tr>
-						<th>Team</th>
-						<th>Invited by</th>
-						<th>Options</th>
-					</tr>
-				</thead>
-				<colgroup>
-					<col name="team.name"/>
-					<col name="invitedBy.username"/>
-					<col name="team.canonicalName"/>
-				</colgroup>
-			</table>
-		</vaadin-grid>
+
+		<paper-datatable data="[[invitations]]" class="fullHeight" on-cell-tap="_onClick">
+			<paper-datatable-column header="Team" property="team" type="Object">
+				<template>
+					<span>{{value.name}}</span>
+				</template>
+			</paper-datatable-column>
+			<paper-datatable-column header="Invited by" property="invitedBy" type="Object">
+				<template>
+					<span>{{value.username}}</span>
+				</template>
+			</paper-datatable-column>
+			<paper-datatable-column header="Options" property="id" width="200">
+				<template>
+					<paper-icon-button icon="check" on-click="_accept"></paper-icon-button>
+					<paper-icon-button icon="close" on-click="_delete"></paper-icon-button>
+				</template>
+			</paper-datatable-column>
+		</paper-datatable>
+
 	</template>
 	<script type="application/javascript" src="../../../scripts/behaviors/providers/user-provider-behavior.js"></script>
 	<script>
@@ -48,35 +52,19 @@
 			behaviors: [
 				Behaviors.Providers.User
 			],
-			observers: [
-				'_invitationsChanged(invitations)'
-			],
-			_invitationsChanged: function(){
-				var element = this;
-				this.$.invitationsGrid.columns[2].renderer = function(cell){
-					cell.element.innerHTML = '';
-					var team = cell.row.data.team;
-					cell.element.appendChild(element._createIconButton('check', function(){
-						element._acceptInvitation(team);
-					}));
-					cell.element.appendChild(element._createIconButton('close', function(){
-						element._declineInvitation(team);
-					}));
-				};
+			_onClick: function(e, d){
+				if(d.column.header === 'Options'){
+					return;
+				}
+				page('/t/' + d.item.team.canonicalName);
 			},
-			_acceptInvitation: function(team){
-				this.$.request.path = '/teams/' + team.canonicalName + '/invitation/accept';
+			_accept: function (e) {
+				this.$.request.path = '/teams/' + e.model.__data__.item.team.canonicalName + '/invitation/accept';
 				this.$.request.generateRequest();
 			},
-			_declineInvitation: function(team){
-				this.$.request.path = '/teams/' + team.canonicalName + '/invitation/decline';
+			_delete: function (e) {
+				this.$.request.path = '/teams/' + e.model.__data__.item.team.canonicalName + '/invitation/decline';
 				this.$.request.generateRequest();
-			},
-			_createIconButton: function(icon, clickListener){
-				var button = document.createElement('paper-icon-button');
-				button.icon = icon;
-				button.addEventListener('click', clickListener);
-				return button;
 			},
 			_onResponse: function(){
 				this.fire('invitation-accepted');
