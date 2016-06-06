@@ -48,17 +48,18 @@
 	<template>
 		<challenge-by-canonical-name-provider canonical-name="[[canonicalName]]" data="{{challenge}}"></challenge-by-canonical-name-provider>
 		<challenge-register-wizard-nav show-nav="[[showNav]]" first-step-state="[[firstStepState]]"
-		second-step-state="[[secondStepState]]"></challenge-register-wizard-nav>
+		second-step-state="[[secondStepState]]" third-step-state="[[thirdStepState]]"></challenge-register-wizard-nav>
 		<neon-animated-pages id="pages" class="flex" selected="[[selected]]" entry-animation="[[entryAnimation]]" exit-animation="[[exitAnimation]]">
 			<challenge-info-step challenge="[[challenge]]"></challenge-info-step>
 			<register-page context="[[context]]" on-redirect-login="_login"></register-page>
 			<login-wizard context="[[context]]" on-redirect-register="_register"></login-wizard>
+			<challenge-location-step user="[[user]]" challenge="[[challenge]]"></challenge-location-step>
 			<challenge-register-step user="[[user]]" challenge="[[challenge]]"></challenge-register-step>
 		</neon-animated-pages>
 	</template>
 	<script type="application/javascript" src="../../../../scripts/behaviors/app-connection-behavior.js"></script>
 	<script>
-		var pageInfo = 0, pageUserRegister = 1, pageLogin = 2, pageChallengeRegister = 3;
+		var pageInfo = 0, pageUserRegister = 1, pageLogin = 2, pageChallengeLocation = 3, pageChallengeRegister = 4;
 		Polymer({
 			is: 'challenge-register-wizard',
 			behaviors: [
@@ -86,7 +87,7 @@
 				this.exitAnimation = 'slide-left-animation';
 			},
 			prev: function() {
-				if(this.selected === 0){
+				if(this.selected === pageInfo){
 					return;
 				}
 				this.entryAnimation = 'slide-from-left-animation';
@@ -96,13 +97,19 @@
 			next: function(e, d) {
 				this.entryAnimation = 'slide-from-right-animation';
 				this.exitAnimation = 'slide-left-animation';
-				if (this.selected === 1) {
-					this.$$('challenge-register-step').refresh();
-					this.selected = 3;
+				if (this.selected === pageUserRegister) {
+					this.$$('challenge-location-step').refresh();
+					this.selected = pageChallengeLocation;
 					this.user = d;
 					return;
 				}
-				if(this.selected === 2 ){
+				if (this.selected === pageChallengeLocation) {
+					this.$$('challenge-register-step').refresh();
+					this.selected = pageChallengeRegister;
+					this.user = d;
+					return;
+				}
+				if(this.selected === pageLogin){
 					this._mainApp.setUser(d);
 					page('/contest/' + this.challenge.canonicalName + '/info');
 					return;
@@ -112,12 +119,12 @@
 			_login: function(){
 				this.entryAnimation = 'slide-from-right-animation';
 				this.exitAnimation = 'slide-left-animation';
-				this.selected = 2;
+				this.selected = pageLogin;
 			},
 			_register: function(){
 				this.entryAnimation = 'slide-from-left-animation';
 				this.exitAnimation = 'slide-right-animation';
-				this.selected = 1;
+				this.selected = pageUserRegister;
 			},
 			updateNavElements: function(){
 				if(this.selected === 0){
@@ -129,10 +136,14 @@
 					this.firstStepState = 'current';
 					this.secondStepState = 'default';
 					this.thirdStepState = 'default';
-				}else if (this.selected === pageChallengeRegister){
+				}else if (this.selected === pageChallengeLocation){
 					this.firstStepState = 'completed';
 					this.secondStepState = 'current';
 					this.thirdStepState = 'default';
+				}else {
+					this.firstStepState = 'completed';
+					this.secondStepState = 'completed';
+					this.thirdStepState = 'current';
 				}
 			}
 		});

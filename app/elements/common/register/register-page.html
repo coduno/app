@@ -62,28 +62,6 @@ paper-input {
 					required>
 				</paper-input>
 				<paper-input
-					type="text"
-					label="First name"
-					value="{{user.firstName}}"
-					minLength="2"
-					maxLength="40"
-					autofocus="[[!externalWidget]]"
-					pattern="^[\w-\. ]{2,40}$"
-					error-message="Must be between 2 and 40 chars and only contain letters."
-					required="[[externalWidget]]">
-				</paper-input>
-				<paper-input
-					type="text"
-					label="Last name"
-					value="{{user.lastName}}"
-					minLength="2"
-					maxLength="40"
-					autofocus="[[!externalWidget]]"
-					pattern="^[\w-\. ]{2,40}$"
-					error-message="Must be between 2 and 40 chars and only contain letters."
-					required="[[externalWidget]]">
-				</paper-input>
-				<paper-input
 					type="password"
 					label="Password"
 					value="{{user.password}}"
@@ -177,7 +155,12 @@ Polymer({
 	},
 	_onError: function(e, err){
 		if (err.detail.request.xhr.status === 409) {
-			this.$.toast.text = 'Username/email already taken';
+			this.$.toast.text = 'Username/Email already taken';
+			this.$.toast.show();
+			return;
+		}
+		if (err.detail.request.xhr.status === 400) {
+			this.$.toast.text = 'Username/Password invalid.';
 			this.$.toast.show();
 			return;
 		}

@@ -5,7 +5,7 @@ window.addEventListener('WebComponentsReady', function() {
 	page('/', function() {
 		if (app.user.activeOrganization) {
 			page('/challengetemplates');
-		} else if(app.user){
+		} else if(app.user && Object.keys(app.user).length !== 0){
 			page('/contests');
 		} else {
 			page('/login');
@@ -27,9 +27,13 @@ window.addEventListener('WebComponentsReady', function() {
 	});
 
 	page('/login', function(ctx) {
+		if(app.user && Object.keys(app.user).length !== 0){
+			page('/');
+			return;
+		}
 		app.initUserInfo = false;
-		var page = document.createElement('login-wizard');
-		app.swapContent(page);
+		var content = document.createElement('login-wizard');
+		app.swapContent(content);
 		if(!ctx.querystring){
 			return;
 		}

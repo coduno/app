@@ -1,0 +1,145 @@
+<link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../../../../bower_components/paper-input/all-imports.html">
+<link rel="import" href="../../../../bower_components/iron-form/iron-form.html">
+<link rel="import" href="../../../bower_components/paper-toast/paper-toast.html">
+
+<dom-module id="challenge-location-step">
+	<style include="iron-flex">
+		:host{
+			display: block;
+			height: 100%;
+		}
+		.horizontal-layout {
+			@apply(--layout-horizontal);
+		}
+		#wrapper {
+			@apply(--layout-vertical);
+			padding: 24px;
+			background: white;
+		}
+		.icon-text {
+			padding: 0 32px 0px 4px;
+		}
+		#buttons {
+			@apply(--layout-horizontal);
+		}
+		paper-dropdown-menu {
+			width: 100%;
+		}
+		.title {
+			text-align: center;
+		}
+		paper-button {
+			margin-top: 15px;
+		}
+	</style>
+	<template>
+		<locations-by-challenge-canonical-name-provider canonical-name="[[challenge.canonicalName]]" data="{{locations}}"></locations-by-challenge-canonical-name-provider>
+		<iron-ajax id="updateUser"
+			method="PUT"
+			handle-as="json"
+			content-type="application/json"
+			with-credentials="true"
+			on-response="_onResponse"
+			on-error="_onError">
+		</iron-ajax>
+		<base-wizard>
+			<div class="title">
+				<h3>Welcome <span>[[user.username]]</span></h3>
+			</div>
+			<p>You can register to <span>[[challenge.name]]</span> in <span>[[locations.length]]</span> different locations.</p>
+			<paper-dropdown-menu label="Location" selected-item="{{selectedLocation}}" >
+				<paper-listbox class="dropdown-content" selected="0">
+					<template is="dom-repeat" items="{{locations}}">
+						<option value="{{item.id}}">{{item.name}}</option>
+					</template>
+				</paper-listbox>
+			</paper-dropdown-menu>
+			<template is="dom-if" if="[[showNameEdit]]">
+				<p>If you want to participate on site you must input your first and last name</p>
+				<form is="iron-form" id="form">
+					<paper-input
+						type="text"
+						label="First name"
+						value="{{user.firstName}}"
+						minLength="2"
+						maxLength="40"
+						pattern="^[\w-\. ]{2,40}$"
+						error-message="Must be between 2 and 40 chars and only contain letters."
+						required="true">
+					</paper-input>
+					<paper-input
+						type="text"
+						label="Last name"
+						value="{{user.lastName}}"
+						minLength="2"
+						maxLength="40"
+						pattern="^[\w-\. ]{2,40}$"
+						error-message="Must be between 2 and 40 chars and only contain letters."
+						required="true">
+					</paper-input>
+				</form>
+			</template>
+			<div id="buttons">
+				<span class="flex"></span>
+				<paper-button raised on-click="_next" disabled="{{nextDisabled}}">Next</paper-button>
+				<span class="flex"></span>
+			</div>
+		</base-wizard>
+		<paper-toast id="toast"></paper-toast>
+	</template>
+	<script type="application/javascript" src="../../../../scripts/behaviors/app-connection-behavior.js"></script>
+	<script>
+		Polymer({
+			is: 'challenge-location-step',
+			behaviors: [
+				Behaviors.AppConnection
+			],
+			properties: {
+				showNameEdit: {
+					value: false
+				},
+				nextDisabled: {
+					value: false,
+					notify: true
+				}
+			},
+			observers: [
+				'_locationsLoaded(locations)',
+				'_selectedLocationChanged(selectedLocation)'
+			],
+			listeners: {
+				'keyup': '_updateNextDisabled'
+			},
+			_updateNextDisabled: function(){
+				var formValid = !!this.$$('#form') && this.$$('#form').validate() && this.user.firstName !== null && this.user.lastName !== null;
+				this.nextDisabled = this.showNameEdit ?  !formValid : false;
+			},
+			_locationsLoaded: function(){
+				if(!this.locations){
+					this.locations = [];
+				}
+				this.unshift('locations', {id: 'online', name: 'Online'});
+			},
+			_selectedLocationChanged(selectedLocation){
+				this.showNameEdit = (!!selectedLocation && selectedLocation.value !== 'online');
+				this._updateNextDisabled();
+			},
+			_next: function(){
+				this.$.updateUser.body = this.user;
+				this.$.updateUser.url = util.build('/user');
+				this.$.updateUser.generateRequest();
+			},
+			_onResponse: function(){
+				this.fire('next-step');
+			},
+			_onError: function(){
+				this.$.toast.text = 'There was a problem when trying update your user. Please try again later.';
+				this.$.toast.show();
+			},
+			refresh: function(){
+				this.$$('locations-by-challenge-canonical-name-provider').refresh();
+			}
+		});
+	</script>
+</dom-module>

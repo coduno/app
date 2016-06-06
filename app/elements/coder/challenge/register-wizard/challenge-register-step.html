@@ -33,7 +33,6 @@
 	<template>
 		<create-team-modal id="createTeamDialog" on-team-created="refresh"></create-team-modal>
 		<my-teams-provider data="{{teams}}"></my-teams-provider>
-		<locations-by-challenge-canonical-name-provider canonical-name="[[challenge.canonicalName]]" data="{{locations}}"></locations-by-challenge-canonical-name-provider>
 		<iron-ajax id="registerRequest"
 			method="PUT"
 			handle-as="text"
@@ -60,13 +59,6 @@
 				<p>You are currently not part of any team, if you wish to participate as a team
 					 click <a on-click="_openTeamModal">here</a> to create one. </p>
 			</template>
-			<paper-dropdown-menu label="Location" selected-item="{{selectedLocation}}" >
-				<paper-listbox class="dropdown-content" selected="0">
-					<template is="dom-repeat" items="{{locations}}">
-						<option value="{{item.id}}">{{item.name}}</option>
-					</template>
-				</paper-listbox>
-			</paper-dropdown-menu>
 			<div id="buttons">
 				<span class="flex"></span>
 				<paper-button raised on-click="_register">Register</paper-button>
@@ -82,15 +74,8 @@
 				Behaviors.AppConnection
 			],
 			observers: [
-				'_teamsLoaded(teams)',
-				'_locationsLoaded(locations)'
+				'_teamsLoaded(teams)'
 			],
-			_locationsLoaded: function(){
-				if(!this.locations){
-					this.locations = [];
-				}
-				this.unshift('locations', {id: 'online', name: 'Online'});
-			},
 			_teamsLoaded: function(){
 				if(!this.teams || this.teams.length === 0){
 					this.hasTeams = false;
@@ -116,7 +101,6 @@
 			},
 			refresh: function(){
 				this.$$('my-teams-provider').refresh();
-				this.$$('locations-by-challenge-canonical-name-provider').refresh();
 			}
 		});
 	</script>
