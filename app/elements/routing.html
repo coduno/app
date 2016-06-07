@@ -3,12 +3,14 @@
 window.addEventListener('WebComponentsReady', function() {
 	// COMMON
 	page('/', function() {
-		if (app.user.activeOrganization) {
-			page('/challengetemplates');
-		} else if(app.user && Object.keys(app.user).length !== 0){
-			page('/contests');
-		} else {
-			page('/login');
+		app.customUserOk = function(e){
+			if (app.user.activeOrganization) {
+				page('/challengetemplates');
+			} else if(app.user && Object.keys(app.user).length !== 0){
+				page('/contests');
+			} else {
+				page('/login');
+			}
 		}
 	});
 
