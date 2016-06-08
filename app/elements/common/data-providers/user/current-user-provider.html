@@ -1,0 +1,28 @@
+<dom-module id="current-user-provider">
+	<style>
+		:host {
+			display: none;
+		}
+	</style>
+	<template>
+		<iron-ajax
+			id="request"
+			auto
+			method="GET"
+			url="[[baseUrl]]/user"
+			handle-as="json"
+			last-response="{{data}}"
+			with-credentials="true"
+			bubbles>
+		</iron-ajax>
+	</template>
+	<script type="application/javascript" src="../../../../scripts/behaviors/providers/general-provider-behavior.js"></script>
+	<script>
+		Polymer({
+			is: 'current-user-provider',
+			behaviors: [
+				Behaviors.Providers.General,
+			]
+		});
+	</script>
+</dom-module>

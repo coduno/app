@@ -90,7 +90,7 @@
 			_register: function(){
 				this.$.registerRequest.body = {
 					team: this.selectedTeam ? this.selectedTeam.value : '',
-					location: this.selectedLocation ? (this.selectedLocation.value === 'online' ? '' : this.selectedLocation.value) : ''
+					location: this.location
 				};
 				this.$.registerRequest.url = util.build('/challenges/' + this.challenge.canonicalName + '/register');
 				this.$.registerRequest.generateRequest();

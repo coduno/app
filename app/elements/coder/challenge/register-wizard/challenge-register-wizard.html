@@ -53,8 +53,8 @@
 			<challenge-info-step challenge="[[challenge]]"></challenge-info-step>
 			<register-page context="[[context]]" on-redirect-login="_login"></register-page>
 			<login-wizard context="[[context]]" on-redirect-register="_register"></login-wizard>
-			<challenge-location-step user="[[user]]" challenge="[[challenge]]"></challenge-location-step>
-			<challenge-register-step user="[[user]]" challenge="[[challenge]]"></challenge-register-step>
+			<challenge-location-step user="[[user]]" challenge="[[challenge]]" location="{{location}}"></challenge-location-step>
+			<challenge-register-step user="[[user]]" challenge="[[challenge]]" location="[[location]]"></challenge-register-step>
 		</neon-animated-pages>
 	</template>
 	<script type="application/javascript" src="../../../../scripts/behaviors/app-connection-behavior.js"></script>

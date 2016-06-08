@@ -102,6 +102,10 @@
 				nextDisabled: {
 					value: false,
 					notify: true
+				},
+				location: {
+					notify: true,
+					reflectToAttribute: true
 				}
 			},
 			observers: [
@@ -126,6 +130,11 @@
 				this._updateNextDisabled();
 			},
 			_next: function(){
+				this.location = this.selectedLocation ? (this.selectedLocation.value === 'online' ? '' : this.selectedLocation.value) : '';
+				if(this.selectedLocation.value === 'online'){
+					this.fire('next-step');
+					return;
+				}
 				this.$.updateUser.body = this.user;
 				this.$.updateUser.url = util.build('/user');
 				this.$.updateUser.generateRequest();
