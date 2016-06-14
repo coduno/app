@@ -1,0 +1,211 @@
+<link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="/bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="/bower_components/paper-button/paper-button.html">
+
+<dom-module id="explorer-item">
+	<template>
+		<style>
+			div#wrapper {
+				background-color: inherit;
+				@apply(--layout-horizontal);
+				padding: 3px;
+			}
+			div#wrapper.selected, div#wrapper:hover {
+				background-color: lightgray;
+			}
+			div#wrapper:hover {
+				cursor: pointer;
+			}
+			input {
+				width: calc(100% - 26px);
+			}
+			div#children {
+				padding-left: 20px;
+			}
+		</style>
+		<style include="iron-flex"></style>
+		<div class$="[[className]]" id="wrapper" on-click="selectFile">
+			<template is="dom-if" if="{{isFolder}}">
+				<iron-icon icon="folder"></iron-icon>
+			</template>
+			<template is="dom-if" if="{{!isFolder}}">
+				<iron-icon icon="assignment"></iron-icon>
+			</template>
+			<template is="dom-if" if="{{renaming}}">
+				<input type="text" value="[[path]]" on-keyup="_handleRename" autofocus>
+			</template>
+			<template is="dom-if" if="{{!renaming}}">
+				<div class="name">{{name}}</div>
+			</template>
+		</div>
+		<div id="children">
+			<template is="dom-repeat" items="{{childItems}}">
+				<explorer-item node="{{item.node}}" path="{{item.path}}"></explorer-item>
+			</template>
+		</div>
+		<paper-toast id="toast"></paper-toast>
+	</template>
+	<script>
+		ExplorerItem = Polymer({
+			is: 'explorer-item',
+			properties: {
+				node: {
+					type: Object,
+					notify: true,
+					reflectToAttribute: true,
+					observer: '_nodeChanged'
+				},
+				path: {
+					type: String,
+					notify: true,
+					reflectToAttribute: true
+				},
+				renaming: {
+					type: Boolean,
+					notify: true,
+					reflectToAttribute: true,
+					value: false
+				},
+				className: {
+					type: String,
+					notify: true,
+					value: ''
+				},
+				isFolder: {
+					type: Boolean,
+					computed: 'computeIsFolder(node)'
+				},
+				childItems: {
+					type: Array,
+					computed: 'computeChildItems(path, node)'
+				},
+				name: {
+					type: String,
+					computed: 'computeName(path)'
+				}
+			},
+			listeners: {
+				'contextmenu': 'showContextMenu'
+			},
+			ready: function() {
+				console.log("Got node:", this.node);
+			},
+			factoryImpl: function(node, path, renaming) {
+				this.node = node;
+				this.path = path;
+				this.renaming = renaming;
+			},
+			computeName: function(path) {
+				if (path === '') {
+					return '/';
+				}
+				if (path.indexOf('/') < 0) {
+					return path;
+				}
+				return path.substring(path.lastIndexOf('/') + 1);
+			},
+			computeChildItems: function(path, node) {
+				if (!node || (typeof(node) === 'string' || node instanceof String)) {
+					return;
+				}
+
+				var childItems = [];
+				for (var name in node) {
+					childItems.push({
+						node: node[name],
+						path: path + '/' + name
+					});
+				}
+				return childItems;
+			},
+			computeIsFolder: function(node) {
+				return !(!node || (typeof(node) === 'string' || node instanceof String));
+			},
+			showContextMenu: function(e) {
+				e.preventDefault();
+				this.fire('show-menu', {
+					'element': this,
+					'x': e.pageX,
+					'y': e.pageY
+				});
+			},
+			_handleRename: function(e) {
+				// "Escape" key.
+				if (e.keyCode === 27) {
+					this.set('renaming', false);
+					return;
+				}
+
+				// Not "Return" key.
+				if (e.keyCode !== 13) {
+					return;
+				}
+
+				var name = e.target.value;
+				if (!name || name.length === 0) {
+					this.$.toast.text = this.isFolder ? 'Folder name cannot be empty.' : 'File name cannot be empty.';
+					this.$.toast.show();
+					return;
+				}
+
+				this.set('renaming', false);
+
+				if (!name || name === '') {
+					console.log('Firing create event!');
+					this.fire('create', {
+						path: name
+					});
+				} else {
+					console.log('Firing rename event');
+					this.fire('rename', {
+						from: this.path,
+						to:   name
+					});
+				}
+				this.fire('file-selected', this);
+				this.set('path', name);
+			},
+			startRenaming: function() {
+				if (this.renaming) {
+					return;
+				}
+				this.set('renaming', true);
+			},
+			delete: function() {
+				if (this.isFolder) {
+					return;
+				}
+
+				this.fire('delete', this.path);
+			},
+			selectFile: function() {
+				if (this.isFolder) {
+					return;
+				}
+				this.set('className', 'selected');
+				this.fire('file-selected', this);
+			},
+			unselectFile: function() {
+				this.set('className', '');
+			},
+			getContent: function() {
+				return this.node;
+			},
+			setContent: function(content) {
+				this.node.value = content;
+			},
+			addFolder: function() {
+				this.appendChildItem(new ExplorerItem({}, '', true));
+			},
+			addFile: function() {
+				this.appendChildItem(new ExplorerItem('', '', true));
+			},
+			appendChildItem: function(item) {
+				this.$$('#children').appendChild(item);
+			},
+			_nodeChanged: function() {
+				console.log('Node changed.');
+			}
+		});
+	</script>
+</dom-module>

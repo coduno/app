@@ -1,116 +1,255 @@
+<link rel="import" href="../../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+
 <dom-module id="code-editor">
-	<style>
+	<style include="iron-flex">
 		:host {
 			display: block;
 			height: 100%;
 		}
-
 		#editor {
+			height: calc(100% - 36px);
+			z-index: 0;
+		}
+		.container {
 			height: 100%;
-			z-index:0;
+			@apply(--layout-horizontal);
+		}
+		.editor-container {
+			@apply(--layout-flex);
+			height: 100%;
+			@apply(--layout-vertical);
+		}
+		.explorer-container {
+			width: 200px;
 		}
 	</style>
 	<template>
-		<user-submission-service id="submissionService"></user-submission-service>
-		<ws-element url="{{wsUrl}}"></ws-element>
-		<div id="editor"></div>
+		<context-menu id="contextMenu"></context-menu>
+		<div class="container">
+			<div class="explorer-container" style$="{{explorerStyle}}">
+				<explorer-item id="rootFolder" node="{{tree.root}}" path=""></explorer-item>
+			</div>
+			<div class="editor-container">
+				<div>
+					<paper-icon-button icon="{{toggleExplorerIcon}}" on-click="_toggle"></paper-icon-button>
+				</div>
+				<div id="editor"></div>
+			</div>
+		</div>
 	</template>
 	<script src="../../../bower_components/ace-min-noconflict/ace.js" type="application/javascript"></script>
-	<script src="../../../bower_components/ace-min-noconflict/theme-chrome.js" type="application/javascript"></script>
 	<script src="../../../bower_components/ace-min-noconflict/ext-language_tools.js" type="application/javascript"></script>
+	<script src="../../../scripts/tree.js" type="application/javascript"></script>
 	<script>
 		/*global ace:false */
 		Polymer({
 			is: 'code-editor',
 			properties: {
-				wsUrl: {
-					type: String,
-					notify: true
-				},
-				taskId: {
-					type: String,
-					reflectToAttribute: true
-				},
 				language: {
 					type: String,
 					reflectToAttribute: true,
 					observer: '_languageChanged'
 				},
-				filename: String,
-				mimeType: String
+				toggleExplorerIcon: {
+					type: String,
+					notify: true,
+					value: 'chevron-left'
+				},
+				tree: {
+					type: Object,
+					notify: true,
+					value: function() {
+						return new Tree({});
+					},
+					observer: '_treeChanged'
+				},
+				explorerStyle: {
+					type: String,
+					value: ''
+				},
+				selectedFile: {
+					type: Object,
+					notify: true,
+					reflectToAttribute: true
+				}
 			},
-			run: function() {
-				this.$.submissionService.run(this.taskId, this.language, this.getFile());
+			listeners: {
+				'show-menu': '_showMenu',
+				'file-selected': '_fileSelected',
+				'rename': 'handleRename',
+				'create': 'handleCreate'
 			},
-			submit: function() {
-				this.$.submissionService.submit(this.taskId, this.language, this.getFile());
-			},
-			ready: function(){
-				this.wsUrl = util.getWSUrl('/ws');
+			ready: function() {
+				this._addContextMenuListener();
 				ace.require('ace/ext/language_tools');
 				this.$.editor = ace.edit(this.$.editor);
 				this.$.editor.setTheme('ace/theme/chrome');
 				this.$.editor.setOptions({
 					enableBasicAutocompletion: true
 				});
-				var self = this;
+				var that = this;
+				this.$.editor.getSession().on('change', function() {
+					var content = that.$.editor.getValue();
+					that.selectedFile.setContent(content);
+					console.log(that.tree.root);
+				});
 				this.$.editor.commands.addCommand({
 					name: 'run',
 					bindKey: {
-						win: 'Ctrl-Enter',
+						win: 'Ctrl-Enter'
 					},
-					exec: function(){
-						self.runCodeNormal();
-						console.log('loading animation not started');
+					exec: function() {
+						that.fire('run-code');
 					},
 					readOnly: true
 				});
-				this.$.editor.getSession().on('change', function(){
-					self.fire('code-changed', self.$.editor.getValue());
-				});
 				this.$.editor.$blockScrolling = Infinity;
 			},
-			getFile: function() {
-				var blob = new Blob([this.$.editor.getValue()], {type: this.mimeType });
-				blob.name = this.filename;
-				return blob;
+			_treeChanged: function(current, previous) {
+				console.log('Tree changed from', (previous ? previous.root : undefined), 'to', current.root);
+				this.$.rootFolder.set('node', current.root);
+				//Polymer.dom(this.$.rootFolder).setAttribute('node', this.tree.root);
 			},
-			setValue: function(text){
+			clearFiles: function() {
+				this.tree = new Tree({});
+				this.notifyPath('tree');
+				if (!!this.selectedFile) {
+					this.selectedFile.unselectFile();
+					this.selectedFile = undefined;
+				}
+			},
+			handleRename: function(e, detail) {
+				if (detail.from === detail.to) {
+					return;
+				}
+
+				if (this.tree.contains(detail.to)) {
+					return;
+				}
+
+				var value = this.tree.get(detail.from);
+				this.tree.remove(detail.from);
+				this.tree.add(detail.to, value);
+				this.tree = new Tree(JSON.parse(JSON.stringify(this.tree.root)));
+				this.set('tree', this.tree);
+			},
+			handleCreate: function(e, detail) {
+				if (this.tree.contains(detail.path)) {
+					return;
+				}
+				this.tree.add(detail.path, '');
+				console.log('Notifying for tree change after create.');
+				this.tree = new Tree(JSON.parse(JSON.stringify(this.tree.root)))
+				this.set('tree', this.tree);
+			},
+			handleAdd: function(e, detail) {
+				if (this.tree.contains(detail.path)) {
+					return;
+				}
+				this.tree.add(detail.path, detail.content);
+				console.log('Notifying for tree change after add.');
+				this.tree = new Tree(JSON.parse(JSON.stringify(this.tree.root)))
+				this.set('tree', this.tree);
+			},
+			_fileSelected: function(e, detail) {
+				if (!!this.selectedFile) {
+					this.selectedFile.unselectFile();
+				}
+				this.selectedFile = detail;
+				this.setValue(this.selectedFile.getContent());
+			},
+			_toggle: function() {
+				if (this.toggleExplorerIcon === 'chevron-left') {
+					this.explorerStyle = 'display: none';
+					this.toggleExplorerIcon = 'chevron-right';
+				} else {
+					this.explorerStyle = '';
+					this.toggleExplorerIcon = 'chevron-left';
+				}
+			},
+			setFilesJson: function(rootFolder) {
+				this.tree = new Tree(rootFolder);
+				this.notifyPath('tree');
+			},
+			getFiles: function() {
+				return this.tree.all().map(function(it) {
+					var blob = new Blob([this.tree.get(it)]);
+					blob.name = it;
+					console.log(blob);
+					return blob;
+				}, this);
+			},
+			setValue: function(text) {
+				if (text === null || text === undefined) {
+					return;
+				}
+				if (!((typeof(text) === 'string' || text instanceof String))) {
+					return;
+				}
 				this.$.editor.getSession().setValue(text);
 			},
-			setFile: function(f) {
-				var that = this;
+			addFile: function(f) {
 				var fr = new FileReader();
+				var that = this;
 				fr.onload = function(e) {
-					that.setValue(e.target.result);
+					that.tree.add(f.name, e.target.result);
 				};
 				fr.readAsText(f);
-				this.mimeType = f.type;
-				this.filename = f.name;
 			},
-			_languageChanged: function(){
-				if(this.language){
+			_languageChanged: function() {
+				if (this.language) {
 					this._setMode(this.language);
 				}
 			},
-			_setMode: function(lang){
+			_setMode: function(lang) {
 				var languageModeMap = {
-					'c': 'c_cpp',
-					'cpp': 'c_cpp',
+					'c':      'c_cpp',
+					'cpp':    'c_cpp',
 					'csharp': 'csharp',
-					'java': 'java',
-					'js': 'javascript',
-					'py': 'python',
-					'go': 'golang',
-					'scala': 'scala',
+					'java':   'java',
+					'js':     'javascript',
+					'py':     'python',
+					'go':     'golang',
+					'scala':  'scala',
 					'groovy': 'groovy',
-					'php': 'php'
+					'php':    'php'
 				};
-				var mode = languageModeMap[lang];
-				if(!mode){
-					mode = 'text';
+				this.$.editor.getSession().setMode('ace/mode/' + (languageModeMap[lang] || 'text'));
+			},
+			_showMenu: function(event, data) {
+				this.$.contextMenu.showMenu(data);
+			},
+			_addContextMenuListener: function() {
+				var that = this;
+				document.addEventListener('click', function(e) {
+					if (that._clickInsideElement(e, 'context-menu')) {
+						return;
+					}
+					if (that._clickInsideElement(e, 'explorer-folder')) {
+						return;
+					}
+					var cm = document.querySelector('context-menu');
+					if (cm) {
+						cm.hideMenu();
+					}
+				});
+			},
+			_clickInsideElement: function(e, elName) {
+				elName = elName.toLowerCase();
+				var el = e.srcElement || e.target;
+				if (el.tagName.toLowerCase() === elName) {
+					return el;
 				}
-				this.$.editor.getSession().setMode('ace/mode/' + mode);
+
+				while (!!(el = el.parentNode)) {
+					if (!!el.tagName && el.tagName.toLowerCase() === elName) {
+						return el;
+					}
+				}
+
+				return false;
 			}
 		});
 	</script>

@@ -1,9 +1,6 @@
 <link rel="import" href="../../../../../../bower_components/iron-icons/av-icons.html">
 <link rel="import" href="../../../../../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../../../../../bower_components/paper-material/paper-material.html">
-<link rel="import" href="/elements/coder/code-editor/code-editor.html">
-<link rel="import" href="/elements/coder/code-editor/language-selector.html">
-<link rel="import" href="task-display.html">
 <link rel="import" href="../../../../../../bower_components/iron-flex-layout/classes/iron-flex-layout.html">
 <link rel="import" href="../../../../../../bower_components/iron-icons/av-icons.html">
 
@@ -63,10 +60,6 @@
 			padding: 5px;
 			margin: 0;
 		}
-		#buttons>language-selector{
-			padding: 5px;
-			margin: 0;
-		}
 	</style>
 	<template>
 		<div id="componentWrapper" class="horizontal layout">
@@ -78,14 +71,13 @@
 			<div class="flex">
 				<paper-material id="topRightCard" elevation="1">
 					<div id="codeEditorWrapper">
-						<code-editor id="codeEditor" task-id="{{task.id}}" language="{{language.value}}"></code-editor>
+						<code-editor id="codeEditor" language="{{language.value}}"></code-editor>
 					</div>
 				</paper-material>
 				<paper-material id="botRightCard" elevation="1">
 					<div id="buttons" class="horizontal layout">
 						<paper-icon-button class="self-center" icon="av:play-arrow" on-click="runCode">Run code</paper-icon-button>
-						<language-selector class="self-center" id="languageSelector" language="{{language}}" task="{{task}}"></language-selector>
-							<paper-icon-button class="self-center" icon="av:play-arrow" on-click="runTests">Run tests</paper-icon-button>
+						<paper-icon-button class="self-center" icon="av:play-arrow" on-click="runTests">Run tests</paper-icon-button>
 						<span class="flex"></span>
 						<paper-button class="self-center" raised noink class$="{{finishedButtonClass}}" on-click="finishTask">Finish</paper-button>
 					</div>
@@ -117,15 +109,17 @@
 				languages: {
 					type: Array,
 					notify: true
+				},
+				language: {
+					type: Object,
+					notify: true
 				}
 			},
 			runCode: function(){
-				this.$.codeEditor.run();
-				this.control.loading();
+				//todo(vbalan): I am deprecated. Please fix me
 			},
 			runTests: function(){
-				this.$.codeEditor.submit();
-				this.control.loading();
+				//todo(vbalan): I am deprecated. Please fix me
 			},
 			finishTask: function(){
 				this.fire('task-finished');
