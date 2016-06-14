@@ -1,0 +1,123 @@
+<link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+
+<dom-module id="challenge-register-step">
+	<style include="iron-flex">
+		:host{
+			display: block;
+			height: 100%;
+		}
+		.horizontal-layout {
+			@apply(--layout-horizontal);
+		}
+		#wrapper {
+			@apply(--layout-vertical);
+			padding: 24px;
+			background: white;
+		}
+		.icon-text {
+			padding: 0 32px 0px 4px;
+		}
+		#buttons {
+			@apply(--layout-horizontal);
+		}
+		paper-dropdown-menu {
+			width: 100%;
+		}
+		.title {
+			text-align: center;
+		}
+		.italic {
+			font-style: italic;
+		}
+	</style>
+	<template>
+		<create-team-modal id="createTeamDialog" on-team-created="refresh"></create-team-modal>
+		<my-teams-provider data="{{teams}}"></my-teams-provider>
+		<locations-by-challenge-canonical-name-provider canonical-name="[[challenge.canonicalName]]" data="{{locations}}"></locations-by-challenge-canonical-name-provider>
+		<iron-ajax id="registerRequest"
+			method="PUT"
+			handle-as="text"
+			content-type="application/json"
+			with-credentials="true"
+			on-response="_onResponse"
+			on-error="_onError">
+		</iron-ajax>
+		<base-wizard>
+			<div class="title">
+				<h3>Welcome, <span>[[user.username]]!</span></h3>
+			</div>
+			<p>You can register to <span class="italic">[[challenge.name]]</span> alone or with a team.</p>
+			<template is="dom-if" if="{{hasTeams}}">
+				<paper-dropdown-menu label="Team" selected-item="{{selectedTeam}}" >
+					<paper-listbox class="dropdown-content" selected="0">
+						<template is="dom-repeat" items="{{teams}}">
+							<option value="{{item.canonicalName}}">{{item.name}}</option>
+						</template>
+					</paper-listbox>
+				</paper-dropdown-menu>
+			</template>
+			<template is="dom-if" if="{{!hasTeams}}">
+				<p>You are currently not part of any team, if you wish to participate as a team
+					 click <a on-click="_openTeamModal">here</a> to create one. </p>
+			</template>
+			<paper-dropdown-menu label="Location" selected-item="{{selectedLocation}}" >
+				<paper-listbox class="dropdown-content" selected="0">
+					<template is="dom-repeat" items="{{locations}}">
+						<option value="{{item.id}}">{{item.name}}</option>
+					</template>
+				</paper-listbox>
+			</paper-dropdown-menu>
+			<div id="buttons">
+				<span class="flex"></span>
+				<paper-button raised on-click="_register">Register</paper-button>
+				<span class="flex"></span>
+			</div>
+		</base-wizard>
+	</template>
+	<script type="application/javascript" src="../../../../scripts/behaviors/app-connection-behavior.js"></script>
+	<script>
+		Polymer({
+			is: 'challenge-register-step',
+			behaviors: [
+				Behaviors.AppConnection
+			],
+			observers: [
+				'_teamsLoaded(teams)',
+				'_locationsLoaded(locations)'
+			],
+			_locationsLoaded: function(){
+				if(!this.locations){
+					this.locations = [];
+				}
+				this.unshift('locations', {id: 'online', name: 'Online'});
+			},
+			_teamsLoaded: function(){
+				if(!this.teams || this.teams.length === 0){
+					this.hasTeams = false;
+					return;
+				}
+				this.hasTeams = true;
+				this.unshift('teams', {canonicalName: '', name: 'No team'});
+			},
+			_openTeamModal: function(){
+				this.$.createTeamDialog.open();
+			},
+			_register: function(){
+				this.$.registerRequest.body = {
+					team: this.selectedTeam ? this.selectedTeam.value : '',
+					location: this.selectedLocation ? (this.selectedLocation.value === 'online' ? '' : this.selectedLocation.value) : ''
+				};
+				this.$.registerRequest.url = util.build('/challenges/' + this.challenge.canonicalName + '/register');
+				this.$.registerRequest.generateRequest();
+			},
+			_onResponse: function(){
+				this._mainApp.setUser(this.user);
+				page('/contest/' + this.challenge.canonicalName + '/info');
+			},
+			refresh: function(){
+				this.$$('my-teams-provider').refresh();
+				this.$$('locations-by-challenge-canonical-name-provider').refresh();
+			}
+		});
+	</script>
+</dom-module>

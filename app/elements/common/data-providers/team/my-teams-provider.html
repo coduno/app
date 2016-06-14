@@ -1,4 +1,4 @@
-<link rel="import" href="/bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../../../bower_components/iron-ajax/iron-ajax.html">
 
 <dom-module id="my-teams-provider">
 	<style>
@@ -9,15 +9,14 @@
 	<template>
 		<iron-ajax
 			id="request"
-			auto
 			method="GET"
 			url="[[baseUrl]]/user/teams"
 			handle-as="json"
-			last-response="{{data}}"
-			with-credentials="true">
+			with-credentials="true"
+			bubbles>
 		</iron-ajax>
 	</template>
-	<script type="application/javascript" src="/scripts/behaviors/providers/general-provider-behavior.js"></script>
+	<script type="application/javascript" src="../../../../scripts/behaviors/providers/general-provider-behavior.js"></script>
 	<script>
 		Polymer({
 			is: 'my-teams-provider',

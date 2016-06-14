@@ -1,11 +1,11 @@
-<link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout-classes.html">
-<link rel="import" href="/bower_components/paper-material/paper-material.html">
-<link rel="import" href="/bower_components/paper-input/paper-input.html">
-<link rel="import" href="/bower_components/paper-button/paper-button.html">
-<link rel="import" href="/bower_components/iron-ajax/iron-ajax.html">
-<link rel="import" href="/bower_components/paper-dialog/paper-dialog.html">
-<link rel="import" href="/bower_components/paper-toast/paper-toast.html">
-<link rel="import" href="/bower_components/iron-form/iron-form.html">
+<link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../../../bower_components/paper-material/paper-material.html">
+<link rel="import" href="../../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../../../bower_components/iron-form/iron-form.html">
 
 <dom-module id="create-team-modal">
 	<style include="iron-flex">
@@ -17,28 +17,31 @@
 		}
 	</style>
 	<template>
-		<iron-ajax
+		<coduno-iron-ajax
 			id="createTeamRequest"
 			method="POST"
-			handle-as="text"
-			content-type="application/json"
-			with-credentials="true"
-			on-response="_onResponse"
-			on-error="_onError">
-		</iron-ajax>
+			body="[[team]]"
+			path="/teams"
+			error="{{error}}"
+			on-request-finished="_onResponse">
+		</coduno-iron-ajax>
 		<paper-dialog id="createTeamDialog" modal>
-			<h4>Create new team</h4>
+			<h4>Create a new Team</h4>
 			<div class="fieldList">
+				<errors-display error="{{error}}"></errors-display>
 				<form is="iron-form" id="form">
 					<paper-input autofocus="true" label="Name" value="{{team.name}}"
 						required minlength="6" maxlength="40" auto-validate error-message="Must be between 6 and 40 chars."></paper-input>
-					<paper-input label="Canonical name" value="{{team.canonicalName}}"
+					<paper-input label="Tag" value="{{team.canonicalName}}"
 						required minlength="6" maxlength="40" auto-validate error-message="Must be between 6 and 40 chars."></paper-input>
+						<p>The tag is a unique identifier for your team.</p>
+						<p>You will find your team at</p>
+						<p>https://app.cod.uno/t/[[team.canonicalName]]</p>
 				</form>
 			</div>
 			<div class="buttons">
 				<paper-button class="secondary" dialog-dismiss>Cancel</paper-button>
-				<paper-button on-click="_saveTeam" class="primary" dialog-confirm disabled="{{saveDisabled}}">Save</paper-button>
+				<paper-button on-click="_saveTeam" class="primary" disabled="{{saveDisabled}}">Save</paper-button>
 			</div>
 		</paper-dialog>
 		<paper-toast id="toast" text="{{toastText}}"></paper-toast>
@@ -60,32 +63,24 @@
 			listeners: {
 				'keyup': '_teamChanged'
 			},
-			toggle: function(){
-				this.$.createTeamDialog.toggle();
+			open: function(){
+				this.$.createTeamDialog.open();
 			},
 			_saveTeam: function(){
 				if(!this.$.form.validate()){
 					return;
 				}
-				this.$.createTeamRequest.body = this.team;
-				this.$.createTeamRequest.url = util.build('/teams');
 				this.$.createTeamRequest.generateRequest();
-				this.team = {};
 			},
 			_teamChanged: function(){
 				this.saveDisabled = !this.$.form.validate();
 			},
 			_onResponse: function(){
+				this.team = {};
+				this.$.createTeamDialog.close();
 				this.toastText = 'Team successfully created.';
 				this.$.toast.show();
 				this.fire('team-created');
-			},
-			_onError: function(e, r){
-				this.toastText = 'An error occured when creating your team.';
-				if(!!r.request.xhr.responseText){
-					this.toastText = r.request.xhr.responseText;
-				}
-				this.$.toast.show();
 			}
 		});
 	</script>

@@ -1,13 +1,11 @@
-<link rel="import" href="/elements/common/services/challenge-service.html">
-<link rel="import" href="/elements/common/datepicker/date-time-picker.html">
-<link rel="import" href="/elements/common/services/endpoint-service.html">
-<link rel="import" href="/bower_components/iron-form/iron-form.html">
-<link rel="import" href="/bower_components/paper-input/all-imports.html">
-<link rel="import" href="/bower_components/paper-button/paper-button.html">
-<link rel="import" href="/bower_components/paper-dialog/paper-dialog.html">
-<link rel="import" href="/bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
-<link rel="import" href="/bower_components/paper-menu/paper-menu.html">
-<link rel="import" href="/bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../../../bower_components/iron-form/iron-form.html">
+<link rel="import" href="../../../bower_components/paper-input/all-imports.html">
+<link rel="import" href="../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../../../bower_components/paper-menu/paper-menu.html">
+<link rel="import" href="../../../bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../../../bower_components/iron-ajax/iron-ajax.html">
 
 <dom-module id="challenge-create">
 	<style>
@@ -21,9 +19,18 @@
 		}
 	</style>
 	<template>
-		<challenge-service id="challengeService" challenge="{{savedChallenge}}"></challenge-service>
+		<coduno-iron-ajax
+			id="saveChallenge"
+			method="POST"
+			body="{{challenge}}"
+			path="/challenges"
+			response="{{savedChallenge}}"
+			on-request-finished="_onResponse"
+			error="{{error}}">
+		</coduno-iron-ajax>
 		<div class="mainContent">
 			<paper-material class="card" elevation="1">
+				<errors-display error="{{error}}"></errors-display>
 				<form is="iron-form" id="challengeForm">
 					<paper-input id="name" class="margined" label="Name" value="{{challenge.name}}" required></paper-input>
 					<paper-input id="canonicalName" class="margined" label="Canonical name*" value="{{challenge.canonicalName}}" required></paper-input>
@@ -31,7 +38,7 @@
 					<date-time-picker id="startDate" label="Fixed start date" date-time="{{challenge.startDate}}"></date-time-picker>
 				</form>
 				<div class="buttonGroup">
-					<paper-button raised on-click="_saveChallenge">Saved</paper-button>
+					<paper-button raised on-click="_saveChallenge">Save</paper-button>
 				</div>
 			</paper-material>
 		</div>
@@ -46,9 +53,6 @@
 				challenge: {
 					type: Object,
 					value: {}
-				},
-				savedChallenge: {
-					observer: '_savedChallengeChanged'
 				}
 			},
 			_saveChallenge: function () {
@@ -57,10 +61,9 @@
 					return;
 				}
 				this.challenge.templateId = this.challengeTemplate;
-				this.$.challengeService.save(this.challenge);
+				this.$.saveChallenge.generateRequest();
 			},
-			_savedChallengeChanged: function(){
-				this.set('challenge', {});
+			_onResponse: function(){
 				page('/challenges/' + this.savedChallenge);
 			}
 		});

@@ -1,7 +1,4 @@
-<link rel="import" href="/elements/common/description-list/description-list.html">
-<link rel="import" href="/elements/common/description-list/description-list-item.html">
-<link rel="import" href="/elements/coder/challenge/countdown-timer.html">
-<link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 
 <dom-module id="time-until-challenge">
 	<style include="iron-flex">
@@ -45,6 +42,7 @@
 			<countdown-timer id="timer" duration="{{timeUntilChallenge}}" formated-duration="{{countdown}}" style="display: none"></countdown-timer>
 			<description-list>
 				<description-list-item label="Canonical name" value="{{challenge.canonicalName}}"></description-list-item>
+				<description-list-item label="Description" value="{{challenge.description}}"></description-list-item>
 				<description-list-item label="Start date" value="{{challenge.startDate}}" date></description-list-item>
 				<description-list-item label="End date" value="{{challenge.endDate}}" date></description-list-item>
 				<description-list-item label="Time until challenge" value="{{countdown}}"></description-list-item>

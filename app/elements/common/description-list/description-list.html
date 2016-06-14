@@ -1,12 +1,10 @@
-<link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout-classes.html">
-
 <dom-module id="description-list">
+	<style include="iron-flex">
+		.description-list {
+			@apply(--layout-vertical);
+		}
+	</style>
 	<template>
-		<style is="custom-style" include="iron-flex">
-			.description-list {
-				@apply(--layout-vertical);
-			}
-		</style>
 		<div class="description-list">
 			<content></content>
 		</div>

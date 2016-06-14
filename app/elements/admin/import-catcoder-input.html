@@ -1,0 +1,64 @@
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
+
+<dom-module id="import-catcoder-input">
+	<template>
+		<style>
+			paper-button {
+				margin: 8px 4px ;
+			}
+		</style>
+		<coduno-iron-ajax
+			id="postGame"
+			method="POST"
+			body="[[body]]"
+			path="/contestgameupload"
+			content-type=""
+			response="{{savedTemplate}}"
+			on-request-finished="_onRequestFinished"
+			on-error="_onError">
+		</coduno-iron-ajax>
+
+		<errors-display error="{{error}}"></errors-display>
+		You must upload a zip file which contains the game structure
+		<input id="input" type="file" accept="application/zip"><br>
+		<paper-button id="uploadButton" raised on-click="_upload">Upload game</paper-button>
+		<paper-toast id="toast">{{toastText}}</paper-toast>
+	</template>
+	<script>
+		Polymer({
+			is: 'import-catcoder-input',
+			properties: {
+				body: {
+					type: Object,
+					notify: true
+				}
+			},
+			_upload: function(){
+				if (this.$.input.files.length === 0){
+					this.toastText = 'You must upload a zip file.';
+					this.$.toast.show();
+					return;
+				}
+				var file = this.$.input.files[0];
+				this.body = new FormData();
+				this.body.append('file', file, file.name);
+				this.body.append('organization', localStorage.activeOrganization);
+				app.startLoading();
+				this.$.uploadButton.disabled = true;
+				this.$.postGame.generateRequest();
+			},
+			_onRequestFinished: function(e){
+				e.stopPropagation();
+				this.$.uploadButton.disabled = false;
+				app.stopLoading();
+				page('/challenges/template/' + this.savedTemplate);
+			},
+			_onError: function(e, req) {
+				app.stopLoading();
+				this.$.uploadButton.disabled = false;
+			}
+		});
+	</script>
+</dom-module>

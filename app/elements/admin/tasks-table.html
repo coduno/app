@@ -1,12 +1,10 @@
-<link rel="import" href="/bower_components/vaadin-grid/vaadin-grid.html">
-<link rel="import" href="/bower_components/iron-icons/iron-icons.html">
-<link rel="import" href="/bower_components/iron-icons/editor-icons.html">
-<link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
-<link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/iron-icons/editor-icons.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 
-<link rel="import" href="/elements/common/data-providers/task/tasks-provider.html">
-
-<dom-module id="tasks-table">
+<dom-module id="admin-tasks-table">
 	<style include="iron-flex">
 		:host {
 			display: block;
@@ -43,7 +41,7 @@
 	</template>
 	<script>
 		Polymer({
-			is: 'tasks-table',
+			is: 'admin-tasks-table',
 			observers: [
 				'_dataChanged(tasks)'
 			],

@@ -8,16 +8,14 @@ var util = {
 			prefix = 'http://localhost:8080';
 		}
 
+		if (location.origin.indexOf('coduno-lab') !== -1) {
+			prefix = 'https://platform-dot-coduno-lab.appspot.com';
+		}
+
 		return prefix;
 	},
 	build: function(suffix) {
-		var prefix = 'https://platform.cod.uno';
-
-		if (location.origin.indexOf('localhost') !== -1) {
-			prefix = 'http://localhost:8080';
-		}
-
-		return prefix + suffix;
+		return util.baseUrl() + suffix;
 	},
 	getWSUrl: function(suffix) {
 		var prefix = 'wss://ws.cod.uno:8080';
@@ -55,18 +53,8 @@ var util = {
 	},
 	error: function(error) {
 		var app = document.querySelector('#app');
-		if (error.detail.request.xhr.status === 401) {
-			app.isLoggedIn = false;
-			return page.redirect('/login');
-		}
 		app.error = error;
 		page.redirect('/error');
-	},
-	getFormatedTime: function(d) {
-		var h = Math.floor(d / 3600) % 24;
-		var m = Math.floor(d / 60 % 60);
-		var s = Math.floor(d % 60);
-		return ('0' + h).slice(-2) + ':' + ('0' + m).slice(-2) + ':' + ('0' + s).slice(-2);
 	},
 	padTime: function(i) {
 		var str = String(i);

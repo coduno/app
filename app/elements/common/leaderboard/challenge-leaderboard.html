@@ -1,25 +1,23 @@
-<link rel="import" href="/bower_components/iron-ajax/iron-ajax.html">
-
 <dom-module id="challenge-leaderboard">
+	<style>
+		.header {
+			font-weight: bold;
+		}
+		.row {
+			@apply(--layout-horizontal);
+		}
+		.row div {
+			@apply(--layout-flex);
+		}
+		hr {
+			margin: 0;
+		}
+		.leaderboard {
+			@apply(--layout-vertical);
+			padding: 5px;
+		}
+	</style>
 	<template>
-		<style>
-			.header {
-				font-weight: bold;
-			}
-			.row {
-				@apply(--layout-horizontal);
-			}
-			.row div {
-				@apply(--layout-flex);
-			}
-			hr {
-				margin: 0;
-			}
-			.leaderboard {
-				@apply(--layout-vertical);
-				padding: 5px;
-			}
-		</style>
 		<iron-ajax
 			id="getLeaderboard"
 			method="GET"

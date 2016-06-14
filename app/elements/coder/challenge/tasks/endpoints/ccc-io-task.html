@@ -1,0 +1,176 @@
+<link rel="import" href="/elements/coder/code-editor/consoles/tabbed-console.html">
+<link rel="import" href="/elements/coder/code-editor/language-selector.html">
+<link rel="import" href="/elements/coder/challenge/tasks/task-display.html">
+<link rel="import" href="/elements/coder/code-editor/code-editor-with-actions.html">
+<link rel="import" href="/elements/coder/input-view/input-view.html">
+<link rel="import" href="/elements/common/leaderboard/challenge-leaderboard.html">
+
+<link rel="import" href="/bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="/bower_components/paper-tabs/paper-tab.html">
+<link rel="import" href="/bower_components/iron-icons/av-icons.html">
+<link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+
+<dom-module id="ccc-io-task">
+	<style include="iron-flex">
+		:host{
+			display: block;
+			height: 100%;
+			--paper-tabs-selection-bar-color: #87CEFA;
+			--paper-tab-ink: #87CEFA;
+		}
+		.header{
+			background: white;
+			color: black;
+			height: 50px;
+			width: calc(100% - 24px);
+			box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
+		}
+		.right {
+			margin: 16px 16px 8px 8px;
+			width: calc(100% - 24px);
+		}
+		.left {
+			margin: 16px 8px 16px 16px;
+			width: calc(100% - 24px);
+		}
+		#componentWrapper{
+			height: 100%;
+			@apply(--layout-horizontal);
+		}
+		#componentWrapper>div{
+			height: 100%;
+		}
+		paper-material{
+			width: 100%;
+			margin: auto;
+			background: white;
+		}
+		#leftCard{
+			margin: 16px 8px 16px 16px;
+			width: calc(100% - 24px);
+			height: calc(100% - 98px);
+		}
+		#rightCard{
+			margin: 16px 16px 16px 8px;
+			width: calc(100% - 24px);
+			height: calc(100% - 32px);
+		}
+		#inputViewRightCard {
+			margin: 8px 16px 16px 8px;
+			width: calc(100% - 24px);
+			height: calc(100% - 98px);
+		}
+		.halfScreen {
+			width: 50%;
+		}
+
+		#leftPages {
+			height: calc(100% - 50px);
+		}
+	</style>
+	<template>
+		<div id="componentWrapper">
+			<div class="halfScreen">
+				<paper-tabs selected="{{leftTab}}" align-bottom="true" no-ink="true" class="header left">
+					<paper-tab>Console</paper-tab>
+					<paper-tab>Leaderboard</paper-tab>
+				</paper-tabs>
+
+				<paper-material id="leftCard" elevation="1">
+					<iron-pages id="leftPages" selected="{{leftTab}}" class="fullHeight">
+						<tabbed-console id="console" task="{{task}}"></tabbed-console>
+						<challenge-leaderboard id="leaderboard" challenge-id="{{challengeId}}"></challenge-leaderboard>
+					</iron-pages>
+				</paper-material>
+			</div>
+			<div class="halfScreen">
+				<paper-material id="rightCard" elevation="1">
+					<code-editor-with-actions id="codeEditor" task="{{task}}" language="{{language.value}}"></code-editor-with-actions>
+				</paper-material>
+			</div>
+		</div>
+	</template>
+	<script>
+		Polymer({
+			is: 'ccc-io-task',
+			properties: {
+				task: {
+					type: Object,
+					notify: true,
+					reflectToAttribute: true
+				},
+				challengeId: {
+					type: Number,
+					notify: true
+				},
+				selected: {
+					type: Number,
+					notify: true,
+					observer: '_selectedChanged'
+				},
+				leftTab: {
+					type: Number,
+					notify: true,
+					value: 0,
+					observer: '_selectedLeftTabChanged'
+				},
+				leaderboard: {
+					type: Array,
+					notify: true
+				},
+				intervalId: Number
+			},
+			observers: [
+				'afterPropertiesSet(task, challengeId)'
+			],
+			listeners: {
+				'ws-message': '_onMessage',
+				'start-loading': '_startLoading'
+			},
+			_startLoading: function(){
+				this.$$('#console').startLoading();
+			},
+			_selectedLeftTabChanged: function(){
+				switch (this.leftTab){
+					case 0:
+						clearInterval(this.intervalId);
+						return;
+					case 1:
+						this._startPollingLeaderboard();
+						return;
+				}
+			},
+			_startPollingLeaderboard: function(){
+				var that = this;
+				this.intervalId = setInterval(function(){
+					if (that.leftTab === 1){
+						that.$.leaderboard.refresh();
+					}
+				}, 5000);
+			},
+			_onMessage: function(m){
+				var result = JSON.parse(m.detail);
+				if(result && result.levelState === 'completed' && this.task.id === result.task){
+					this.fire('level-completed');
+					return;
+				}
+				var inputView = this.$$('#inputView');
+				if(inputView){
+					inputView.setResult(result);
+				}
+				this.$$('#console').setResult(result);
+			},
+			afterPropertiesSet: function(){
+				this.selected = 1;
+				this.$.leaderboard.refresh();
+			},
+			runTests: function(){
+				this.$$('#console').submitLoading();
+			},
+			finishTask: function(){
+				clearInterval(this.intervalId);
+				this.fire('task-finished');
+			}
+		});
+	</script>
+</dom-module>

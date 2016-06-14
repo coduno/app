@@ -1,15 +1,10 @@
-<link rel="import" href="/elements/common/markdown/render-markdown.html">
-<link rel="import" href="/elements/common/services/task-service.html">
-<link rel="import" href="/elements/common/services/endpoint-service.html">
-<link rel="import" href="/elements/common/services/runner-service.html">
-
-<link rel="import" href="/bower_components/iron-autogrow-textarea/iron-autogrow-textarea.html">
-<link rel="import" href="/bower_components/iron-form/iron-form.html">
-<link rel="import" href="/bower_components/paper-input/paper-input.html">
-<link rel="import" href="/bower_components/paper-material/paper-material.html">
-<link rel="import" href="/bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
-<link rel="import" href="/bower_components/paper-menu/paper-menu.html">
-<link rel="import" href="/bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../bower_components/iron-autogrow-textarea/iron-autogrow-textarea.html">
+<link rel="import" href="../../../bower_components/iron-form/iron-form.html">
+<link rel="import" href="../../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../../bower_components/paper-material/paper-material.html">
+<link rel="import" href="../../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../../../bower_components/paper-menu/paper-menu.html">
+<link rel="import" href="../../../bower_components/paper-button/paper-button.html">
 
 <dom-module id="task-form">
 	<style>
@@ -37,8 +32,8 @@
 	</style>
 	<template>
 		<task-service id="taskService" task="{{savedTask}}"></task-service>
-		<runner-service id="runnerService" runners="{{runners}}"></runner-service>
-		<endpoint-service id="endpointService" endpoints="{{endpoints}}"></endpoint-service>
+		<runners-provider data="{{runners}}"></runners-provider>
+		<endpoints-provider data="{{endpoints}}"></endpoints-provider>
 
 		<div class="mainContent">
 			<paper-material class="card">
@@ -118,10 +113,6 @@
 				}else{
 					this.saveButtonLabel = 'Update';
 				}
-			},
-			ready: function(){
-				this.$.endpointService.getEndpoints();
-				this.$.runnerService.getAll();
 			},
 			_saveTask: function(){
 				this.task.duration = this.task.duration * 60;

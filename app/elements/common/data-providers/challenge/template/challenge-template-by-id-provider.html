@@ -1,0 +1,35 @@
+<dom-module id="challenge-template-by-id-provider">
+	<style>
+		:host {
+			display: none;
+		}
+	</style>
+	<template>
+		<iron-ajax
+			id="request"
+			method="GET"
+			url="[[baseUrl]]/challenges/templates/[[templateId]]"
+			handle-as="json"
+			with-credentials="true"
+			bubbles>
+		</iron-ajax>
+	</template>
+	<script type="application/javascript" src="../../../../../scripts/behaviors/providers/general-provider-behavior.js"></script>
+	<script>
+		Polymer({
+			is: 'challenge-template-by-id-provider',
+			behaviors: [
+				Behaviors.Providers.General
+			],
+			observers: [
+				'_urlChanged(baseUrl, templateId)'
+			],
+			_urlChanged: function(){
+				this.refresh();
+			},
+			refresh: function(){
+				this.$.request.generateRequest();
+			}
+		});
+	</script>
+</dom-module>

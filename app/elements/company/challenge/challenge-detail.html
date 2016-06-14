@@ -1,13 +1,6 @@
-<link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout-classes.html">
-<link rel="import" href="/bower_components/paper-button/paper-button.html">
-<link rel="import" href="/bower_components/paper-material/paper-material.html">
-
-<link rel="import" href="/elements/common/services/challenge-service.html">
-<link rel="import" href="/elements/common/services/invitation-service.html">
-<link rel="import" href="/elements/common/description-list/description-list.html">
-<link rel="import" href="/elements/common/description-list/description-list-item.html">
-<link rel="import" href="/elements/common/leaderboard/challenge-leaderboard.html">
-<link rel="import" href="/elements/company/candidate/invite/invite-candidates.html">
+<link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../bower_components/paper-material/paper-material.html">
 
 <dom-module id="challenge-detail">
 	<style include="iron-flex">
@@ -39,49 +32,36 @@
 		}
 	</style>
 	<template>
-		<challenge-service id="challengeService" challenge="{{challenge}}"></challenge-service>
-		<invitation-service id="invitationService" invitations="{{invitations}}"></invitation-service>
+		<challenge-by-canonical-name-provider canonical-name="[[canonicalName]]" data="{{challenge}}"></challenge-by-canonical-name-provider>
 		<invite-candidates id="inviteCandidates" challenge="{{challenge}}" on-invitation-sent="_onInvitationSent"></invite-candidates>
 
 		<div id="wrapper" class="grid mainContent">
-				<paper-material class="card" elevation="1">
-					<div id="inviteWrapper">
-						<h1 id="challengeName">{{challenge.name}}</h1>
-						<paper-button on-click="_inviteCandidates">
-							<iron-icon icon="mail"></iron-icon>
-							Invite candidates
-						</paper-button>
-					</div>
-					<description-list>
-						<description-list-item label="Canonical name" value="{{challenge.canonicalName}}"></description-list-item>
-						<description-list-item label="Start date" value="{{challenge.startDate}}" date></description-list-item>
-						<description-list-item label="End date" value="{{challenge.endDate}}" date></description-list-item>
-					</description-list>
-				</paper-material>
+			<paper-material class="card" elevation="1">
+				<div id="inviteWrapper">
+					<h1 id="challengeName">{{challenge.name}}</h1>
+					<paper-button on-click="_inviteCandidates">
+						<iron-icon icon="mail"></iron-icon>
+						Invite candidates
+					</paper-button>
+				</div>
+				<description-list>
+					<description-list-item label="Canonical name" value="{{challenge.canonicalName}}"></description-list-item>
+					<description-list-item label="Start date" value="{{challenge.startDate}}" date></description-list-item>
+					<description-list-item label="End date" value="{{challenge.endDate}}" date></description-list-item>
+				</description-list>
+			</paper-material>
 
-				<paper-material class="card">
-					<h3>Invited users</h3>
-					<table style="width:100%">
-						<tr>
-							<th>Username</th>
-							<th>Email</th>
-							<th>Token</th>
-							<th>Started</th>
-							<th>Expire</th>
-						</tr>
-						<template is="dom-repeat" items="{{invitations}}">
-							<tr>
-								<td>{{item.username}}</td>
-								<td>{{item.email}}</td>
-								<td>{{item.token}}</td>
-								<td>{{_formatDate(item.started)}}</td>
-								<td>{{_formatDate(item.expire)}}</td>
-							</tr>
-						</template>
-					</table>
-				</paper-material>
 			<paper-material class="card">
-				<challenge-leaderboard challenge-id="{{challengeId}}"></challenge-leaderboard>
+				<h3>Invited users</h3>
+				<invited-users-table challenge="[[canonicalName]]"></invited-users-table>
+			</paper-material>
+			<paper-material class="card">
+				<h3>Participants</h3>
+				<participants-table challenge="[[canonicalName]]"></participants-table>
+			</paper-material>
+			<paper-material class="card">
+				<h3>Leaderboard</h3>
+				<challenge-leaderboard challenge-id="{{challenge.id}}"></challenge-leaderboard>
 			</paper-material>
 		</div>
 	</template>
@@ -109,8 +89,8 @@
 				this._refresh();
 			},
 			_refresh: function(){
-				this.$.challengeService.getById(this.challengeId);
-				this.$.invitationService.getByChallengeId(this.challengeId);
+				this.$$('invited-users-table').refresh();
+				this.$$('challenge-by-canonical-name-provider').refresh();
 			},
 			_formatDate: function(date){
 				if (!!date){

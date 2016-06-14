@@ -1,2 +1,4 @@
 service-account.json
 app/sw-import.js
+gulpfile.js
+node_modules/**/*.js

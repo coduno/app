@@ -1,0 +1,40 @@
+<dom-module id="task-by-id-provider">
+	<style>
+		:host {
+			display: none;
+		}
+	</style>
+	<template>
+		<iron-ajax
+			id="request"
+			method="GET"
+			url="[[baseUrl]]/tasks/[[taskId]]"
+			handle-as="json"
+			with-credentials="true"
+			bubbles>
+		</iron-ajax>
+	</template>
+	<script type="application/javascript" src="../../../../scripts/behaviors/providers/general-provider-behavior.js"></script>
+	<script>
+		Polymer({
+			is: 'task-by-id-provider',
+			behaviors: [
+				Behaviors.Providers.General
+			],
+			properties: {
+				activeOrganization: {
+					type: String
+				}
+			},
+			observers: [
+				'_urlChanged(baseUrl, taskId)'
+			],
+			_urlChanged: function(){
+				this.refresh();
+			},
+			refresh: function(){
+				this.$.request.generateRequest();
+			}
+		});
+	</script>
+</dom-module>

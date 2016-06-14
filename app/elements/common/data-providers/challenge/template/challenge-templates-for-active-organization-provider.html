@@ -1,0 +1,36 @@
+<dom-module id="challenge-templates-for-active-organization-provider">
+	<style>
+		:host {
+			display: none;
+		}
+	</style>
+	<template>
+		<iron-ajax
+			id="request"
+			method="GET"
+			url="[[baseUrl]]/challenges/templates?organization=[[organization]]"
+			handle-as="json"
+			with-credentials="true"
+			bubbles>
+		</iron-ajax>
+	</template>
+	<script type="application/javascript" src="../../../../../scripts/behaviors/providers/general-provider-behavior.js"></script>
+	<script>
+		Polymer({
+			is: 'challenge-templates-for-active-organization-provider',
+			behaviors: [
+				Behaviors.Providers.General
+			],
+			observers: [
+				'_urlChanged(baseUrl)'
+			],
+			_urlChanged: function(){
+				this.refresh();
+			},
+			refresh: function(){
+				this.organization = localStorage.activeOrganization;
+				this.$.request.generateRequest();
+			}
+		});
+	</script>
+</dom-module>

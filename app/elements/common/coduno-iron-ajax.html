@@ -1,41 +1,31 @@
-<link rel="import" href="/bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
 
 <dom-module id="coduno-iron-ajax">
 	<template>
 		<iron-ajax
-		  id="ajaxRequest"
-		  method="{{method}}"
-		  content-type="{{contentType}}"
-		  handle-as="{{handleAs}}"
-		  last-response="{{lastResponse}}"
-		  headers="{{headers}}"
-		  url="{{url}}"
-			body="{{body}}"
-		  debounce-duration="{{debounceDuration}}"
-			on-response="_onResponse"
-			on-error="_onError"
-			with-credentials="true">
+			id="ajaxRequest"
+			method="[[method]]"
+			content-type="[[contentType]]"
+			handle-as="[[handleAs]]"
+			headers="[[headers]]"
+			body="[[body]]"
+	  	debounce-duration="[[debounceDuration]]"
+			url="[[baseUrl]]/[[path]]"
+			with-credentials="true"
+			auto="[[auto]]"
+			bubbles>
 		</iron-ajax>
 	</template>
+	<script type="application/javascript" src="../../scripts/behaviors/requests/base-request-behavior.js"></script>
+	<script type="application/javascript" src="../../scripts/behaviors/requests/handler-request-behavior.js"></script>
 	<script>
 		Polymer({
 			is: 'coduno-iron-ajax',
+			behaviors: [
+				Behaviors.Requests.Base,
+				Behaviors.Requests.Handler
+			],
 			properties: {
-				body: {
-					type: Object,
-					notify: true,
-					reflectToAttrbute: true
-				},
-				method: {
-					type: String,
-					notify: true,
-					reflectToAttrbute: true
-				},
-				lastResponse: {
-					type: Object,
-					notify: true,
-					reflectToAttrbute: true
-				},
 				contentType: {
 					type: String,
 					notify: true,
@@ -45,30 +35,10 @@
 					type: String,
 					notify: true,
 					value: 'json'
-				},
-				headers: {
-					type: Object,
-					notify: true,
-					value: {}
-				},
-				url: {
-					type: String,
-					notify: true
-				},
-				debounceDuration: {
-					type: Number,
-					notify: true,
-					value: 0
 				}
 			},
 			generateRequest: function(){
 				this.$.ajaxRequest.generateRequest();
-			},
-			_onResponse: function(r){
-				this.fire('response', r);
-			},
-			_onError: function(err){
-				this.fire('error', err);
 			}
 		});
 	</script>

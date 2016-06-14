@@ -1,4 +1,4 @@
-<link rel="import" href="/bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../../bower_components/iron-ajax/iron-ajax.html">
 
 <dom-module id="invitation-service">
 	<style>
@@ -18,7 +18,7 @@
 			on-error="_onError">
 		</iron-ajax>
 	</template>
-	<script type="application/javascript" src="/scripts/behaviors/service-behavior.js"></script>
+	<script type="application/javascript" src="../../../scripts/behaviors/service-behavior.js"></script>
 	<script>
 		Polymer({
 			is: 'invitation-service',
@@ -31,11 +31,6 @@
 					notify: true,
 					reflectToAttribute: true
 				}
-			},
-			getByChallengeId: function(challengeId){
-				this.app.startLoading();
-				this.$.getMultiple.url = util.build('/challenges/' + challengeId + '/invitations');
-				this.$.getMultiple.generateRequest();
 			},
 			_onResponse: function(){
 				this.app.stopLoading();

@@ -1,0 +1,44 @@
+<link rel="import" href="../../../bower_components/paper-datatable/paper-datatable.html">
+<link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+
+<dom-module id="participants-table">
+	<style include="iron-flex">
+		:host {
+			display: block;
+			height: 100%;
+		}
+		paper-icon-button {
+			@apply(--layout-self-center);
+		}
+	</style>
+	<template>
+		<participants-by-challenge-canonical-name-provider canonical-name="[[challenge]]" data="{{participants}}"></participants-by-challenge-canonical-name-provider>
+
+		<paper-datatable data="{{participants}}" style="overflow-y: auto;" on-row-tap="_onClick">
+			<paper-datatable-column header="Username" property="username" sortable>
+			</paper-datatable-column>
+			<paper-datatable-column header="Team" property="teamName" type="String">
+				<template>
+					<span>{{value}}</span>
+				</template>
+			</paper-datatable-column>
+		</paper-datatable>
+	</template>
+	<script>
+		Polymer({
+			is: 'participants-table',
+			properties: {
+				isAdmin: {
+					value: true
+				}
+			},
+			_onClick: function(e, d){
+				if(!!d.item.teamCanonicalName){
+					page('/t/' + d.item.teamCanonicalName);
+					return;
+				}
+				page('/u/' + d.item.username)
+			}
+		});
+	</script>
+</dom-module>

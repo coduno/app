@@ -1,9 +1,7 @@
-<link rel="import" href="/bower_components/paper-button/paper-button.html">
-<link rel="import" href="/bower_components/paper-material/paper-material.html">
-<link rel="import" href="/bower_components/paper-button/paper-button.html">
-<link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout-classes.html">
-
-<link rel="import" href="/elements/company/candidate/invite/invite-candidates.html">
+<link rel="import" href="../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../bower_components/paper-material/paper-material.html">
+<link rel="import" href="../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 
 <dom-module id="challenge-list">
 	<template>
@@ -71,7 +69,7 @@
 				}
 			},
 			_viewDetail: function(e){
-				page('/challenges/' + e.model.__data__.item.id);
+				page('/challenges/' + e.model.__data__.item.canonicalName);
 			}
 		});
 	</script>

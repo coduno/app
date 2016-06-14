@@ -1,11 +1,9 @@
-<link rel="import" href="/elements/common/services/challenge-template-service.html">
-<link rel="import" href="/elements/common/services/endpoint-service.html">
-<link rel="import" href="/bower_components/iron-form/iron-form.html">
-<link rel="import" href="/bower_components/paper-input/all-imports.html">
-<link rel="import" href="/bower_components/paper-button/paper-button.html">
-<link rel="import" href="/bower_components/paper-dialog/paper-dialog.html">
-<link rel="import" href="/bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
-<link rel="import" href="/bower_components/paper-menu/paper-menu.html">
+<link rel="import" href="../../../bower_components/iron-form/iron-form.html">
+<link rel="import" href="../../../bower_components/paper-input/all-imports.html">
+<link rel="import" href="../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../../../bower_components/paper-menu/paper-menu.html">
 
 <dom-module id="challenge-template-modal">
 	<style>
@@ -27,10 +25,19 @@
 		}
 	</style>
 	<template>
-		<challenge-template-service id="challengeTemplateService"></challenge-template-service>
-		<endpoint-service id="endpointService" endpoints="{{endpoints}}"></endpoint-service>
+		<coduno-iron-ajax
+			id="saveChallengeTemplate"
+			method="POST"
+			body="{{challengeTemplateToSave}}"
+			response="{{savedChallengeTemplate}}"
+			error="{{error}}"
+			on-request-finished="_onResponse"
+			on-request-failed="_onError">
+		</coduno-iron-ajax>
+		<endpoints-provider data="{{endpoints}}"></endpoints-provider>
 
 		<paper-dialog id="dialog" modal>
+			<errors-display error="{{error}}"></errors-display>
 			<h2>These are the tasks you selected: </h2>
 			<template is="dom-repeat" items="{{selectedTasks}}" as="selectedTask">
 				<div><span>{{_computeIndex(index)}}</span> <span>{{selectedTask.Assignment.Name}}</span></div>
@@ -79,7 +86,6 @@
 			toggle: function () {
 				this._clearChallenge();
 				this._computeDefaultDuration();
-				this.$.endpointService.getEndpoints();
 				this.$.dialog.toggle();
 			},
 			_saveChallengeTemplate: function () {
@@ -93,8 +99,7 @@
 				this.challengeTemplateToSave.tasks = taskIds;
 				this.challengeTemplateToSave.duration = 60 * this.challengeTemplateDuration;
 				this.challengeTemplateToSave.endpointId = this.selectedEndpoint.value;
-				this.$.challengeTemplateService.save(this.challengeTemplateToSave);
-				this.fire('challenge-template-created');
+				this.$.saveChallengeTemplate.generateRequest();
 				this.$.dialog.close();
 			},
 			_clearChallenge: function(){
@@ -109,6 +114,12 @@
 			},
 			_computeIndex: function (index) {
 				return index + 1;
+			},
+			_onResponse: function(){
+				this.fire('challenge-template-created');
+			},
+			_onError: function(e){
+				util.error(err);
 			}
 		});
 	</script>

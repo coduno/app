@@ -1,5 +1,6 @@
-<link rel="import" href="/bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../../bower_components/iron-ajax/iron-ajax.html">
 
+<!--TODO: since we're ditching services let these be the last changes ever made here. Only removing allowed.-->
 <dom-module id="user-service">
 	<style>
 		:host {
@@ -12,40 +13,51 @@
 			method="POST"
 			handle-as="json"
 			content-type="application/json"
-			last-response="{{user}}"
 			with-credentials="true"
-			on-response="_onResponse"
-			on-error="_onSaveError">
+			on-response="_onPostResponse">
 		</iron-ajax>
 		<iron-ajax
 			id="getSingleUser"
 			method="GET"
 			handle-as="json"
+			on-error="onError"
 			content-type="application/json"
-			last-response="{{user}}"
 			with-credentials="true"
-			on-response="_onResponse"
-			on-error="_onError">
+			on-response="_onSingleResponse">
+		</iron-ajax>
+		<iron-ajax
+			id="socialConnections"
+			method="GET"
+			handle-as="json"
+			content-type="application/json"
+			last-response="{{connections}}"
+			with-credentials="true"
+			on-response="onResponse"
+			on-error="onError">
+		</iron-ajax>
+		<iron-ajax
+			id="deleteSocialConnection"
+			method="DELETE"
+			with-credentials="true"
+			on-response="_onDeleteSocialConnectionResponse"
+			on-error="onError">
 		</iron-ajax>
 		<iron-ajax
 			id="putUser"
 			method="PUT"
 			handle-as="json"
+			on-error="onError"
 			content-type="application/json"
-			last-response="{{user}}"
 			with-credentials="true"
-			on-response="_onResponse"
-			on-error="_onError">
+			on-response="_onSingleResponse">
 		</iron-ajax>
 		<iron-ajax
 			id="getMultiUsers"
 			method="GET"
 			handle-as="json"
 			content-type="application/json"
-			last-response="{{users}}"
 			with-credentials="true"
-			on-response="_onResponse"
-			on-error="_onError">
+			on-response="_onMultiResponse">
 		</iron-ajax>
 		<iron-ajax
 			id="inviteUser"
@@ -53,11 +65,9 @@
 			handle-as="json"
 			content-type="application/json"
 			with-credentials="true"
-			on-response="_userInvited"
-			on-error="_onError">
+			on-response="_userInvited">
 		</iron-ajax>
 	</template>
-	<script type="application/javascript" src="/scripts/behaviors/service-behavior.js"></script>
 	<script>
 		Polymer({
 			is: 'user-service',
@@ -69,6 +79,16 @@
 				},
 				users: {
 					type: Array,
+					notify: true,
+					reflectToAttribute: true
+				},
+				error: {
+					type: Object,
+					notify: true,
+					reflectToAttribute: true
+				},
+				connections: {
+					type: Object,
 					notify: true,
 					reflectToAttribute: true
 				}
@@ -109,21 +129,61 @@
 				this.$.inviteUser.body = user;
 				this.$.inviteUser.generateRequest();
 			},
+			getSocialConnections: function(){
+				this.app.startLoading();
+				this.$.socialConnections.url = util.build('/connect');
+				this.$.socialConnections.generateRequest();
+			},
+			deleteSocialConnection: function(provider){
+				this.app.startLoading();
+				this.$.deleteSocialConnection.url = util.build('/connect/' + provider);
+				this.$.deleteSocialConnection.generateRequest();
+			},
+			_onDeleteSocialConnectionResponse: function() {
+				this.getSocialConnections();
+				this.onResponse();
+			},
 			_userInvited: function(){
 				this.app.stopLoading();
 				this.fire('user-invited');
 			},
-			_onResponse: function(){
+			onResponse: function(){
 				this.app.stopLoading();
 				this.fire('response');
 			},
-			_onError: function(err){
+			_onSingleResponse: function(r){
+				this.error = null;
+				this.user = r.detail.response;
 				this.app.stopLoading();
-				util.error(err);
+			},
+			_onPostResponse: function(r){
+				this._onSingleResponse(r);
+				this.fire('user-saved');
+			},
+			_onMultiResponse: function(r){
+				this.error = null;
+				this.users = r.detail.response;
+				this.app.stopLoading();
 			},
 			_onSaveError: function(err){
 				this.app.stopLoading();
 				this.fire('error', err);
+			},
+			onError: function(e){
+				this.app.stopLoading();
+				this.error = {
+					'status': e.detail.request.xhr.status,
+					'error': e.detail.request.xhr.response
+				};
+				if (this.error.status === 500 || this.error.status === 404 || this.error.status === 403){
+					util.error(this.error);
+					return;
+				}
+				if (this.error.status === 401){
+					page('/login');
+				}
+				// Other statuses most likely indicate validation errors or bad inputs
+				// so we proxy them so each component can handle them accordingly.
 			}
 		});
 	</script>

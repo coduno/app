@@ -1,23 +1,158 @@
-<!-- Navbar elements -->
-<link rel="import" href="/bower_components/paper-header-panel/paper-header-panel.html">
-<link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
-<link rel="import" href="/bower_components/paper-menu/paper-menu.html">
-<link rel="import" href="/bower_components/paper-menu-button/paper-menu-button.html">
+<!-- Iron elements -->
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/iron-pages/iron-pages.html">
 
-<!-- General -->
-<link rel="import" href="/bower_components/iron-ajax/iron-ajax.html">
-<link rel="import" href="/bower_components/iron-icons/iron-icons.html">
-<link rel="import" href="/bower_components/iron-pages/iron-pages.html">
-<link rel="import" href="/bower_components/paper-toast/paper-toast.html">
+<!-- Paper elements -->
+<link rel="import" href="../bower_components/paper-header-panel/paper-header-panel.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/paper-menu/paper-menu.html">
+<link rel="import" href="../bower_components/paper-menu-button/paper-menu-button.html">
+<link rel="import" href="../bower_components/paper-toast/paper-toast.html">
 
-<!-- Error pages-->
-<link rel="import" href="common/error/error-page.html">
-
-<!-- Routing -->
+<!-- Custom elements -->
 <link rel="import" href="routing.html">
+<link rel="import" href="app-nav.html">
+<link rel="import" href="app-element.html">
 
-<link rel="import" href="/elements/common/coduno-iron-ajax.html">
-<link rel="import" href="/elements/common/services/challenge-template-service.html">
-<link rel="import" href="/elements/common/services/cookie-service.html">
-<link rel="import" href="/elements/app-nav.html">
-<!-- TODO(victorbalan): investigate what imports cause flickering -->
+<link rel="import" href="admin/admin-page.html">
+<link rel="import" href="admin/endpoints-table.html">
+<link rel="import" href="admin/import-catcoder-input.html">
+<link rel="import" href="admin/languages-table.html">
+<link rel="import" href="admin/runners-table.html">
+<link rel="import" href="admin/tasks-table.html">
+
+<link rel="import" href="coder/challenge/countdown-timer.html">
+<link rel="import" href="coder/challenge/sock-ws-element.html">
+<link rel="import" href="coder/challenge/ws-element.html">
+
+<link rel="import" href="coder/challenge/available/available-challenges-page.html">
+<link rel="import" href="coder/challenge/available/available-challenges-table.html">
+<link rel="import" href="coder/challenge/available/register-to-challenge-dialog.html">
+
+<link rel="import" href="coder/challenge/info/challenge-info-page.html">
+
+<link rel="import" href="coder/challenge/page/challenge-display.html">
+<link rel="import" href="coder/challenge/page/challenge-page.html">
+<link rel="import" href="coder/challenge/page/challenge-nav.html">
+<link rel="import" href="coder/challenge/page/time-until-challenge.html">
+<link rel="import" href="coder/challenge/page/endpoints/sequential-challenge.html">
+<link rel="import" href="coder/challenge/page/endpoints/ccc-challenge.html">
+
+<link rel="import" href="coder/challenge/register-wizard/challenge-info-step.html">
+<link rel="import" href="coder/challenge/register-wizard/challenge-register-step.html">
+<link rel="import" href="coder/challenge/register-wizard/challenge-register-wizard-nav.html">
+<link rel="import" href="coder/challenge/register-wizard/challenge-register-wizard.html">
+
+<link rel="import" href="coder/challenge/page/ccc/ccc-nav.html">
+<link rel="import" href="coder/challenge/page/ccc/nav-level-element.html">
+
+<link rel="import" href="coder/challenge/tasks/task-display.html">
+<link rel="import" href="coder/challenge/tasks/endpoints/ccc-drone-task.html">
+<link rel="import" href="coder/challenge/tasks/endpoints/base-components/simple-component.html">
+<link rel="import" href="coder/challenge/tasks/endpoints/base-components/tabbed-component.html">
+<link rel="import" href="coder/challenge/tasks/endpoints/base-components/top-bottom-component.html">
+<link rel="import" href="coder/challenge/tasks/endpoints/base-components/behaviors/base-task-behavior.html">
+<link rel="import" href="coder/challenge/tasks/endpoints/base-components/behaviors/challenge-leaderboard-behavior.html">
+<link rel="import" href="coder/challenge/tasks/endpoints/base-components/behaviors/code-editor-with-actions-behavior.html">
+<link rel="import" href="coder/challenge/tasks/endpoints/base-components/behaviors/input-view-behavior.html">
+<link rel="import" href="coder/challenge/tasks/endpoints/base-components/behaviors/tabbed-console-behavior.html">
+
+<link rel="import" href="coder/code-editor/code-editor.html">
+<link rel="import" href="coder/code-editor/code-editor-with-actions.html">
+<link rel="import" href="coder/code-editor/consoles/tabbed-console.html">
+<link rel="import" href="coder/code-editor/consoles/tabbed-console-element.html">
+<link rel="import" href="coder/code-editor/language-selector.html">
+<link rel="import" href="coder/input-view/input-view.html">
+<link rel="import" href="coder/input-view/input-view-element.html">
+
+<link rel="import" href="coder/profile/profile-page.html">
+<link rel="import" href="coder/team/create-team-modal.html">
+<link rel="import" href="coder/team/user-teams-table.html">
+<link rel="import" href="coder/team/user-team-invitations-table.html">
+<link rel="import" href="coder/team/profile/team-members-table.html">
+<link rel="import" href="coder/team/profile/team-profile-page.html">
+<link rel="import" href="coder/team/edit-team-modal.html">
+<link rel="import" href="coder/team/delete-team-modal.html">
+<link rel="import" href="coder/team/invite-to-team-modal.html">
+
+<link rel="import" href="common/coduno-iron-ajax.html">
+
+<link rel="import" href="common/error/error-page.html">
+<link rel="import" href="common/error/errors-display.html">
+
+<link rel="import" href="common/data-providers/challenge/challenges-provider.html"/>
+<link rel="import" href="common/data-providers/challenge/challenge-by-canonical-name-provider.html"/>
+<link rel="import" href="common/data-providers/challenge/user-status-for-challenge-provider.html"/>
+<link rel="import" href="common/data-providers/challenge/invitation/invitations-by-challenge-canonical-name-provider.html"/>
+<link rel="import" href="common/data-providers/challenge/location/locations-by-challenge-canonical-name-provider.html"/>
+<link rel="import" href="common/data-providers/challenge/participation/participants-by-challenge-canonical-name-provider.html"/>
+<link rel="import" href="common/data-providers/challenge/template/challenge-templates-for-active-organization-provider.html"/>
+<link rel="import" href="common/data-providers/challenge/template/challenge-template-by-challenge-canonical-name-provider.html"/>
+<link rel="import" href="common/data-providers/challenge/template/challenge-template-by-id-provider.html"/>
+<link rel="import" href="common/data-providers/endpoint/endpoints-provider.html">
+<link rel="import" href="common/data-providers/language/languages-provider.html">
+<link rel="import" href="common/data-providers/runner/runners-provider.html">
+<link rel="import" href="common/data-providers/user/user-by-username-provider.html">
+<link rel="import" href="common/data-providers/task/task-by-id-provider.html">
+<link rel="import" href="common/data-providers/task/tasks-for-active-organization-provider.html">
+<link rel="import" href="common/data-providers/task/tasks-for-challenge-template-provider.html">
+<link rel="import" href="common/data-providers/task/tasks-provider.html">
+<link rel="import" href="common/data-providers/team/my-teams-provider.html">
+<link rel="import" href="common/data-providers/team/team-by-canonical-name-provider.html">
+<link rel="import" href="common/data-providers/team/teams-for-user-provider.html">
+<link rel="import" href="common/data-providers/team/invitation/my-team-invitations-provider.html">
+<link rel="import" href="common/data-providers/test/tests-by-task-provider.html">
+
+<link rel="import" href="common/datepicker/date-time-picker.html">
+
+<link rel="import" href="common/description-list/description-list.html">
+<link rel="import" href="common/description-list/description-list-item.html">
+
+<link rel="import" href="common/leaderboard/challenge-leaderboard.html">
+
+<link rel="import" href="common/login/login-wizard/login-wizard.html">
+<link rel="import" href="common/login/login-page-email/login-page-email.html">
+<link rel="import" href="common/login/login-page-password/login-page-password.html">
+<link rel="import" href="common/login/login-page-u2f/login-page-u2f.html">
+
+<link rel="import" href="common/markdown/render-markdown.html">
+
+<link rel="import" href="common/register/register-page.html">
+
+<link rel="import" href="common/services/cookie-service.html">
+<link rel="import" href="common/services/invitation-service.html">
+<link rel="import" href="common/services/result-service.html">
+<link rel="import" href="common/services/user-service.html">
+<link rel="import" href="common/services/user-submission-service.html">
+<link rel="import" href="common/services/task-service.html">
+<link rel="import" href="common/services/template-service.html">
+
+<link rel="import" href="common/settings/change-password-dialog.html">
+<link rel="import" href="common/settings/match-password-validator.html">
+<link rel="import" href="common/settings/settings-page.html">
+
+<link rel="import" href="common/skill/skill-polygon.html">
+
+<link rel="import" href="common/wizard/base-wizard.html">
+
+<link rel="import" href="company/candidate/invite/invite-candidate-input.html">
+<link rel="import" href="company/candidate/invite/invite-candidates.html">
+
+<link rel="import" href="company/challenge/challenge-create.html">
+<link rel="import" href="company/challenge/challenge-detail.html">
+<link rel="import" href="company/challenge/challenge-list.html">
+<link rel="import" href="company/challenge/invited-users-table.html">
+<link rel="import" href="company/challenge/participants-table.html">
+
+<link rel="import" href="company/challenge-template/challenge-template-card.html">
+<link rel="import" href="company/challenge-template/challenge-template-detail.html">
+<link rel="import" href="company/challenge-template/challenge-template-list.html">
+<link rel="import" href="company/challenge-template/challenge-template-modal.html">
+
+<link rel="import" href="company/task/task-card.html">
+<link rel="import" href="company/task/task-detail.html">
+<link rel="import" href="company/task/task-form.html">
+<link rel="import" href="company/task/task-list.html">
+<link rel="import" href="company/task/tasks-table.html">

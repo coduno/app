@@ -1,10 +1,6 @@
-<link rel="import" href="/elements/common/skill/skill-polygon.html">
-<link rel="import" href="/elements/common/markdown/render-markdown.html">
-<link rel="import" href="/elements/common/services/task-service.html">
-
-<link rel="import" href="/bower_components/paper-material/paper-material.html">
-<link rel="import" href="/bower_components/iron-ajax/iron-ajax.html">
-<link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../../../bower_components/paper-material/paper-material.html">
+<link rel="import" href="../../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 
 <dom-module id="task-detail">
 	<style include="iron-flex">
@@ -25,8 +21,8 @@
 			@apply(--layout-horizontal);
 		}
 	</style>
-
 	<template>
+		<task-by-id-provider task-id="[[taskId]]" data="{{task}}"></task-by-id-provider>
 		<div id="wrapper" class="mainContent">
 			<div id="description">
 				<paper-material class="card grid-element" elevation="1">
@@ -47,9 +43,8 @@
 				<render-markdown markdown="{{task.instructions}}"></render-markdown>
 			</paper-material>
 		</div>
-		<task-service id="taskService" task="{{task}}"></task-service>
 	</template>
-	<script src="/scripts/util.js"></script>
+	<script src="../../../scripts/util.js"></script>
 	<script>
 		Polymer({
 			is: 'task-detail',
@@ -62,9 +57,6 @@
 					type: String,
 					computed: '_computeDuration(task)'
 				}
-			},
-			getTask: function(id){
-				this.$.taskService.getById(id);
 			},
 			_computeDuration: function (task) {
 				return util.computeDuration(task.duration);

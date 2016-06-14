@@ -1,11 +1,6 @@
-<link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout-classes.html">
-<link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
-<link rel="import" href="/bower_components/iron-icons/iron-icons.html">
-
-<link rel="import" href="endpoints-table.html">
-<link rel="import" href="runners-table.html">
-<link rel="import" href="tasks-table.html">
-<link rel="import" href="languages-table.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
 
 <dom-module id="admin-page">
 	<style import="iron-flex">
@@ -64,7 +59,7 @@
 					<span></span>
 					<paper-icon-button icon="add"></paper-icon-button>
 				</div>
-				<tasks-table id="tasksTable"></tasks-table>
+				<admin-tasks-table id="tasksTable"></admin-tasks-table>
 			</paper-material>
 			<div class="layout-horizontal">
 				<paper-material elevation="1" class="layout-flex left">
@@ -92,6 +87,12 @@
 					<languages-table id="languagesTable"></languages-table>
 				</paper-material>
 			</div>
+			<paper-material elevation="1" class="item">
+				<div class="card-header">
+					<h3>Import catcoder game</h3>
+				</div>
+				<import-catcoder-input></import-catcoder-input>
+			</paper-material>
 		</div>
 	</template>
 	<script>

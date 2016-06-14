@@ -1,18 +1,12 @@
-<link rel="import" href="/bower_components/vaadin-grid/vaadin-grid.html">
-<link rel="import" href="/bower_components/iron-icons/iron-icons.html">
-<link rel="import" href="/bower_components/iron-icons/social-icons.html">
-<link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
-<link rel="import" href="/bower_components/paper-button/paper-button.html">
-<link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="../../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../../bower_components/iron-icons/social-icons.html">
+<link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 
-<link rel="import" href="/bower_components/paper-tabs/paper-tabs.html">
-<link rel="import" href="/bower_components/paper-tabs/paper-tab.html">
-
-<link rel="import" href="/elements/common/data-providers/user/user-by-username-provider.html">
-<link rel="import" href="/elements/common/skill/skill-polygon.html">
-<link rel="import" href="/elements/coder/team/create-team-modal.html">
-<link rel="import" href="/elements/coder/team/user-teams-table.html">
-<link rel="import" href="/elements/coder/team/user-team-invitations-table.html">
+<link rel="import" href="../../../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../../../bower_components/paper-tabs/paper-tab.html">
 
 <dom-module id="profile-page">
 	<style include="iron-flex iron-flex-reverse">
@@ -88,7 +82,7 @@
 		}
 	</style>
 	<template>
-		<user-by-username-provider username="[[username]]" data="{{user}}" with-mocked-skills></user-by-username-provider>
+		<user-by-username-provider show-progress username="[[username]]" data="{{user}}" with-mocked-skills></user-by-username-provider>
 
 		<paper-material id="top" class="mainContent" elevation="1">
 			<div id="userInfo">
@@ -115,7 +109,7 @@
 					</template>
 				</div>
 				<template is="dom-if" if="[[showUserTeams]]">
-					<user-teams-table id="teamsGrid" user="[[user]]" is-current-user="[[isCurrentUser]]"></user-teams-table>
+					<user-teams-table id="teamsGrid" show-progress="true" user="[[user]]" is-current-user="[[isCurrentUser]]"></user-teams-table>
 					<div id="teamsButtons">
 						<paper-button icon="add" on-click="createTeam">New team</paper-button>
 					</div>
@@ -152,7 +146,7 @@
 				return isCurrentUser && selectedTab === 1;
 			},
 			createTeam: function(){
-				this.$.createTeamDialog.toggle();
+				this.$.createTeamDialog.open();
 			},
 			_refreshTeams: function(){
 				this.$$('#teamsGrid').refresh();

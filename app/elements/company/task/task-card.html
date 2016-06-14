@@ -1,9 +1,8 @@
-<link rel="import" href="/bower_components/iron-icon/iron-icon.html">
-<link rel="import" href="/bower_components/iron-icons/iron-icons.html">
-<link rel="import" href="/bower_components/paper-fab/paper-fab.html">
-<link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
-<link rel="import" href="/bower_components/paper-material/paper-material.html">
-<link rel="import" href="/elements/common/skill/skill-list.html">
+<link rel="import" href="../../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../../bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../bower_components/paper-material/paper-material.html">
 
 <dom-module id="task-card">
 	<style>
@@ -46,12 +45,8 @@
 		}
 	</style>
 	<template>
-		<task-service id="taskService" task="{{task}}"></task-service>
-		<paper-material
-			id="task"
-			animated
-			elevation="{{elevation}}"
-			class="card">
+		<task-by-id-provider task-id="[[taskId]]" data="{{task}}"></task-by-id-provider>
+		<paper-material id="task" animated elevation="{{elevation}}" class="card">
 			<template is="dom-if" if="{{showSelect}}">
 				<paper-icon-button id="taskSelector" class="task-selector"
 				icon="{{selectorIcon}}" on-click="_toggleSelectTask" style$="{{addButtonStyle}}"></paper-icon-button>
@@ -67,7 +62,7 @@
 			</div>
 		</paper-material>
 	</template>
-	<script type="application/javascript" src="/scripts/behaviors/card-behavior.js"></script>
+	<script type="application/javascript" src="../../../scripts/behaviors/card-behavior.js"></script>
 	<script>
 		Polymer({
 			is: 'task-card',
@@ -117,12 +112,6 @@
 					reflectToAttribute: true,
 					observer: '_taskIdChanged'
 				}
-			},
-			_taskIdChanged: function(){
-				var self = this;
-				Polymer.Base.importHref('/elements/common/services/task-service.html', function(){
-					self.$.taskService.getById(self.taskId);
-				});
 			},
 			_onHovered: function () {
 				this.showSelect = !this.noSelect && true;

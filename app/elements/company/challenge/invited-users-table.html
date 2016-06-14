@@ -1,0 +1,69 @@
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+
+<dom-module id="invited-users-table">
+	<style include="iron-flex">
+		:host {
+			display: block;
+			height: 100%;
+		}
+		paper-icon-button {
+			@apply(--layout-self-center);
+		}
+	</style>
+	<template>
+		<invitations-by-challenge-canonical-name-provider canonical-name="[[challenge]]" data="{{invitations}}"></invitations-by-challenge-canonical-name-provider>
+		<vaadin-grid id="invitationsGrid" class="fullHeight" items="[[challenges]]" on-selected-items-changed="_selectedItemsChanged">
+			<table>
+				<thead>
+					<tr>
+						<th>Username</th>
+						<th>Email</th>
+						<th>Token</th>
+						<th>Started</th>
+						<th>Expire</th>
+					</tr>
+				</thead>
+				<colgroup>
+					<col name="username"/>
+					<col name="token"/>
+					<col name="email"/>
+					<col name="started"/>
+					<col name="expire"/>
+				</colgroup>
+			</table>
+		</vaadin-grid>
+	</template>
+	<script>
+		Polymer({
+			is: 'invited-users-table',
+			properties: {
+				isAdmin: {
+					value: true
+				}
+			},
+			observers: [
+				'_dataChanged(invitations)'
+			],
+			_selectedItemsChanged: function(){
+				var selected = this.$.invitationsGrid.selection.selected();
+				if(!this.clickedOnOption && !!selected && selected.length > 0){
+					var invitation = this.invitations[selected[0]];
+					page('/u/' + invitation.username);
+				}
+			},
+			_dataChanged: function(){
+				var element = this;
+				this.$.invitationsGrid.columns[3].renderer = element._formatDate;
+				this.$.invitationsGrid.columns[4].renderer = element._formatDate;
+				this.$.invitationsGrid.refreshItems();
+			},
+			_formatDate: function(cell){
+				if(!cell.data){
+					return '';
+				}
+				cell.element.innerHTML = util.formatDate(cell.data);
+			}
+		});
+	</script>
+</dom-module>

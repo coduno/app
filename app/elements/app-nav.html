@@ -1,10 +1,10 @@
-<link rel="import" href="/bower_components/paper-toolbar/paper-toolbar.html">
-<link rel="import" href="/bower_components/paper-tabs/paper-tabs.html">
-<link rel="import" href="/bower_components/paper-tabs/paper-tab.html">
-<link rel="import" href="/bower_components/paper-progress/paper-progress.html">
-<link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout-classes.html">
-<link rel="import" href="/bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
-<link rel="import" href="/bower_components/paper-menu/paper-menu.html">
+<link rel="import" href="../bower_components/paper-toolbar/paper-toolbar.html">
+<link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../bower_components/paper-tabs/paper-tab.html">
+<link rel="import" href="../bower_components/paper-progress/paper-progress.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../bower_components/paper-menu/paper-menu.html">
 
 <dom-module id="app-nav">
 	<template>
@@ -32,7 +32,7 @@
 		<template is="dom-if" if="{{isLoggedIn}}">
 			<paper-material elevation="1">
 			<paper-toolbar class="higher">
-				<iron-icon src="/images/logo.svg" class="big"></iron-icon>
+				<a href="https://cod.uno/" target="_blank"><iron-icon src="/images/logo.svg" class="big"></iron-icon></a>
 				<div class="flex">
 					<paper-tabs id="bottomTabs" class="bottom indent" selected="{{selected}}" noink no-slide>
 						<span></span>
@@ -114,8 +114,7 @@
 					value: false
 				},
 				lastOrganization: {
-					type: Object,
-					value: 'not-defined'
+					type: Object
 				}
 			},
 			startLoading: function(){
@@ -154,7 +153,7 @@
 				}
 				this._setLoginAsMenuSelectedIndex(index);
 				this.refresh();
-				if(this.lastOrganization !== 'not-defined' && this.lastOrganization !== this.user.activeOrganization){
+				if(this.lastOrganization !== undefined && this.lastOrganization !== this.user.activeOrganization){
 					page('/');
 				}
 				this.lastOrganization = this.user.activeOrganization;

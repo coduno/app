@@ -1,23 +1,23 @@
 <dom-module id="description-list-item">
+	<style>
+		.list-item {
+			margin: 5px 0;
+			width: 100%;
+			@apply(--layout-horizontal);
+		}
+
+		.list-item > .item-label{
+			width: 20%;
+			min-width:200px;
+			font-weight: bold;
+		}
+
+		.list-item > .item-value{
+			width: 90%;
+			min-width: 200px;
+		}
+	</style>
 	<template>
-		<style is="custom-style">
-			.list-item {
-				margin: 5px 0;
-				width: 100%;
-				@apply(--layout-horizontal);
-			}
-
-			.list-item > .item-label{
-				width: 20%;
-				min-width:200px;
-				font-weight: bold;
-			}
-
-			.list-item > .item-value{
-				width: 90%;
-				min-width: 200px;
-			}
-		</style>
 		<template is="dom-if" if="{{showMe}}">
 			<div class="list-item">
 				<div class="item-label">{{label}}</div>

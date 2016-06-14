@@ -62,24 +62,22 @@ Behaviors.ChallengeBehavior = {
 		if(!task){
 			return;
 		}
-		this.importHref('/elements/coder/challenge/tasks/endpoints/' + task.endpoint.component + '.html', function(){
-			var webInterface = document.createElement(this.task.endpoint.component);
-			webInterface.task = task;
-			webInterface.challengeId = this.challenge.id;
+		var webInterface = document.createElement(this.task.endpoint.component);
+		webInterface.task = task;
+		webInterface.challengeId = this.challenge.id;
 
-			var element = this;
-			webInterface.addEventListener('task-finished', function(){
-				var msg = 'Are you sure you want to finish this task? You will not able to come back again and change it.';
-				if (!window.confirm(msg)) {
-					return;
-				}
-				// element.$.taskService.finishTask();
-				element._nextTask();
-			});
-
-			this._replaceContent(webInterface);
-			element._showContent();
+		var element = this;
+		webInterface.addEventListener('task-finished', function(){
+			var msg = 'Are you sure you want to finish this task? You will not able to come back again and change it.';
+			if (!window.confirm(msg)) {
+				return;
+			}
+			// element.$.taskService.finishTask();
+			element._nextTask();
 		});
+
+		this._replaceContent(webInterface);
+		this._showContent();
     this.elementTaskChanged();
 	},
 	_nextTask: function(){
