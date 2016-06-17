@@ -31,9 +31,15 @@ paper-button {
 	padding-top: 24px;
 }
 
+#forgotPasswordWrapper {
+	@apply(--layout-horizontal);
+	padding-top: 24px;
+}
+
 span {
 	@apply(--layout-flex);
 }
+
 paper-input {
 	text-align: center;
 }
@@ -50,6 +56,11 @@ paper-input {
 			<div id="signupWrapper">
 				<span></span>
 				<a on-click="_register">Need an account? Sign up here.</a>
+				<span></span>
+			</div>
+			<div id="forgotPasswordWrapper">
+				<span></span>
+				<a on-click="_forgotPassword">Forgot your password? Request a new one!</a>
 				<span></span>
 			</div>
 		</base-wizard>
@@ -87,6 +98,9 @@ Polymer({
 			return;
 		}
 		page('/register');
+	},
+	_forgotPassword: function(){
+		page('/user/password/reset');
 	},
 	next: function() {
 		if (this.email === '') {
