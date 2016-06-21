@@ -33,8 +33,8 @@
 	</style>
 	<template>
 		<challenge-by-canonical-name-provider canonical-name="[[canonicalName]]" data="{{challenge}}"></challenge-by-canonical-name-provider>
-		<user-status-for-challenge-provider canonical-name="[[canonicalName]]" data="{{status}}"></user-status-for-challenge-provider>
-		<register-to-challenge-dialog id="registerToChallengeDialog" on-challenge-registered="refresh"></register-to-challenge-dialog>
+		<user-status-for-challenge-provider auto="true" canonical-name="[[canonicalName]]" data="{{status}}"></user-status-for-challenge-provider>
+
 		<paper-material id="wrapper" elevation="1" class="mainContent">
 			<h1>{{challenge.name}}</h1>
 			<div id="infoIcons" class="horizontal-layout">
@@ -146,7 +146,7 @@
 			_onAction: function(){
 				switch(this.status.status){
 					case 'OPEN':
-						this.$.registerToChallengeDialog.toggle(this.challenge);
+						page('/contest/' + this.challenge.canonicalName + '/register')
 						break;
 					case 'INVITED':
 						break;

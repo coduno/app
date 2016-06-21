@@ -191,12 +191,10 @@ window.addEventListener('WebComponentsReady', function() {
 
 	page('/contest/:canonicalName/register', base(
 		function(ctx) {
-			page('/contest/' + ctx.params.canonicalName + '/info');
+			app.swapContent(new ChallengeRegisterWizard(ctx.params.canonicalName, app.user));
 		},
-		function(ctx) {
-			var wizard = document.createElement('challenge-register-wizard');
-			wizard.canonicalName = ctx.params.canonicalName;
-			app.swapContent(wizard);
+		function(ctx){
+			app.swapContent(new ChallengeRegisterWizard(ctx.params.canonicalName));
 		})
 	);
 
@@ -209,6 +207,10 @@ window.addEventListener('WebComponentsReady', function() {
 
 	page('/contest/:canonicalName/info', base(function(ctx) {
 			var page = document.createElement('challenge-info-page');
+			page.canonicalName = ctx.params.canonicalName;
+			app.swapContent(page);
+		}, function(ctx){
+			var page = document.createElement('guest-challenge-info-page');
 			page.canonicalName = ctx.params.canonicalName;
 			app.swapContent(page);
 		})

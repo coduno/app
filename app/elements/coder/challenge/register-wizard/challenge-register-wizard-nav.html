@@ -37,33 +37,6 @@
 	<script>
 		Polymer({
 			is: 'challenge-register-wizard-nav',
-			behaviors: [
-				Polymer.NeonAnimationRunnerBehavior
-			],
-			listeners: {
-				'neon-animation-finish': '_afterNeon'
-			},
-			observers: [
-				'_showNavChanged(showNav)'
-			],
-			ready: function() {
-				this.$.steps.style.display = 'none';
-				this.entryAnimation = 'slide-from-right-animation';
-				this.exitAnimation = 'slide-right-animation';
-			},
-			_showNavChanged: function(showNav){
-				if(showNav){
-					this.$.steps.style.display = '';
-					this.playAnimation('entry');
-				}else{
-					this.playAnimation('exit');
-				}
-			},
-			_afterNeon: function(){
-				if(!this.showNav){
-					this.$.steps.style.display = 'none';
-				}
-			},
 		});
 	</script>
 </dom-module>

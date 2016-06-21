@@ -39,18 +39,14 @@
 		#stepElements {
 			@apply(--layout-horizontal);
 		}
-		challenge-info-step {
-			position: fixed;
-			margin: 16px 0px;
-			height: calc(100% - 82px);
-		}
 	</style>
 	<template>
 		<challenge-by-canonical-name-provider canonical-name="[[canonicalName]]" data="{{challenge}}"></challenge-by-canonical-name-provider>
-		<challenge-register-wizard-nav show-nav="[[showNav]]" first-step-state="[[firstStepState]]"
+		<user-status-for-challenge-provider canonical-name="[[challenge.canonicalName]]" data="{{status}}"></user-status-for-challenge-provider>
+
+		<challenge-register-wizard-nav first-step-state="[[firstStepState]]"
 		second-step-state="[[secondStepState]]" third-step-state="[[thirdStepState]]"></challenge-register-wizard-nav>
 		<neon-animated-pages id="pages" class="flex" selected="[[selected]]" entry-animation="[[entryAnimation]]" exit-animation="[[exitAnimation]]">
-			<challenge-info-step challenge="[[challenge]]"></challenge-info-step>
 			<register-page context="[[context]]" on-redirect-login="_login" on-social-register="onSocialRegister"></register-page>
 			<login-wizard context="[[context]]" on-redirect-register="_register"></login-wizard>
 			<challenge-location-step user="[[user]]" challenge="[[challenge]]" location="{{location}}"></challenge-location-step>
@@ -59,16 +55,19 @@
 	</template>
 	<script type="application/javascript" src="../../../../scripts/behaviors/app-connection-behavior.js"></script>
 	<script>
-		var pageInfo = 0, pageUserRegister = 1, pageLogin = 2, pageChallengeLocation = 3, pageChallengeRegister = 4;
-		Polymer({
+		var pageUserRegister = 0, pageLogin = 1, pageChallengeLocation = 2, pageChallengeRegister = 3;
+		ChallengeRegisterWizard = Polymer({
 			is: 'challenge-register-wizard',
 			behaviors: [
 				Behaviors.AppConnection
 			],
 			properties: {
+				challenge: {
+					notify: true,
+					value: {}
+				},
 				selected: {
 					type: Number,
-					value: 0,
 					observer: 'updateNavElements'
 				},
 				context: {
@@ -82,12 +81,34 @@
 				'next-step': 'next',
 				'prev-step': 'prev'
 			},
+			observers: [
+				'_statusLoaded(status)'
+			],
+			_statusLoaded: function(status){
+				if (!status || status.status !== 'OPEN'){
+					page('/contest/' + this.challenge.canonicalName + '/info')
+					return;
+				}
+			},
+			factoryImpl: function(canonicalName, user){
+				this.canonicalName = canonicalName;
+				this.set('challenge.canonicalName', canonicalName);
+				if(user){
+					this.$$('user-status-for-challenge-provider').refresh();
+					this.user = user;
+					this.$$('challenge-location-step').refresh();
+					this.selected = pageChallengeLocation;
+					return;
+				}
+				this.selected = 0;
+			},
 			ready: function(){
 				this.entryAnimation = 'slide-from-right-animation';
 				this.exitAnimation = 'slide-left-animation';
 			},
 			prev: function() {
-				if(this.selected === pageInfo){
+				if(this.selected === pageUserRegister){
+					page('/contest/' + this.canonicalName + '/info');
 					return;
 				}
 				this.entryAnimation = 'slide-from-left-animation';
@@ -95,22 +116,18 @@
 				this.selected --;
 			},
 			next: function(e, d) {
-				if (this.selected === pageUserRegister) {
+				if (this.selected === pageLogin || this.selected === pageUserRegister){
+					this.$$('user-status-for-challenge-provider').refresh();
 					this.$$('challenge-location-step').refresh();
 					this.selected = pageChallengeLocation;
-					this.user = d;
+					if(!this.user || !!d){
+						this._mainApp.setUser(d);
+						this.user = d;
+					}
 					return;
 				}
-				if (this.selected === pageChallengeLocation) {
+				if(this.selected === pageChallengeLocation){
 					this.$$('challenge-register-step').refresh();
-					this.selected = pageChallengeRegister;
-					this.user = d;
-					return;
-				}
-				if(this.selected === pageLogin){
-					this._mainApp.setUser(d);
-					page('/contest/' + this.challenge.canonicalName + '/info');
-					return;
 				}
 				this.selected++;
 			},
@@ -129,11 +146,6 @@
 				this.selected = pageUserRegister;
 			},
 			updateNavElements: function(){
-				if(this.selected === 0){
-					this.showNav = false;
-					return
-				}
-				this.showNav = true;
 				if(this.selected === pageUserRegister || this.selected === pageLogin){
 					this.firstStepState = 'current';
 					this.secondStepState = 'default';

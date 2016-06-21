@@ -18,6 +18,12 @@
 	<script>
 		Polymer({
 			is: 'user-status-for-challenge-provider',
+			properties: {
+				auto: {
+					reflectToAttribute: true,
+					value: false
+				}
+			},
 			behaviors: [
 				Behaviors.Providers.General
 			],
@@ -25,6 +31,9 @@
 				'_urlChanged(baseUrl, canonicalName)'
 			],
 			_urlChanged: function(){
+				if(!this.auto){
+					return;
+				}
 				this.refresh();
 			},
 			refresh: function(){
