@@ -26,6 +26,7 @@
 				Behaviors.ServiceBehavior
 			],
 			getTemplates: function(taskId, language) {
+				this.language = language;
 				this.$.getList.url = util.build('/tasks/' + taskId + '/templates/' + language);
 				this.$.getList.generateRequest();
 			},
@@ -55,17 +56,9 @@
 					console.log('Got malformed Content-Disposition "' + contentDisposition + '"');
 					return;
 				}
-				var pathStart = e.detail.url.indexOf('/root');
-				if (pathStart === -1) {
-					return;
-				}
-				var completePath = e.detail.url.substring(
-					pathStart,
-					e.detail.url.indexOf(match[1]) + match[1].length
-				);
 
 				this.fire('template-fetched', {
-					path:    completePath,
+					path:    '/' + match[1],
 					content: e.detail.response
 				});
 			}

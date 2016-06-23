@@ -1,0 +1,79 @@
+<link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../../../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../../../bower_components/paper-button/paper-button.html">
+
+<dom-module id="file-explorer-file">
+	<template>
+		<style include="iron-flex">
+			:host {
+				display: block;
+			}
+			.child {
+				padding-left: 20px;
+			}
+		</style>
+		<file-exporer-item name="[[name]]" file="[[file]]" path="[[path]]"></file-exporer-item>
+		<template id="repeat" is="dom-repeat" items="{{children(file)}}">
+			<file-explorer-file name="{{item.key}}" file="{{item.value}}" path="[[childPath]]" class="child"></file-explorer-file>
+		</template>
+	</template>
+	<script>
+		Polymer({
+			is: 'file-explorer-file',
+			properties: {
+				file: {
+					type: Object,
+					reflectToAttribute: true,
+					notify: true,
+					observer: 'fileChanged'
+				},
+				name: {
+					type: String,
+					reflectToAttribute: true,
+					notify: true
+				},
+				path: {
+					type: String,
+					reflectToAttribute: true,
+					notify: true
+				},
+				childPath: {
+					type: String,
+					computed: 'computeChildPath(path, name)'
+				}
+			},
+			computeChildPath: function(path, name) {
+				return path + '/' + name;
+			},
+			/**
+			 * Checks whether passed file is a directory.
+			 * A file is defined to be a directory if it's
+			 * value property is an object (used to refer
+			 * to child files).
+			 */
+			isDirectory: function(file) {
+				return (typeof file) === 'object';
+			},
+			fileChanged: function(file) {
+				this.$.repeat.render();
+			},
+			/**
+			 * Given a file, returns an array of files
+			 * representing the child files of it.
+			 * If the file passed as argument is not a
+			 * directory, then an empry array is returned.
+			 */
+			children: function(file) {
+				if (!file || !this.isDirectory(file)) {
+					return [];
+				}
+				return Object.keys(file).sort().map(function(k) {
+					return {
+						key: k,
+						value: file[k]
+					};
+				});
+			}
+		});
+	</script>
+</dom-module>

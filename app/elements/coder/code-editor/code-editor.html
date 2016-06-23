@@ -82,10 +82,10 @@
 				var that = this;
 				this.$.editor.getSession().on('change', function() {
 					var content = that.$.editor.getValue();
-					if(!that.selectedFile){
-						return console.log('no selected file')
+					if (!that.selectedFile) {
+						return console.log('no selected file');
 					}
-					that.$$('file-explorer').update(that.selectedFile.path, that.selectedFile.item.name, content);
+					that.$$('file-explorer').update(that.selectedFile.path, that.selectedFile.name, content);
 				});
 				this.$.editor.commands.addCommand({
 					name: 'run',
@@ -117,7 +117,7 @@
 					this.selectedFile.unselectFile();
 				}
 				this.selectedFile = detail;
-				this.setValue(this.$$('file-explorer').get(this.selectedFile.path, this.selectedFile.item.name));
+				this.setValue(this.$$('file-explorer').getFile(this.selectedFile.childPath));
 				this.enableEditor();
 			},
 			_toggle: function() {
@@ -158,6 +158,13 @@
 				}
 			},
 			_setMode: function(lang) {
+				var editor = this.$.editor;
+
+				if (!editor.getSession) {
+					console.log('Attempted to set language when editor not present.');
+					return;
+				}
+
 				var languageModeMap = {
 					'c':      'c_cpp',
 					'cpp':    'c_cpp',
@@ -170,7 +177,8 @@
 					'groovy': 'groovy',
 					'php':    'php'
 				};
-				this.$.editor.getSession().setMode('ace/mode/' + (languageModeMap[lang] || 'text'));
+
+				editor.getSession().setMode('ace/mode/' + (languageModeMap[lang] || 'text'));
 			},
 			_showMenu: function(event, data) {
 				this.$.contextMenu.showMenu(data);

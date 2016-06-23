@@ -8,13 +8,10 @@
 				display: block;
 				height: 100%;
 			}
-			#content {
-				padding-left: 20px;
-			}
 		</style>
-
-		<file-exporer-item item="[[rootItem]]" path="/"></file-exporer-item>
-		<file-explorer-node id="content" node="{{tree}}" path="/"></file-explorer-node>
+		<template id="repeat" is="dom-repeat" items="{{children(tree)}}">
+			<file-explorer-file name="{{item.key}}" file="{{item.value}}" path=""></file-explorer-file>
+		</template>
 		<paper-toast id="toast"></paper-toast>
 	</template>
 	<script>
@@ -36,7 +33,7 @@
 						bad: ['.', '..']
 					}
 				},
-				cachedPath:{
+				cachedPath: {
 					value: ''
 				}
 			},
@@ -45,151 +42,165 @@
 				'delete': 'onDelete',
 				'add-file': 'onAddFile',
 				'add-folder': 'onAddFolder',
-				'file-selected': '_fileSelected'
+				'file-selected': '_fileSelected',
+				'contextmenu': 'showContextMenu'
 			},
-			ready: function(){
-				this.rootItem = {name: '/', value: {}}
-				if(!!localStorage.cachedCode){
+			ready: function() {
+				if (!!localStorage.cachedCode) {
 					this.tree = JSON.parse(localStorage.cachedCode);
 					return;
 				}
 				this.tree = {};
 			},
-			clear: function(){
+			clear: function() {
+				// FIXME(flowlo): Why are we setting this to undefined and then to tree?
 				this.tree = undefined;
 				this.tree = {};
+				this.$.repeat.render();
 			},
-			_fileSelected: function(e, detail){
-				if(detail.item.name.indexOf('.') !== -1){
-					this.language = detail.item.name.substring(detail.item.name.lastIndexOf('.') + 1, detail.item.name.length);
-				}
+			_fileSelected: function(e, detail) {
+				this.setLanguageByExtension(detail.name);
 			},
-			get: function(path, name){
-				var node = this.getNodeForPath(this.tree, path + name)
-				return node;
-			},
-			update: function(path, name, content){
-				var tree = this.tree;
-				var node = this.getNodeForPath(tree, path);
-				if(!node){
-					return;
-				}
-				node[name] = content;
-				this.tree = tree;
+			update: function(path, name, content) {
+				this.insertFile(path + '/' + name, content);
 				localStorage.cachedCode = JSON.stringify(this.tree);
 			},
-			onAddFile: function(e){
-				this.addFile(e.detail.path, '');
+			onAddFile: function(e) {
+				this.insertFile(e.detail.path, '');
+				this.refreshTree();
 			},
-			onAddFolder: function(e){
-				var tree = this.tree;
-				if(!this.addItem(tree, e.detail.path, {})){
-					return;
-				}
-				this.refreshTree(tree);
+			onAddFolder: function(e) {
+				this.insertFile(e.detail.path, {});
+				this.refreshTree();
 			},
-			onDelete: function(e){
-				var data = e.detail;
-				var tree = this.tree;
-
-				var toRemove = this.getNodeForPath(tree, data.path);
-				delete toRemove[data.name];
-
-				this.refreshTree(tree);
+			onDelete: function(e) {
+				this.deleteFile(e.detail.path);
+				this.refreshTree();
 			},
-			onRename: function(e){
-				var data = e.detail;
-				var tree = this.tree;
-
-				var toRemove = this.getNodeForPath(tree, data.path);
-				if(!this.addItem(tree, data.to, toRemove[data.name])){
-					return;
-				}
-				delete toRemove[data.name];
-
-				this.refreshTree(tree);
+			onRename: function(e) {
+				var copy = this.getFile(e.detail.from);
+				this.deleteFile(e.detail.from);
+				this.insertFile(e.detail.to, copy);
+				this.refreshTree(this.tree);
 			},
 			addFile: function(path, content) {
 				var tree = this.tree;
-				if(!this.addItem(tree, path, content)){
+				if (!this.addItem(tree, path, content)) {
 					return;
 				}
-				if(path.indexOf('.') !== -1){
-					this.language = path.substring(path.lastIndexOf('.') + 1, path.length);
-				}
+
+				this.setLanguageByExtension(path);
 				this.refreshTree(tree);
 			},
-			addItem: function(tree, path, item){
+			setLanguageByExtension: function(path) {
+				var i = path.lastIndexOf('.');
+				if (i < 0) {
+					return;
+				}
+				this.language = path.substring(i + 1);
+			},
+			addItem: function(tree, path, item) {
 				var splitValue = path.split('/');
 				var itemName = splitValue[splitValue.length - 1];
-				if(!this.names.good.test(itemName)){
+				if (!this.names.good.test(itemName)) {
 					this.showToast('Name is not valid.');
 					return false;
 				}
-				if(itemName === ''){
+				if (itemName === '') {
 					this.showToast('Name cannot be empty.');
 					return false;
 				}
 				var path = this.splitPath(path);
 
-
 				var node = this.getNodeForPathArray(tree, path.slice(0, path.length - 1));
-				if(node === undefined){
+				if (node === undefined) {
 					return false;
 				}
-				if(typeof node !== 'object'){
-					this.showToast('You cannot transform files in folders!')
+				if (typeof node !== 'object') {
+					this.showToast('You cannot transform files in folders!');
 					return false;
 				}
 				var name = path.pop();
-				if(!!node[name]){
-					this.showToast('Name already exists!')
+				if (!!node[name]) {
+					this.showToast('Name already exists!');
 					return false;
 				}
 				node[name] = item;
 				return true;
 			},
-			splitPath: function(path){
-				return path.split('/').filter(function(elem){
-					return elem !== '';
-				});
-			},
-			getNodeForPath: function(tree, path){
-				return this.getNodeForPathArray(tree, this.splitPath(path));
-			},
-			getNodeForPathArray: function(tree, path){
-				var node = tree;
-				for(var i = 0; i < path.length; i++){
-					if(!node[path[i]] && node[path[i]] !== ''){
-						if(!this.names.good.test(path[i])){
-							this.showToast('The name ' + path[i] + ' is not valid.');
-							return undefined;
-						}
-						node[path[i]] = {};
-					}
-					node = node[path[i]];
+			splitPath: function(path) {
+				if (!path) {
+					return undefined;
 				}
-				return node;
-			},
-			refreshTree: function(tree){
-				this.tree = undefined;
-				this.tree = tree;
-			},
-			getPathsRecursively: function(node, elements, base){
-				for(var key in node){
-					if(node.hasOwnProperty(key)){
-						if(typeof node[key] === 'object'){
-							this.getPathsRecursively(node[key], elements, base + '/' + key)
-							continue;
-						}
-						elements.push({
-							path: base + '/' + key,
-							value: node[key]
-						});
-					}
+
+				// Path is not rooted at /
+				if (path[0] !== '/') {
+					return undefined;
 				}
+
+				return path.substring(1).split('/');
 			},
-			getFiles: function(){
+			deleteFile: function(fullPath) {
+				var path = this.splitPath(fullPath);
+
+				var file = this.tree;
+				for (var i = 0; i < path.length - 1; i++) {
+					file = file[path[i]];
+				}
+
+				if (!file) {
+					return;
+				}
+
+				delete file[path[path.length - 1]];
+			},
+			getFile: function(fullPath) {
+				var path = this.splitPath(fullPath);
+
+				var file = this.tree;
+				for (var i = 0; i < path.length; i++) {
+					file = file[path[i]];
+				}
+
+				return file;
+			},
+			insertFile: function(fullPath, content) {
+				var path = this.splitPath(fullPath);
+
+				var file = this.tree;
+				for (var i = 0; i < path.length - 1; i++) {
+					if (!file[path[i]]) {
+						file[path[i]] = {};
+					}
+					file = file[path[i]];
+				}
+
+				file[path[path.length - 1]] = content;
+			},
+			refreshTree: function(tree) {
+				if (!tree) {
+					tree = this.tree;
+				}
+				this.tree = JSON.parse(JSON.stringify(tree));
+				this.$.repeat.render();
+			},
+			getPathsRecursively: function(file, path) {
+				if (!path) {
+					path = '';
+				}
+
+				var fullPath = path + '/' + file.name;
+				var that = this;
+				return Object.keys(file.value).map(function(k) {
+					return that.getPathsRecursively(file.value[k], fullPath);
+				}).reduce(function(a, b) {
+					return a.concat(b);
+				}, []).concat([{
+					path: fullPath,
+					value: file.value
+				}]);
+			},
+			getFiles: function() {
 				var tree = this.tree;
 
 				var elements = [];
@@ -201,9 +212,27 @@
 					return blob;
 				});
 			},
-			showToast: function(message){
+			showToast: function(message) {
 				this.$.toast.text = message;
 				this.$.toast.show();
+			},
+			children: function(file) {
+				if (!file) {
+					return [];
+				}
+				return Object.keys(file).sort().map(function(k) {
+					return {
+						key: k,
+						value: file[k]
+					};
+				});
+			},
+			showContextMenu: function(e) {
+				e.preventDefault();
+				this.fire('show-menu', {
+					'x': e.pageX,
+					'y': e.pageY
+				});
 			}
 		});
 	</script>

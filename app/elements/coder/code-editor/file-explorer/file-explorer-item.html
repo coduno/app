@@ -21,83 +21,103 @@
 				width: calc(100% - 26px);
 			}
 		</style>
-
 		<div class$="[[className]]" id="wrapper" on-click="select">
 			<iron-icon icon="[[icon]]"></iron-icon>
 			<template is="dom-if" if="{{renaming}}">
-				<input id="editInput" type="text" value="[[renameValue]]" on-keyup="_handleEvent" autofocus>
+				<input id="editInput" type="text" value="[[childPath]]" on-keyup="handleKeyUp" autofocus>
 			</template>
 			<template is="dom-if" if="{{!renaming}}">
-				<div class="name">{{item.name}}</div>
+				<div class="name">{{name}}</div>
 			</template>
 		</div>
 		<paper-toast id="toast"></paper-toast>
 		<paper-dialog>
 			<h1>{{dialogTitle}}</h1>
-			<input type="text" on-keyup="_handleEvent" autofocus>
+			<input type="text" on-keyup="handleKeyUp" autofocus>
 		</paper-dialog>
-
 	</template>
 	<script>
 		Polymer({
 			is: 'file-exporer-item',
 			properties: {
-				item: {
-					reflectToAttribute: true,
-					observer: '_itemSet'
+				name: {
+					type: String,
+					reflectToAttribute: true
+				},
+				file: {
+					type: Object,
+					reflectToAttribute: true
 				},
 				path: {
+					type: String,
 					reflectToAttribute: true
 				},
-				isFolder: {
-					reflectToAttribute: true
+				intention: {
+					type: String,
+					observer: 'intentionChanged'
+				},
+				childPath: {
+					type: String,
+					computed: 'computeChildPath(path, name)'
+				},
+				isDirectory: {
+					type: Boolean,
+					reflectToAttribute: true,
+					computed: 'computeIsDirectory(file)'
+				},
+				icon: {
+					type: String,
+					computed: 'computeIcon(isDirectory)'
 				},
 				renaming: {
 					value: false
 				},
 				className: {
 					value: ''
-				},
-				renameValue: {
-					type: String,
-					notify: true,
-					computed: 'getRenameValue(path, item)'
 				}
 			},
 			listeners: {
 				'contextmenu': 'showContextMenu'
 			},
-			_itemSet: function(){
-				this.isFolder = (typeof this.item.value === 'object');
-				this.icon = this.isFolder ? 'folder' : 'assignment';
+			computeIsDirectory: function(file) {
+				return (typeof file) === 'object';
+			},
+			computeIcon: function(isDirectory) {
+				return isDirectory ? 'folder' : 'assignment';
+			},
+			intentionChanged: function(intention) {
+				if (['delete', 'add-file', 'add-folder', 'rename'].indexOf(intention) < 0) {
+					console.log('Unrecognized intention set:', intention);
+				}
 			},
 			select: function() {
-				if (this.isFolder) {
-					return;
-				}
 				this.set('className', 'selected');
 				this.fire('file-selected', this);
 			},
 			unselectFile: function() {
 				this.set('className', '');
 			},
-			addFile: function(){
+			addFile: function() {
 				this.dialogTitle = 'Add file';
-				this.context = 'add-file';
+				this.intention = 'add-file';
 				this.$$('paper-dialog').open();
 			},
-			delete: function(){
-				this.fire('delete', {path: this.path, name: this.item.name})
-			},
-			addFolder: function(){
+			addFolder: function() {
 				this.dialogTitle = 'Add folder';
-				this.context = 'add-folder';
+				this.intention = 'add-folder';
 				this.$$('paper-dialog').open();
 			},
-			_handleEvent: function(e){
+			startRenaming: function() {
+				this.intention = 'rename';
+				this.renaming = true;
+			},
+			delete: function() {
+				this.fire('delete', {path: this.path, name: this.name});
+			},
+			handleKeyUp: function(e) {
 				// "Escape" key.
 				if (e.keyCode === 27) {
-					if(this.context === 'rename'){
+					if (this.intention === 'rename') {
 						this.set('renaming', false);
 					}
 					return;
@@ -106,35 +126,25 @@
 				if (e.keyCode !== 13) {
 					return;
 				}
+
 				this.$$('paper-dialog').close();
-				if(this.context === 'rename'){
-					this.set('renaming', false);
-				}
-				if(this.context === 'rename'){
-					this.fire('rename', {path: this.path, name: this.item.name, to: e.target.value});
-					return;
-				}
-				this.fire(this.context, {path: this.path + this.item.name + '/' + e.target.value})
+				this.set('renaming', false);
+
+				var detail = this.intention === 'rename' ?
+					{from: this.childPath, to: e.target.value} :
+					{path: this.path + '/' + this.name + '/' + e.target.value};
+
+				this.fire(this.intention, detail);
 			},
-			getRenameValue: function(path, item){
-				return path + item.name;
-			},
-			startRenaming: function(){
-				if(this.item.name === 'root'){
-					return;
-				}
-				// TODO: check why rename value does not get updated
-				this.renameValue = this.getRenameValue(this.path, this.item);
-				this.context = 'rename';
-				this.renaming = true;
+			computeChildPath: function(path, name) {
+				return path + '/' + name;
 			},
 			showContextMenu: function(e) {
 				e.preventDefault();
 				this.fire('show-menu', {
-					'element': this,
 					'x': e.pageX,
 					'y': e.pageY,
-					'isRoot': this.item.name === '/'
+					'element': this
 				});
 			}
 		});

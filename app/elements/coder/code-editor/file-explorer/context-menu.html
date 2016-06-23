@@ -22,7 +22,7 @@
 			}
 		</style>
 		<div id="contextMenuHost" style$="{{contextStyle}}">
-			<template is="dom-if" if="{{handleDirectory(selectedItem)}}">
+			<template is="dom-if" if="{{handleDirectory}}">
 				<div class="nav-item" on-click="_addFolder">
 					<iron-icon icon="create-new-folder"></iron-icon>
 					Add folder
@@ -32,7 +32,7 @@
 					Add file
 				</div>
 			</template>
-			<template is="dom-if" if="{{!isRoot}}">
+			<template is="dom-if" if="{{canWrite}}">
 				<div class="nav-item" on-click="handleRename">
 					<iron-icon icon="create"></iron-icon>
 					Rename
@@ -61,19 +61,30 @@
 					type: Object,
 					notify: true,
 					value: {}
+				},
+				handleDirectory: {
+					type: Boolean,
+					notify: true,
+					computed: 'computeHandleDirectory(selectedItem)'
+				},
+				canWrite: {
+					type: Boolean,
+					notify: true,
+					computed: 'computeCanWrite(selectedItem)'
 				}
 			},
-			handleDirectory: function(selectedItem) {
-				return selectedItem.isFolder;
+			computeCanWrite: function(selectedItem) {
+				return !!selectedItem;
+			},
+			computeHandleDirectory: function(selectedItem) {
+				return !selectedItem || selectedItem.isDirectory;
 			},
 			showMenu: function(data) {
-				this.isRoot = data.isRoot;
 				if (this.pos.x === data.x && this.pos.y === data.y) {
 					return;
 				}
 				this.contextStyle = '';
 				this.selectedItem = data.element;
-				this.notifyPath('selectedItem.isFolder', this.selectedItem.isFolder);
 				this._updatePosition(data);
 			},
 			_updatePosition: function(data) {
@@ -83,21 +94,15 @@
 				this.$.contextMenuHost.style.left = data.x + 'px';
 				this.$.contextMenuHost.style.top = data.y + 'px';
 			},
-			hideMenu: function(){
+			hideMenu: function() {
 				this.contextStyle = 'display: none';
 			},
-			_addFolder: function(){
+			_addFolder: function() {
 				this.hideMenu();
-				if (!this.selectedItem.isFolder) {
-					return;
-				}
 				this.selectedItem.addFolder();
 			},
 			_addFile: function() {
 				this.hideMenu();
-				if (!this.selectedItem.isFolder) {
-					return;
-				}
 				this.selectedItem.addFile();
 			},
 			handleRename: function() {
