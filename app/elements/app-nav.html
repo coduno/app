@@ -35,9 +35,17 @@
 			}
 		</style>
 		<template is="dom-if" if="{{isLoggedIn}}">
+			<coduno-iron-ajax
+				id="logoutRequest"
+				method="POST"
+				path="logout"
+				content-type="application/json"
+				handle-as="json"
+				on-request-finished="onLogout">
+			</coduno-iron-ajax>
 			<paper-material elevation="1">
 			<paper-toolbar class="higher">
-				<a href="https://cod.uno/" target="_blank"><iron-icon src="/images/logo.svg" class="big"></iron-icon></a>
+				<a href="https://app.cod.uno/" target="_blank"><iron-icon src="/images/logo.svg" class="big"></iron-icon></a>
 				<div class="flex">
 					<paper-tabs id="bottomTabs" class="bottom indent" selected="{{selected}}" noink no-slide>
 						<span></span>
@@ -68,7 +76,7 @@
 					<paper-icon-button icon="supervisor-account" class="dropdown-trigger"></paper-icon-button>
 					<paper-listbox class="dropdown-content">
 						<paper-item><a href="/user/settings" style="color: #444444; text-decoration: none;">Settings</a></paper-item>
-						<paper-item><a href="/logout" style="color: #444444; text-decoration: none;">Logout</a></paper-item>
+						<paper-item><a href="" style="color: #444444; text-decoration: none;" on-click="_logout">Logout</a></paper-item>
 					</paper-listbox>
 				</paper-menu-button>
 				<paper-progress class="secnav bottom fit" indeterminate style$="{{progressStyle}}"></paper-progress>
@@ -121,6 +129,12 @@
 				lastOrganization: {
 					type: Object
 				}
+			},
+			_logout: function(){
+				this.$$('#logoutRequest').generateRequest();
+			},
+			onLogout: function(){
+				page('/login');
 			},
 			startLoading: function(){
 				if(this.pendingRequests === 0){
