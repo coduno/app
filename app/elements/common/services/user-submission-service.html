@@ -21,18 +21,19 @@
 			is: 'user-submission-service',
 			properties: {
 			},
-			submit: function(taskId, language, f){
+			submit: function(taskId, language, files){
 				var body = new FormData();
-				body.append('file', f, f.name);
+				for (var i = 0; i < files.length; i++){
+					body.append('file', files[i], files[i].name);
+				}
 				body.append('language', language);
-
 				this.$.post.body = body;
 				this.$.post.url = util.build('/results/' + localStorage.getItem('result') + '/tasks/' + taskId +'/submissions');
 				this.$.post.generateRequest();
 			},
-			run: function(taskId, language, f){
+			run: function(taskId, language, files){
 				var body = new FormData();
-				body.append('file', f, f.name);
+				body.append('files', files);
 				body.append('language', language);
 
 				this.$.post.body = body;

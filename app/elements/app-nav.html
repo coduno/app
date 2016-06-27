@@ -5,6 +5,8 @@
 <link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 <link rel="import" href="../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
 <link rel="import" href="../bower_components/paper-menu/paper-menu.html">
+<link rel="import" href="../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../bower_components/paper-item/paper-item.html">
 
 <dom-module id="app-nav">
 	<template>
@@ -28,11 +30,14 @@
 			paper-tabs {
 				background-color: white;
 			}
+			paper-dropdown-menu paper-listbox {
+				width: 200px;
+			}
 		</style>
 		<template is="dom-if" if="{{isLoggedIn}}">
 			<paper-material elevation="1">
 			<paper-toolbar class="higher">
-				<a href="https://cod.uno/" target="_blank"><iron-icon src="/images/logo.svg" class="big"></iron-icon></a>
+				<a href="https://app.cod.uno/" target="_blank"><iron-icon src="/images/logo.svg" class="big"></iron-icon></a>
 				<div class="flex">
 					<paper-tabs id="bottomTabs" class="bottom indent" selected="{{selected}}" noink no-slide>
 						<span></span>
@@ -52,19 +57,19 @@
 				</div>
 				<template is="dom-if" if="{{showOrganizationSwitch}}">
 					<paper-dropdown-menu selected-item="{{loggedInAs}}">
-						<paper-menu id="loginAsMenu" class="dropdown-content">
+						<paper-listbox id="loginAsMenu" class="dropdown-content">
 							<template is="dom-repeat" items="{{loginAsOptions}}">
-								<option value="{{item.id}}">{{_getLoginAsName(item)}}</option>
+								<paper-item value="{{item.id}}">{{_getLoginAsName(item)}}</paper-item>
 							</template>
-						</paper-menu>
+						</paper-listbox>
 					</paper-dropdown-menu>
 				</template>
 				<paper-menu-button horizontal-align="right">
 					<paper-icon-button icon="supervisor-account" class="dropdown-trigger"></paper-icon-button>
-					<paper-menu class="dropdown-content">
-						<paper-item><a href="/settings" style="color: #444444; text-decoration: none;">Settings</a></paper-item>
-						<paper-item><a href="/logout" style="color: #444444; text-decoration: none;">Logout</a></paper-item>
-					</paper-menu>
+					<paper-listbox class="dropdown-content">
+						<paper-item><a href="/user/settings" style="color: #444444; text-decoration: none;">Settings</a></paper-item>
+						<form form id="form-logout" method="POST" action="[[_build('/logout')]]"><paper-item><a href="" style="color: #444444; text-decoration: none;" onclick="document.getElementById('form-logout').submit()">Logout</a></paper-item></form>
+					</paper-listbox>
 				</paper-menu-button>
 				<paper-progress class="secnav bottom fit" indeterminate style$="{{progressStyle}}"></paper-progress>
 			</paper-toolbar>
@@ -116,6 +121,9 @@
 				lastOrganization: {
 					type: Object
 				}
+			},
+			_build: function(url) {
+				return util.build(url);
 			},
 			startLoading: function(){
 				if(this.pendingRequests === 0){

@@ -1,0 +1,43 @@
+<link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../../../bower_components/paper-datatable/paper-datatable.html">
+<link rel="import" href="../../../bower_components/paper-material/paper-material.html">
+<link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
+
+<dom-module id="challenge-locations-table">
+	<template>
+		<style include="iron-flex">
+			:host {
+				display: block;
+			}
+			paper-material {
+				margin: 16px;
+			}
+			#title-wrapper {
+				@apply(--layout-horizontal);
+			}
+		</style>
+		<locations-by-challenge-canonical-name-provider canonical-name="[[challenge]]" data="{{locations}}" auto="true"></locations-by-challenge-canonical-name-provider>
+
+		<paper-material class="card">
+			<div id="title-wrapper">
+				<h3>On-site locations</h3>
+				<div class="flex"></div>
+				<paper-icon-button icon="create" on-click="_editLocations"></paper-icon-button>
+			</div>
+			<paper-datatable data="[[locations]]" class="fullHeight" on-cell-tap="_onClick">
+				<paper-datatable-column header="Name" property="name"></paper-datatable-column>
+				<paper-datatable-column header="Address" property="address"></paper-datatable-column>
+				<paper-datatable-column header="Description" property="description"></paper-datatable-column>
+			</paper-datatable>
+		</paper-material>
+	</template>
+
+	<script>
+		Polymer({
+			is: 'challenge-locations-table',
+			_editLocations: function() {
+				page('/challenges/' + this.challenge + '/locations/edit');
+			}
+		});
+	</script>
+</dom-module>

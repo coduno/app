@@ -6,7 +6,7 @@ node_js:
 notifications:
   email: never
   slack:
-    secure: "2KA6BrmLAtceCyF3jePExxAHwI/iPNPNgC7qMfSKqZQRT4LYvWzFnF+W7OZjewlFzvhkc/Ih9yENZsmp6ppl/32JEMWylNFYG9c0h5tsIho2GUvoYdcd8nEJbxH01V75YVbb0YcHwosiVPrPWajpXklnuOxMslIWcdbhC2anYnsuNxGZWSMXoVPpP7bZ7b7FXgwawHLog3CTrqQ1vgFrMkcMRdvmhps5bf8qQ0/thr+f5hK8hehYoKdsT9vX8T5/JjoNXfpVgTyq7CfQnZyY+ExXBmIWWWrV/HeMi8QRpcY//LznwcIuZS4SDIJVwCdoRu8XD7j5AkMPNE7n6kaY035VJG6n3BEOksYytGn8qER/TvcFPwcToCwnIqNAuF9In4/ZRf8YXV1XginF1ZLzDAWeM0/RDSPCjgomoOhTr/0yzj83rmnTVswcq4dMWxvdWsDZ4Du3pzfDvVirtjdLKkiQWLyRn4pdBrX6nR4+KNr3ND+M8DIU1YFIDXH04JodINL0z7kd3bAZCDjrdgyBkMlgqUMNnQAznjcWyLqRD+CWkwbdwzPM0J239smcDTOvF9EwZU3LC/j6AWlWKrg444Qs+RpZbLEnEbMltKTL3M9eHdrNDH96Jrd2ImfyHkVAwDQMXe9kKfQZFa7ABFPY6OOWPo/bl4VkfJKyuc9d6ww="
+    secure: "0LkOThTlt0eBajVjFlIhu6lu4hfoQZBGvMUPRaUEBoeshTLxfejjWf0VrcyjeOnSiOnVaD2cxadLRfBuX4BMGDks3r5LvbmU1krLQtbhIgpsOr4kEGYveiYqAnnlplMzK6F2cAL4ya4NYp6pKtoDFgVLic7n4P8N6Qp9vaM/3ot3tHrjN6dGHmHpQeUtawJFcFNN2yd9r8ndXWYZ10CFxZPRivNJ+1ZWxKmPpHDCaf19Q1e2viI2msPa25kcDJuEL1aAsgHYsecSSxuyUGt6mwNv+h8lxkTOKfBXYIar8vfRQnJ0eBilYpPbRas4GbZ/u+Q9hGx552AxVrK0qmJkVqmzVIMCmBQY8khRc5Pb8786LPdukHvBG0x6uH0e/2DYege5fEWY8+b3/wic87xVYu3HX7aP08v6NWFKvrUIgnEZ6E6RSFYaKaTL8RJFND4rymr0CtAUe8NWKOsFPkla0eOZCWnXG+fw6V4D5Kxql6UlTILxGI+6znasdBi29/bAZjtsWSEmTRsejnzePBagEofWIAvh1C+392+52cVkvaCxxDHtNPYRrCAz1CMXLeLCNPyC7r4V7Uvp+Ghuxn9xSffBkAI0wuAPzsDD1xsy8Ou/auM91F8AK/cJ8bIz0tjeesFYc4CI7KsELYFXm0Ivn14AnJLD1d+u/3aD2qyC+OU="
 
 before_install:
 - $(! $TRAVIS_SECURE_ENV_VARS) || (openssl aes-256-cbc -K $encrypted_e1ab82f12a98_key -iv $encrypted_e1ab82f12a98_iv
@@ -24,11 +24,13 @@ after_success:
 deploy:
   - provider: gae
     project: coduno
+    verbosity: debug
     skip_cleanup: true
     on:
       branch: master
   - provider: gae
     project: coduno-lab
+    verbosity: debug
     skip_cleanup: true
     on:
       branch: dev

@@ -1,10 +1,10 @@
 <link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 
-<dom-module id="challenge-info-step">
+<dom-module id="guest-challenge-info-page">
 	<style include="iron-flex">
 		:host{
 			display: block;
-			height: calc(100% + 118px);
+			height: 100%;
 		}
 		.horizontal-layout {
 			@apply(--layout-horizontal);
@@ -14,7 +14,7 @@
 			padding: 24px;
 			background: white;
 			height: 100%;
-			width: calc(70% - 48px);
+			width: 70%;
 		}
 		.icon-text {
 			padding: 0 32px 0px 4px;
@@ -27,6 +27,8 @@
 		}
 	</style>
 	<template>
+		<challenge-by-canonical-name-provider canonical-name="[[canonicalName]]" data="{{challenge}}"></challenge-by-canonical-name-provider>
+
 		<paper-material id="wrapper" class="mainContent">
 			<h1>{{challenge.name}}</h1>
 			<div id="infoIcons" class="horizontal-layout">
@@ -53,7 +55,7 @@
 	<script type="application/javascript" src="../../../../scripts/behaviors/datetime-behavior.js"></script>
 	<script>
 		Polymer({
-			is: 'challenge-info-step',
+			is: 'guest-challenge-info-page',
 			behaviors: [
 				Behaviors.DateTimeBehavior
 			],
@@ -72,7 +74,7 @@
 				}
 			},
 			_onRegister: function(){
-				this.fire('next-step');
+				page('/contest/' + this.challenge.canonicalName + '/register')
 			}
 		});
 	</script>

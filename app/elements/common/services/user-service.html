@@ -14,7 +14,8 @@
 			handle-as="json"
 			content-type="application/json"
 			with-credentials="true"
-			on-response="_onPostResponse">
+			on-response="_onPostResponse"
+			on-error="onError">
 		</iron-ajax>
 		<iron-ajax
 			id="getSingleUser"
@@ -184,6 +185,7 @@
 				}
 				// Other statuses most likely indicate validation errors or bad inputs
 				// so we proxy them so each component can handle them accordingly.
+				this.fire('error', e)
 			}
 		});
 	</script>

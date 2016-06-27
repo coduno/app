@@ -24,7 +24,7 @@
 		#wrapper {
 			@apply(--layout-vertical);
 		}
-		#inviteWrapper {
+		#title-wrapper {
 			@apply(--layout-horizontal);
 		}
 		#challengeName {
@@ -33,16 +33,12 @@
 	</style>
 	<template>
 		<challenge-by-canonical-name-provider canonical-name="[[canonicalName]]" data="{{challenge}}"></challenge-by-canonical-name-provider>
-		<invite-candidates id="inviteCandidates" challenge="{{challenge}}" on-invitation-sent="_onInvitationSent"></invite-candidates>
 
 		<div id="wrapper" class="grid mainContent">
 			<paper-material class="card" elevation="1">
-				<div id="inviteWrapper">
-					<h1 id="challengeName">{{challenge.name}}</h1>
-					<paper-button on-click="_inviteCandidates">
-						<iron-icon icon="mail"></iron-icon>
-						Invite candidates
-					</paper-button>
+				<div id="title-wrapper">
+					<h2 id="challengeName">{{challenge.name}}</h2>
+					<paper-icon-button icon="create" on-click="_editChallengeInfo"></paper-icon-button>
 				</div>
 				<description-list>
 					<description-list-item label="Canonical name" value="{{challenge.canonicalName}}"></description-list-item>
@@ -51,14 +47,10 @@
 				</description-list>
 			</paper-material>
 
-			<paper-material class="card">
-				<h3>Invited users</h3>
-				<invited-users-table challenge="[[canonicalName]]"></invited-users-table>
-			</paper-material>
-			<paper-material class="card">
-				<h3>Participants</h3>
-				<participants-table challenge="[[canonicalName]]"></participants-table>
-			</paper-material>
+			<challenge-locations-table challenge="[[canonicalName]]"></challenge-locations-table>
+			<invited-users-table challenge="[[canonicalName]]"></invited-users-table>
+			<participants-table challenge="[[canonicalName]]"></participants-table>
+
 			<paper-material class="card">
 				<h3>Leaderboard</h3>
 				<challenge-leaderboard challenge-id="{{challenge.id}}"></challenge-leaderboard>
@@ -68,40 +60,13 @@
 	<script>
 		Polymer({
 			is: 'challenge-detail',
-			properties: {
-				challenge: {
-					type: Object,
-					notify: true
-				},
-				leaderboard: {
-					type: Array,
-					notify: true
-				},
-				challengeId: {
-					reflectToAttribute: true,
-					observer: '_challengeIdChanged'
-				},
-				invitations: {
-					type: Array
-				}
-			},
-			_challengeIdChanged: function(){
-				this._refresh();
-			},
-			_refresh: function(){
-				this.$$('invited-users-table').refresh();
-				this.$$('challenge-by-canonical-name-provider').refresh();
-			},
 			_formatDate: function(date){
 				if (!!date){
 					return util.formatDate(date);
 				}
 			},
-			_inviteCandidates: function(){
-				this.$.inviteCandidates.toggle();
-			},
-			_onInvitationSent: function(){
-				this._refresh();
+			_editChallengeInfo: function() {
+				page('/challenges/' + this.challenge.canonicalName + '/info/edit')
 			}
 		});
 	</script>

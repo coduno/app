@@ -32,9 +32,11 @@ paper-input {
 	};
 }
 
-.signin {
-
+#socialSignInWrapper {
+	padding-top: 12px;
+	padding-bottom: 12px;
 }
+
 	</style>
 	<template>
 		<user-service id="userService" on-user-saved="_onResponse" on-error="_onError"></user-service>
@@ -62,28 +64,6 @@ paper-input {
 					required>
 				</paper-input>
 				<paper-input
-					type="text"
-					label="First name"
-					value="{{user.firstName}}"
-					minLength="2"
-					maxLength="40"
-					autofocus="[[!externalWidget]]"
-					pattern="^[\w-\. ]{2,40}$"
-					error-message="Must be between 2 and 40 chars and only contain letters."
-					required="[[externalWidget]]">
-				</paper-input>
-				<paper-input
-					type="text"
-					label="Last name"
-					value="{{user.lastName}}"
-					minLength="2"
-					maxLength="40"
-					autofocus="[[!externalWidget]]"
-					pattern="^[\w-\. ]{2,40}$"
-					error-message="Must be between 2 and 40 chars and only contain letters."
-					required="[[externalWidget]]">
-				</paper-input>
-				<paper-input
 					type="password"
 					label="Password"
 					value="{{user.password}}"
@@ -96,6 +76,9 @@ paper-input {
 				</paper-input>
 				<paper-input type="password" label="Repeat password" value="{{repeatedPassword}}" autofocus="[[!externalWidget]]" on-keydown="onKeydown" required></paper-input>
 			</form>
+			<div id="socialSignInWrapper">
+				<social-components label="Register" context="register" control="[[control]]"></social-components>
+			</div>
 			<paper-button class="primary" disabled="{{saveDisabled}}" on-click="register">Register</paper-button>
 			<div class="horizontal layout signin">
 				<a on-click="_login">Already have an account? Sign in here.</a>
@@ -129,6 +112,14 @@ Polymer({
 	],
 	listeners: {
 		'keyup': '_keyup'
+	},
+	ready: function(){
+		var self = this;
+		this.control = {
+			socialCallback: function(){
+				self.fire('social-register');
+			}
+		}
 	},
 	_keyup: function(){
 		this.saveDisabled = !this.$.form.validate();
@@ -177,7 +168,12 @@ Polymer({
 	},
 	_onError: function(e, err){
 		if (err.detail.request.xhr.status === 409) {
-			this.$.toast.text = 'Username/email already taken';
+			this.$.toast.text = 'Username/Email already taken';
+			this.$.toast.show();
+			return;
+		}
+		if (err.detail.request.xhr.status === 400) {
+			this.$.toast.text = 'Username/Password invalid.';
 			this.$.toast.show();
 			return;
 		}

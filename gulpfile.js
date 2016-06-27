@@ -168,6 +168,8 @@ gulp.task('vulcanize', function() {
       stripComments: true,
       inlineCss: true,
       inlineScripts: true
+    }).on('error', function() {
+      process.exit(1);
     }))
     .pipe(gulp.dest(dist('elements')))
     .pipe($.size({title: 'vulcanize'}));

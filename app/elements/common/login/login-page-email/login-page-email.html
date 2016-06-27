@@ -21,26 +21,6 @@ paper-button {
 	margin-top: 12px !important;
 }
 
-.google, .facebook, .github, .linkedin {
-	color: #ffffff;
-}
-
-.google {
-	background-color: #DD4B39;
-}
-
-.facebook {
-	background-color: #3B5998;
-}
-
-.github {
-	background-color: #444444;
-}
-
-.linkedin {
-	background-color: #007BB6;
-}
-
 #socialSignInWrapper {
 	padding-top: 12px;
 	padding-bottom: 12px;
@@ -51,39 +31,36 @@ paper-button {
 	padding-top: 24px;
 }
 
+#forgotPasswordWrapper {
+	@apply(--layout-horizontal);
+	padding-top: 24px;
+}
+
 span {
 	@apply(--layout-flex);
+}
+
+paper-input {
+	text-align: center;
 }
 	</style>
 	<template>
 		<base-wizard show-back-button="[[externalWidget]]" on-back="prev">
 			<div>
-				<paper-input type="text" label="Username or e-mail" value="{{email}}" autofocus="[[!externalWidget]]" on-keydown="onKeydown"></paper-input>
+				<paper-input id="emailInput" type="text" label="Username or e-mail" value="{{email}}" autofocus="[[!externalWidget]]" on-keydown="onKeydown"></paper-input>
 				<paper-button class$="{{empty}}" flat colorful on-change="checkEmpty" on-click="next">Next</paper-button>
 			</div>
 			<div id="socialSignInWrapper">
-				<span></span>
-				<form id="form-google" method="POST" action="[[_build('/auth/google')]]">
-					<input name="scope" value="profile email" type="hidden">
-					<paper-button raised on-click="_submit" provider="google" class="google">Login with Google</paper-button>
-				</form>
-				<form id="form-github" method="POST" action="[[_build('/auth/github')]]"  >
-					<input name="scope" value="user:email" type="hidden">
-					<paper-button raised on-click="_submit" provider="github" class="github">Login with GitHub</paper-button>
-				</form>
-				<form id="form-facebook" method="POST" action="[[_build('/auth/facebook')]]">
-					<input name="scope" value="email" type="hidden">
-					<paper-button raised on-click="_submit" provider="facebook" class="facebook">Login with Facebook</paper-button>
-				</form>
-				<form id="form-linkedin" method="POST" action="[[_build('/auth/linkedin')]]">
-					<input name="scope" value="r_basicprofile r_emailaddress" type="hidden">
-					<paper-button raised on-click="_submit" provider="linkedin" class="linkedin">Login with LinkedIn</paper-button>
-				</form>
-				<span></span>
+				<social-components label="Login " context="login"></social-components>
 			</div>
 			<div id="signupWrapper">
 				<span></span>
 				<a on-click="_register">Need an account? Sign up here.</a>
+				<span></span>
+			</div>
+			<div id="forgotPasswordWrapper">
+				<span></span>
+				<a on-click="_forgotPassword">Forgot your password? Request a new one!</a>
 				<span></span>
 			</div>
 		</base-wizard>
@@ -101,6 +78,9 @@ Polymer({
 		empty: {
 			type: String,
 			notify: true
+		},
+		externalWidget: {
+			value: false
 		}
 	},
 	behaviors: [
@@ -118,6 +98,9 @@ Polymer({
 			return;
 		}
 		page('/register');
+	},
+	_forgotPassword: function(){
+		page('/user/password/reset');
 	},
 	next: function() {
 		if (this.email === '') {
@@ -138,11 +121,11 @@ Polymer({
 			this.fire('next');
 		}
 	},
-	_build: function(url) {
-		return util.build(url);
-	},
-	_submit: function(e) {
-		document.getElementById('form-' + e.target.getAttribute('provider')).submit();
+	focus: function(){
+		var self = this;
+		setTimeout(function(){
+			self.$.emailInput.focus();
+		}, 500);
 	}
 });
 </script>

@@ -32,6 +32,7 @@
 <link rel="import" href="coder/challenge/available/register-to-challenge-dialog.html">
 
 <link rel="import" href="coder/challenge/info/challenge-info-page.html">
+<link rel="import" href="coder/challenge/info/guest-challenge-info-page.html">
 
 <link rel="import" href="coder/challenge/page/challenge-display.html">
 <link rel="import" href="coder/challenge/page/challenge-page.html">
@@ -40,7 +41,7 @@
 <link rel="import" href="coder/challenge/page/endpoints/sequential-challenge.html">
 <link rel="import" href="coder/challenge/page/endpoints/ccc-challenge.html">
 
-<link rel="import" href="coder/challenge/register-wizard/challenge-info-step.html">
+<link rel="import" href="coder/challenge/register-wizard/challenge-location-step.html">
 <link rel="import" href="coder/challenge/register-wizard/challenge-register-step.html">
 <link rel="import" href="coder/challenge/register-wizard/challenge-register-wizard-nav.html">
 <link rel="import" href="coder/challenge/register-wizard/challenge-register-wizard.html">
@@ -61,9 +62,14 @@
 
 <link rel="import" href="coder/code-editor/code-editor.html">
 <link rel="import" href="coder/code-editor/code-editor-with-actions.html">
+<link rel="import" href="coder/code-editor/language-selector.html">
+<link rel="import" href="coder/code-editor/template-chooser.html">
 <link rel="import" href="coder/code-editor/consoles/tabbed-console.html">
 <link rel="import" href="coder/code-editor/consoles/tabbed-console-element.html">
-<link rel="import" href="coder/code-editor/language-selector.html">
+<link rel="import" href="coder/code-editor/file-explorer/context-menu.html">
+<link rel="import" href="coder/code-editor/file-explorer/file-explorer.html">
+<link rel="import" href="coder/code-editor/file-explorer/file-explorer-item.html">
+<link rel="import" href="coder/code-editor/file-explorer/file-explorer-node.html">
 <link rel="import" href="coder/input-view/input-view.html">
 <link rel="import" href="coder/input-view/input-view-element.html">
 
@@ -95,6 +101,7 @@
 <link rel="import" href="common/data-providers/language/languages-provider.html">
 <link rel="import" href="common/data-providers/runner/runners-provider.html">
 <link rel="import" href="common/data-providers/user/user-by-username-provider.html">
+<link rel="import" href="common/data-providers/user/current-user-provider.html">
 <link rel="import" href="common/data-providers/task/task-by-id-provider.html">
 <link rel="import" href="common/data-providers/task/tasks-for-active-organization-provider.html">
 <link rel="import" href="common/data-providers/task/tasks-for-challenge-template-provider.html">
@@ -117,6 +124,10 @@
 <link rel="import" href="common/login/login-page-password/login-page-password.html">
 <link rel="import" href="common/login/login-page-u2f/login-page-u2f.html">
 
+<link rel="import" href="common/location/short-removable-location.html">
+<link rel="import" href="common/location/google-location-finder.html">
+<link rel="import" href="common/location/google-location-viewer.html">
+
 <link rel="import" href="common/markdown/render-markdown.html">
 
 <link rel="import" href="common/register/register-page.html">
@@ -129,11 +140,16 @@
 <link rel="import" href="common/services/task-service.html">
 <link rel="import" href="common/services/template-service.html">
 
-<link rel="import" href="common/settings/change-password-dialog.html">
-<link rel="import" href="common/settings/match-password-validator.html">
-<link rel="import" href="common/settings/settings-page.html">
+<link rel="import" href="user/settings/change-password-dialog.html">
+<link rel="import" href="user/settings/match-password-validator.html">
+<link rel="import" href="user/settings/settings-page.html">
+
+<link rel="import" href="user/password-reset/password-forgot-page.html">
+<link rel="import" href="user/password-reset/password-reset-page.html">
 
 <link rel="import" href="common/skill/skill-polygon.html">
+
+<link rel="import" href="common/social/social-components.html">
 
 <link rel="import" href="common/wizard/base-wizard.html">
 
@@ -141,10 +157,12 @@
 <link rel="import" href="company/candidate/invite/invite-candidates.html">
 
 <link rel="import" href="company/challenge/challenge-create.html">
+<link rel="import" href="company/challenge/challenge-edit-locations.html">
 <link rel="import" href="company/challenge/challenge-detail.html">
 <link rel="import" href="company/challenge/challenge-list.html">
 <link rel="import" href="company/challenge/invited-users-table.html">
 <link rel="import" href="company/challenge/participants-table.html">
+<link rel="import" href="company/challenge/challenge-locations-table.html">
 
 <link rel="import" href="company/challenge-template/challenge-template-card.html">
 <link rel="import" href="company/challenge-template/challenge-template-detail.html">

@@ -1,8 +1,8 @@
-<link rel="import" href="../../../../bower_components/vaadin-grid/vaadin-grid.html">
 <link rel="import" href="../../../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../../../bower_components/iron-icons/social-icons.html">
 <link rel="import" href="../../../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../../../../bower_components/paper-datatable/paper-datatable.html">
 
 <dom-module id="team-members-table">
 	<style include="iron-flex">
@@ -15,24 +15,20 @@
 		}
 	</style>
 	<template>
-		<vaadin-grid id="membersGrid" class="fullHeight" items="[[members]]" on-selected-items-changed="_selectedItemsChanged">
-			<table>
-				<thead>
-					<tr>
-						<th>Username</th>
-						<th>Name</th>
-						<th>Admin</th>
-						<th>Options</th>
-					</tr>
-				</thead>
-				<colgroup>
-					<col name="username"/>
-					<col name="firstName"/>
-					<col name="admin"/>
-					<col name="id" hidden="[[!isAdmin]]"/>
-				</colgroup>
-			</table>
-		</vaadin-grid>
+		<paper-datatable data="[[members]]" class="fullHeight" on-cell-tap="_onClick">
+			<paper-datatable-column header="Username" property="username"></paper-datatable-column>
+			<paper-datatable-column header="First name" property="firstName"></paper-datatable-column>
+			<paper-datatable-column header="Last name" property="lastName"></paper-datatable-column>
+			<paper-datatable-column header="Admin" property="admin"></paper-datatable-column>
+			<!-- TODO(vbalan): enable when we have the backend for it -->
+			<!-- <template is="dom-if" if="[[isAdmin]]">
+				<paper-datatable-column header="Options" property="id" width="200">
+					<template>
+						<paper-icon-button icon="close" on-click="_delete"></paper-icon-button>
+					</template>
+				</paper-datatable-column>
+			</template> -->
+		</paper-datatable>
 	</template>
 	<script type="application/javascript" src="../../../../scripts/behaviors/providers/user-provider-behavior.js"></script>
 	<script>
@@ -44,39 +40,17 @@
 			],
 			properties: {
 				isAdmin: {
-					value: true
+					value: false
 				}
 			},
-			observers: [
-				'_membersChanged(members)'
-			],
-			_selectedItemsChanged: function(){
-				var selected = this.$.membersGrid.selection.selected();
-				if(!this.clickedOnOption && !!selected && selected.length > 0){
-					page('/u/' + this.members[selected[0]].username);
+			_delete: function (e) {
+				console.log('delete', e.model.__data__.item);
+			},
+			_onClick: function(e, d){
+				if(d.column.header === 'Options'){
 					return;
 				}
-				this.clickedOnOption = false;
-			},
-			_membersChanged: function(){
-				var element = this;
-				this.$.membersGrid.columns[1].renderer = function(cell){
-					cell.element.innerHTML = element._getFullName(cell.row.data);
-				};
-				this.$.membersGrid.columns[3].renderer = function(cell){
-					cell.element.innerHTML = '';
-					cell.element.appendChild(element._createIconButton('close', function(){
-						console.log('remove user');
-						element.clickedOnOption = true;
-					}));
-				};
-				this.$.membersGrid.refreshItems();
-			},
-			_createIconButton: function(icon, clickListener){
-				var button = document.createElement('paper-icon-button');
-				button.icon = icon;
-				button.addEventListener('click', clickListener);
-				return button;
+				page('/u/' + d.item.username);
 			}
 		});
 	</script>

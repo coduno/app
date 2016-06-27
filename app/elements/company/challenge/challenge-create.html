@@ -23,11 +23,24 @@
 			id="saveChallenge"
 			method="POST"
 			body="{{challenge}}"
-			path="/challenges"
+			path="challenges"
 			response="{{savedChallenge}}"
 			on-request-finished="_onResponse"
 			error="{{error}}">
 		</coduno-iron-ajax>
+
+		<coduno-iron-ajax
+			id="updateChallenge"
+			method="PUT"
+			body="{{challenge}}"
+			path="challenges"
+			response="{{savedChallenge}}"
+			on-request-finished="_onResponse"
+			error="{{error}}">
+		</coduno-iron-ajax>
+
+		<challenge-by-canonical-name-provider data="{{challenge}}" canonical-name="[[canonicalName]]" on-request-finished="_challengeLoaded" manual="true"></challenge-by-canonical-name-provider>
+
 		<div class="mainContent">
 			<paper-material class="card" elevation="1">
 				<errors-display error="{{error}}"></errors-display>
@@ -36,6 +49,7 @@
 					<paper-input id="canonicalName" class="margined" label="Canonical name*" value="{{challenge.canonicalName}}" required></paper-input>
 					<paper-checkbox id="inviteOnly" value="{{challenge.inviteOnly}}" checked>Invite only</paper-checkbox>
 					<date-time-picker id="startDate" label="Fixed start date" date-time="{{challenge.startDate}}"></date-time-picker>
+					<br>
 				</form>
 				<div class="buttonGroup">
 					<paper-button raised on-click="_saveChallenge">Save</paper-button>
@@ -47,24 +61,36 @@
 		Polymer({
 			is: 'challenge-create',
 			properties: {
-				challengeTemplate: {
-					type: Number
-				},
 				challenge: {
 					type: Object,
 					value: {}
 				}
+			},
+			observers: [
+				'_editModeSet(editMode, canonicalName)'
+			],
+			_editModeSet: function() {
+				if (!!this.editMode && !!this.canonicalName) {
+					this.$$('challenge-by-canonical-name-provider').refresh();
+				}
+			},
+			_challengeLoaded: function() {
+				this.$.startDate.setDate(this.challenge.startDate);
 			},
 			_saveChallenge: function () {
 				this.challenge.inviteOnly = this.$.inviteOnly.checked;
 				if (!this.$.challengeForm.validate()){
 					return;
 				}
-				this.challenge.templateId = this.challengeTemplate;
-				this.$.saveChallenge.generateRequest();
+				if (this.editMode) {
+					this.$.updateChallenge.generateRequest();
+				} else {
+					this.challenge.templateId = this.challengeTemplate;
+					this.$.saveChallenge.generateRequest();
+				}
 			},
 			_onResponse: function(){
-				page('/challenges/' + this.savedChallenge);
+				page('/challenges/' + this.savedChallenge.name);
 			}
 		});
 	</script>

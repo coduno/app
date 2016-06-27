@@ -9,7 +9,7 @@
 			handle-as="[[handleAs]]"
 			headers="[[headers]]"
 			body="[[body]]"
-	  	debounce-duration="[[debounceDuration]]"
+	  		debounce-duration="[[debounceDuration]]"
 			url="[[baseUrl]]/[[path]]"
 			with-credentials="true"
 			auto="[[auto]]"
@@ -35,10 +35,20 @@
 					type: String,
 					notify: true,
 					value: 'json'
+				},
+				response: {
+					notify: true,
+					reflectToAttribute: true
 				}
+			},
+			listeners: {
+				'request-finished': '_requestFinished'
 			},
 			generateRequest: function(){
 				this.$.ajaxRequest.generateRequest();
+			},
+			_requestFinished: function(e, r) {
+				this.response = r;
 			}
 		});
 	</script>

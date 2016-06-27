@@ -24,7 +24,7 @@
 			on-request-finished="_onResponse"
 			error="{{error}}">
 		</coduno-iron-ajax>
-		<paper-dialog id="inviteDialog" modal>
+		<paper-dialog id="deleteDialog" modal>
 			<h4>Are you sure?</h4>
 			<p><b>This action cannot be undone.</b> It will permanently delete the /t/[[team.canonicalName]] team.</p>
 			<p>Please type the name of the team to continue</p>
@@ -53,7 +53,7 @@
 				'keyup': '_nameChanged'
 			},
 			toggle: function(){
-				this.$.inviteDialog.toggle();
+				this.$.deleteDialog.toggle();
 			},
 			_deleteTeam: function(){
 				if(this.team.name !== this.teamName){
@@ -65,8 +65,9 @@
 				this.deleteDisabled = this.team.name !== this.teamName;
 			},
 			_onResponse: function(e){
-				e.stopEventPropagation();
+				e.stopPropagation();
 				this.team = {};
+				this.$.deleteDialog.close();
 				this.toastText = 'Team successfully deleted.';
 				this.$.toast.show();
 				this.fire('team-deleted');

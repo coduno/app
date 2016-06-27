@@ -1,0 +1,71 @@
+<link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../../../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../../../bower_components/paper-button/paper-button.html">
+
+<dom-module id="file-explorer-node">
+	<template>
+		<style include="iron-flex">
+			:host {
+				display: block;
+			}
+			.children {
+				padding-left: 20px;
+			}
+		</style>
+		<template id="repeat" is="dom-repeat" items="{{childItems}}">
+			<file-exporer-item item="[[item]]" path="[[path]]"></file-exporer-item>
+			<template is="dom-if" if="{{!isFile(item)}}">
+				<div class="children">
+					<file-explorer-node node="{{item.value}}" path="{{getPath(item)}}"></file-explorer-node>
+				</div>
+			</template>
+		</template>
+	</template>
+	<script>
+		Polymer({
+			is: 'file-explorer-node',
+			properties: {
+				node: {
+					reflectToAttribute: true,
+					notify: true,
+					observer: '_nodeChanged'
+				},
+				path: {
+					reflectToAttribute: true,
+					notify: true
+				},
+				childItems: {
+					type: Array,
+					notify: true
+				}
+			},
+			observers: [
+				'_nodeChanged(node, path)'
+			],
+			getPath: function(item){
+				return this.path + item.name + '/';
+			},
+			isFile: function(item){
+				return !(typeof item.value === 'object');
+			},
+			_nodeChanged: function(){
+				if(!this.path){
+					return;
+				}
+				this.childItems = this._toArray(this.node);
+				this.$.repeat.render();
+			},
+			_toArray: function(obj){
+				if(!obj){
+					return;
+				}
+				return Object.keys(obj).map(function(key) {
+					return {
+						name: key,
+						value: obj[key]
+					};
+				});
+			}
+		});
+	</script>
+</dom-module>

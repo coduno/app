@@ -1,0 +1,111 @@
+<link rel="import" href="../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+
+<dom-module id="challenge-edit-locations">
+	<template>
+		<style include="iron-flex">
+			paper-button {
+				margin: 10px 0;
+			}
+			.desc {
+				@apply(--layout-horizontal);
+				@apply(--layout-center);
+			}
+		</style>
+
+		<coduno-iron-ajax
+			id="updateChallengeLocations"
+			method="PUT"
+			body="{{locations}}"
+			path="challenges/[[canonicalName]]/locations"
+			on-request-finished="_onResponse"
+			error="{{error}}">
+		</coduno-iron-ajax>
+		<locations-by-challenge-canonical-name-provider canonical-name="[[canonicalName]]" data="{{locations}}" auto="true"></locations-by-challenge-canonical-name-provider>
+
+		<div class="mainContent">
+			<paper-material class="card" elevation="1">
+				<errors-display error="[[error]]"></errors-display>
+				<div class="desc">
+					<div>If <strong>[[canonicalName]]</strong> will have an on-site location search it on the map and confirm your selections</div>
+					<div class="flex"></div>
+					<div id="confirmLocationButton">
+						<paper-icon-button icon="check" on-click="_confirmLocation"></paper-icon-button>
+						<paper-icon-button icon="close" on-click="_toggleMap"></paper-icon-button>
+					</div>
+					<paper-icon-button id="addLocationButton" icon="add" on-click="_toggleMap"></paper-icon-button>
+				</div>
+				<template is="dom-repeat" items="[[locations]]">
+					<short-removable-location location="[[item]]" on-remove-location="_removeLocation"></short-removable-location>
+				</template>
+				<google-location-finder id="locationFinder" selected-place="{{location}}"></google-location-finder>
+
+				<paper-button raised on-click="_saveLocations">Save</paper-button>
+			</paper-material>
+		</div>
+
+		<paper-toast id="toast" text="You need to select a location"></paper-toast>
+	</template>
+	<script>
+		Polymer({
+			is: 'challenge-edit-locations',
+			properties: {
+				locations: {
+					type: Array,
+					notify: true,
+					reflectToAttribute: true
+				}
+			},
+			ready: function() {
+				this.$.locationFinder.toggleVisibility(true);
+				this.$.confirmLocationButton.style.display = 'none';
+			},
+			_toggleMap: function(){
+				this.$.locationFinder.toggleVisibility(true);
+				this._switchButtons();
+			},
+			_confirmLocation: function() {
+				if (!this.locations){
+					this.locations = [];
+				}
+				if (!this.location){
+					return this._showToast('Please select a location');
+				}
+				if (this._locationExists(this.location)){
+					return this._showToast('You already selected this location');
+				}
+				this.push('locations', this.location);
+				this._toggleMap();
+			},
+			_removeLocation: function(e, location){
+				var index = this.locations.indexOf(location);
+				this.splice('locations', index, 1);
+			},
+			_locationExists: function(location){
+				for (var i = 0; i < this.locations.length; i++){
+					var existingLocation = this.locations[i];
+					if (existingLocation.hasOwnProperty('placeId') && existingLocation.placeId === location.placeId){
+						return true;
+					}
+				}
+				return false;
+			},
+			_showToast: function(text){
+				this.$.toast.text = text;
+				this.$.toast.show();
+			},
+			_switchButtons: function(){
+				this.$.confirmLocationButton.style.display = this.$.confirmLocationButton.style.display === 'none' ? '' : 'none';
+				this.$.addLocationButton.style.display = this.$.addLocationButton.style.display === 'none' ? '' : 'none';
+			},
+			_saveLocations: function() {
+				this.$.updateChallengeLocations.generateRequest();
+			},
+			_onResponse: function() {
+				page('/challenges/' + this.canonicalName);
+			}
+		});
+	</script>
+</dom-module>

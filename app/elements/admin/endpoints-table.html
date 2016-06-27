@@ -1,8 +1,8 @@
-<link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid.html">
 <link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../bower_components/iron-icons/editor-icons.html">
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../../bower_components/paper-datatable/paper-datatable.html">
 
 <dom-module id="endpoints-table">
 	<style include="iron-flex">
@@ -16,53 +16,26 @@
 	</style>
 	<template>
 		<endpoints-provider data="{{endpoints}}"></endpoints-provider>
-		<vaadin-grid id="endpointsTable" class="fullHeight" items="[[endpoints]]" visible-rows="5">
-			<table>
-				<thead>
-					<tr>
-						<th>Name</th>
-						<th>Component</th>
-						<th>Options</th>
-					</tr>
-				</thead>
-				<colgroup>
-					<col name="name"/>
-					<col name="component"/>
-					<col name="id" width="120"/>
-				</colgroup>
-			</table>
-		</vaadin-grid>
+		<paper-datatable data="[[endpoints]]" class="fullHeight">
+			<paper-datatable-column header="Name" property="name"></paper-datatable-column>
+			<paper-datatable-column header="Component" property="component"></paper-datatable-column>
+			<!-- TODO(vbalan): enable when we have the backend for it -->
+			<!-- <paper-datatable-column header="Options" property="id" width="200">
+				<template>
+					<paper-icon-button icon="editor:mode-edit" on-click="_edit"></paper-icon-button>
+					<paper-icon-button icon="delete" on-click="_delete"></paper-icon-button>
+				</template>
+			</paper-datatable-column> -->
+		</paper-datatable>
 	</template>
 	<script>
 		Polymer({
 			is: 'endpoints-table',
-			observers: [
-				'_dataChanged(endpoints)'
-			],
-			_dataChanged: function(){
-				var element = this;
-				this.$.endpointsTable.columns[2].renderer = function(cell){
-					var team = cell.row.data;
-					cell.element.innerHTML = '';
-					cell.element.appendChild(element._createIconButton('editor:mode-edit', function(){
-						var dialog = element.$.editTeamDialog;
-						dialog.team = team;
-						dialog.toggle();
-						element.clickedOnOption = true;
-					}));
-					cell.element.appendChild(element._createIconButton('delete', function(){
-						var dialog = element.$.deleteTeamDialog;
-						dialog.team = team;
-						dialog.toggle();
-						element.clickedOnOption = true;
-					}));
-				};
+			_edit: function (e) {
+				console.log('edit', e.model.__data__.item);
 			},
-			_createIconButton: function(icon, clickListener){
-				var button = document.createElement('paper-icon-button');
-				button.icon = icon;
-				button.addEventListener('click', clickListener);
-				return button;
+			_delete: function (e) {
+				console.log('delete', e.model.__data__.item);
 			}
 		});
 	</script>

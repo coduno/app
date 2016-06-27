@@ -45,44 +45,28 @@
 				user: {
 					type: Object,
 					notify: true,
+					redlectToAttribute: true,
 					value: {}
 				},
 				inProgressRequests: {
 					value: 0
 				}
 			},
-			ready: function(){
-				this.initUserInfo = true;
-				var element = this;
-				// See https://github.com/Polymer/polymer/issues/1381
-				window.addEventListener('WebComponentsReady', function() {
-					// imports are loaded and elements have been registered
-					if(element.initUserInfo){
-						element.initializeUserInfo();
-					}
-				});
-			},
-			initializeUserInfo: function(){
-				var defaultUserError = function(){
-					page('/login');
-				}
-				var self = this;
+			loadUser: function(success, error) {
+				var that = this;
 				var cookieService = document.createElement('cookie-service');
-				cookieService.addEventListener('user-ok', function(e){
-					self.user = e.detail;
-					self.refreshMenu();
-					if(!!self.customUserOk){
-						self.customUserOk(e);
-						self.customUserOk = null;
+				cookieService.addEventListener('user-ok', function(e) {
+					that.user = e.detail;
+					that.refreshMenu();
+					if (!!success) {
+						success();
 					}
 				});
-				cookieService.addEventListener('user-error', function(){
-					if(!!self.customUserError){
-						self.customUserError();
-						self.customUserError = null;
-						return;
+				cookieService.addEventListener('user-error', function() {
+					if (!!error) {
+						return error();
 					}
-					defaultUserError();
+					page('/login');
 				});
 				cookieService.login();
 			},
@@ -124,9 +108,7 @@
 				var invitationRequest = document.createElement('iron-ajax');
 				invitationRequest.withCredentials = true;
 				invitationRequest.url = util.build('/invite/auth/' + token);
-				var self = this;
 				invitationRequest.addEventListener('response', function(r){
-					self.initializeUserInfo();
 					page('/contest/' + r.detail.response);
 				});
 				invitationRequest.generateRequest();

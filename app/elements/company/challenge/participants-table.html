@@ -1,5 +1,6 @@
-<link rel="import" href="../../../bower_components/paper-datatable/paper-datatable.html">
 <link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../../../bower_components/paper-datatable/paper-datatable.html">
+<link rel="import" href="../../../bower_components/paper-material/paper-material.html">
 
 <dom-module id="participants-table">
 	<style include="iron-flex">
@@ -7,22 +8,27 @@
 			display: block;
 			height: 100%;
 		}
+		paper-material {
+			margin: 16px;
+		}
 		paper-icon-button {
 			@apply(--layout-self-center);
 		}
 	</style>
 	<template>
 		<participants-by-challenge-canonical-name-provider canonical-name="[[challenge]]" data="{{participants}}"></participants-by-challenge-canonical-name-provider>
-
-		<paper-datatable data="{{participants}}" style="overflow-y: auto;" on-row-tap="_onClick">
-			<paper-datatable-column header="Username" property="username" sortable>
-			</paper-datatable-column>
-			<paper-datatable-column header="Team" property="teamName" type="String">
-				<template>
-					<span>{{value}}</span>
-				</template>
-			</paper-datatable-column>
-		</paper-datatable>
+		<paper-material class="card">
+			<h3>Participants</h3>
+			<paper-datatable data="{{participants}}" style="overflow-y: auto;" on-row-tap="_onClick">
+				<paper-datatable-column header="Username" property="username" sortable>
+				</paper-datatable-column>
+				<paper-datatable-column header="Team" property="teamName" type="String">
+					<template>
+						<span>{{value}}</span>
+					</template>
+				</paper-datatable-column>
+			</paper-datatable>
+		</paper-material>
 	</template>
 	<script>
 		Polymer({

@@ -1,0 +1,96 @@
+<link rel="import" href="../../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../bower_components/paper-input/all-imports.html">
+<link rel="import" href="../../../bower_components/paper-material/paper-material.html">
+<link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+
+<dom-module id="social-components">
+	<style type="text/css" include="iron-flex">
+:host {
+	display: block;
+}
+
+paper-button {
+	width: 100%;
+
+	margin: 0 !important;
+	margin-top: 12px !important;
+}
+
+.google, .facebook, .github, .linkedin {
+	color: #ffffff;
+}
+
+.google {
+	background-color: #DD4B39;
+}
+
+.facebook {
+	background-color: #3B5998;
+}
+
+.github {
+	background-color: #444444;
+}
+
+.linkedin {
+	background-color: #007BB6;
+}
+
+#socialSignInWrapper {
+	padding-top: 12px;
+	padding-bottom: 12px;
+}
+
+.flex {
+	@apply(--layout-flex);
+}
+	</style>
+	<template>
+			<span class="flex"></span>
+			<form id="form-google" method="POST" action="[[_build('/auth/google')]]">
+				<input name="scope" value="profile email" type="hidden">
+				<paper-button raised on-click="_submit" provider="google" class="google"><span>{{label}}</span>&nbsp;with Google</paper-button>
+			</form>
+			<form id="form-github" method="POST" action="[[_build('/auth/github')]]"  >
+				<input name="scope" value="user:email" type="hidden">
+				<paper-button raised on-click="_submit" provider="github" class="github"><span>{{label}}</span>&nbsp;with GitHub</paper-button>
+			</form>
+			<form id="form-facebook" method="POST" action="[[_build('/auth/facebook')]]">
+				<input name="scope" value="email" type="hidden">
+				<paper-button raised on-click="_submit" provider="facebook" class="facebook"><span>{{label}}</span>&nbsp;with Facebook</paper-button>
+			</form>
+			<form id="form-linkedin" method="POST" action="[[_build('/auth/linkedin')]]">
+				<input name="scope" value="r_basicprofile r_emailaddress" type="hidden">
+				<paper-button raised on-click="_submit" provider="linkedin" class="linkedin"><span>{{label}}</span>&nbsp;with LinkedIn</paper-button>
+			</form>
+			<span class="flex"></span>
+	</template>
+</dom-module>
+
+<script>
+Polymer({
+	is: 'social-components',
+	properties: {
+		email: {
+			type: String,
+			notify: true
+		},
+		empty: {
+			type: String,
+			notify: true
+		}
+	},
+	_build: function(url) {
+		return util.build(url);
+	},
+	_submit: function(e) {
+		if(!!this.control && !!this.control.socialCallback){
+			this.control.socialCallback();
+		}
+		document.getElementById('form-' + e.target.getAttribute('provider')).submit();
+	}
+});
+</script>

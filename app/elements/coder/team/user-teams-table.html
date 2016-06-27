@@ -1,10 +1,11 @@
 <link rel="import" href="../../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../../bower_components/iron-icons/editor-icons.html">
 <link rel="import" href="../../../bower_components/iron-icons/social-icons.html">
+<link rel="import" href="../../../bower_components/iron-image/iron-image.html">
 <link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../../bower_components/paper-datatable/paper-datatable.html">
 <link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
-
+ 
 <dom-module id="user-teams-table">
 	<style include="iron-flex">
 		:host {
@@ -14,30 +15,69 @@
 		paper-icon-button {
 			@apply(--layout-self-center);
 		}
+		.placeholder {
+			display: block;
+			height: 70%;
+			width: 90%;
+			margin: 0 auto;
+		}
+		#buttonWrapper{
+			height: 40px;
+			@apply(--layout-horizontal-reverse);
+		}
+		#messageWrapper {
+			padding-top: 24px;
+			@apply(--layout-horizontal);
+		}
+		#messageWrapper > span {
+			@apply(--layout-flex);
+		}
+		a {
+			cursor: pointer;
+		}
+		paper-datatable {
+			height: 100%;
+			overflow-y: auto;
+		}
 	</style>
 	<template>
 		<teams-for-user-provider show-progress="[[showProgress]]" username="[[user.username]]" data="{{data}}"></teams-for-user-provider>
-		<paper-datatable data="{{teams}}" style="height: 100%; overflow-y: auto;" on-cell-tap="_onClick">
-			<paper-datatable-column header="Name" property="name" >
-			</paper-datatable-column>
-			<paper-datatable-column header="Members" property="members" type="Array" sortable>
-				<template>
-					<span>{{value.length}}</span>
-				</template>
-			</paper-datatable-column>
-			<template is="dom-if" if="[[isCurrentUser]]">
-				<paper-datatable-column header="Options" property="isUserAdmin" width="200">
-					<template is="dom-if" if="[[value]]">
-						<paper-icon-button icon="social:group-add" on-click="_invite"></paper-icon-button>
-						<paper-icon-button icon="editor:mode-edit" on-click="_edit"></paper-icon-button>
-						<paper-icon-button icon="delete" on-click="_delete"></paper-icon-button>
-					</template>
-				</paper-datatable-column>
-			</template>
-		</paper-datatable>
 		<invite-to-team-modal id="inviteToTeamDialog"></invite-to-team-modal>
 		<delete-team-modal id="deleteTeamDialog" on-team-deleted="_teamDeleted"></delete-team-modal>
 		<edit-team-modal id="editTeamDialog"></edit-team-modal>
+		<create-team-modal id="createTeamDialog" on-team-created="refresh"></create-team-modal>
+
+		<template is="dom-if" if="{{hasTeams}}">
+			<paper-datatable data="{{teams}}" on-cell-tap="_onClick">
+				<paper-datatable-column header="Name" property="name" >
+				</paper-datatable-column>
+				<paper-datatable-column header="Members" property="members" type="Array" sortable>
+					<template>
+						<span>{{value.length}}</span>
+					</template>
+				</paper-datatable-column>
+				<template is="dom-if" if="[[isCurrentUser]]">
+					<paper-datatable-column header="Options" property="isUserAdmin" width="200">
+						<template is="dom-if" if="[[value]]">
+							<paper-icon-button icon="social:group-add" on-click="_invite"></paper-icon-button>
+							<paper-icon-button icon="editor:mode-edit" on-click="_edit"></paper-icon-button>
+							<paper-icon-button icon="delete" on-click="_delete"></paper-icon-button>
+						</template>
+					</paper-datatable-column>
+				</template>
+			</paper-datatable>
+			<div id="buttonWrapper">
+				<paper-icon-button icon="add" on-click="_createTeam"></paper-icon-button>
+			</div>
+		</template>
+		<template is="dom-if" if="{{!hasTeams}}">
+			<iron-image src="/images/team.png" sizing="contain" class="placeholder"></iron-image>
+			<div id="messageWrapper">
+				<span></span>
+				<a on-click="_createTeam">Want your own team? Create it here.</a>
+				<span></span>
+			</div>
+		</template>
 	</template>
 	<script>
 		// NOTE: username needs to be set for data to be shown.
@@ -59,6 +99,7 @@
 					teams[i].isUserAdmin = this._isAdmin(user, teams[i]);
 				}
 				this.teams = teams;
+				this.hasTeams = !!this.teams && this.teams.length > 0;
 			},
 			_onClick: function(e, d){
 				if(d.column.header === 'Options'){
@@ -94,12 +135,15 @@
 				this.clickedOnOption = false;
 			},
 			_createTeam: function(){
-				this.$.createTeamDialog.toggle();
+				this.$.createTeamDialog.open();
 			},
 			_isAdmin: function(user, team){
 				return team.members.some(function(it) {
 					return it.admin && it.username === user.username;
 				});
+			},
+			createTeam: function(){
+				this.$.createTeamDialog.open();
 			},
 			refresh: function(){
 				this.$$('teams-for-user-provider').refresh();

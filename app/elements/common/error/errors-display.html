@@ -4,12 +4,16 @@
 
 	<template>
 		<style include="iron-flex">
-			#container {
+			.error {
 				color: red;
 				margin: 15px 0 0;
 			}
 		</style>
-		<div id="container">{{error.error.message}}</div>
+		<div id="container">
+			<template is="dom-repeat" items="[[errors]]">
+				<div class="error">{{item.message}}</div>
+			</template>
+		</div>
 	</template>
 	<script>
 		Polymer({
@@ -23,6 +27,11 @@
 			_errorChanged: function(){
 				if (!!this.error){
 					this.$.container.style.display = '';
+					if (!(this.error.error instanceof Array)){
+						this.errors = [this.error.error]
+					} else {
+						this.errors = this.error.error;
+					}
 				}else{
 					this.$.container.style.display = 'none';
 				}

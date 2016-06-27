@@ -1,9 +1,10 @@
-<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid.html">
 <link rel="import" href="../../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../../bower_components/iron-icons/social-icons.html">
 <link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../bower_components/paper-fab/paper-fab.html">
 <link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../../../bower_components/iron-pages/iron-pages.html">
 
 <link rel="import" href="../../../bower_components/paper-tabs/paper-tabs.html">
 <link rel="import" href="../../../bower_components/paper-tabs/paper-tab.html">
@@ -43,7 +44,7 @@
 		}
 		#userInfo {
 			text-align:center;
-			@apply(--layout-flex)
+			@apply(--layout-flex);
 			@apply(--layout-vertical)
 		}
 		#skillPolygonWrapper {
@@ -61,24 +62,20 @@
 		#teamsGrid {
 			height: calc(100% - 100px);
 		}
-		#userChallengesGrid {
-			height: calc(100% - 60px);
-		}
-		#teamsButtons{
-			height: 40px;
-			@apply(--layout-horizontal-reverse);
-		}
 		paper-icon-button {
 			@apply(--layout-self-center);
 		}
 		.teamsContent {
-			height: calc(100% - 60px);
+			height: calc(100% - 100px);
 		}
 		.header{
 			background: white;
 			color: black;
 			height: 100%;
 			width: calc(100% - 24px);
+		}
+		iron-pages {
+			height: 100%;
 		}
 	</style>
 	<template>
@@ -108,21 +105,14 @@
 						<h3 class="card-header">Teams</h3>
 					</template>
 				</div>
-				<template is="dom-if" if="[[showUserTeams]]">
+				<iron-pages selected="[[selectedTab]]">
 					<user-teams-table id="teamsGrid" show-progress="true" user="[[user]]" is-current-user="[[isCurrentUser]]"></user-teams-table>
-					<div id="teamsButtons">
-						<paper-button icon="add" on-click="createTeam">New team</paper-button>
-					</div>
-				</template>
-				<template is="dom-if" if="[[showInvitations]]">
 					<user-team-invitations-table class="teamsContent" on-invitation-accepted="_refreshTeams"></user-team-invitations-table>
-				</template>
+				</iron-pages>
 			</paper-material>
 			<paper-material class="right" elevation="1">
 			</paper-material>
 		</div>
-
-		<create-team-modal id="createTeamDialog" on-team-created="_refreshTeams"></create-team-modal>
 	</template>
 	<script>
 		// NOTE: username needs to be set for data to be shown.
@@ -130,23 +120,10 @@
 			is: 'profile-page',
 			properties: {
 				selectedTab: {
-					value: 0
-				},
-				showUserTeams: {
-					computed: '_computeShowUserTeams(isCurrentUser, selectedTab)'
-				},
-				showInvitations: {
-					computed: '_computeShowInvitations(isCurrentUser, selectedTab)'
+					value: function() {
+						return 0;
+					}
 				}
-			},
-			_computeShowUserTeams: function(isCurrentUser, selectedTab){
-				return !isCurrentUser || selectedTab === 0;
-			},
-			_computeShowInvitations: function(isCurrentUser, selectedTab){
-				return isCurrentUser && selectedTab === 1;
-			},
-			createTeam: function(){
-				this.$.createTeamDialog.open();
 			},
 			_refreshTeams: function(){
 				this.$$('#teamsGrid').refresh();

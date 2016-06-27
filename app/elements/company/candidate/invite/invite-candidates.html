@@ -36,7 +36,6 @@
 					<template is="dom-repeat" items="{{candidates}}">
 						<invite-candidate-input name="inviteCandidateInput" candidate="{{item}}" required></invite-candidate-input>
 					</template>
-
 				</form>
 			</paper-dialog-scrollable>
 			<div id="addCandidate" on-click="_addCandidate">
@@ -56,10 +55,6 @@
 		Polymer({
 			is: 'invite-candidates',
 			properties: {
-				challenge: {
-					type: Object,
-					notify: true
-				},
 				candidates: {
 					type: Array,
 					notify: true,
@@ -82,13 +77,13 @@
 				for (var i = 0; i < this.candidates.length; i++) {
 					this.$.userService.invite({
 						'email': this.candidates[i].email,
-						'challengeId': this.candidates[i].challengeId
+						'canonicalName': this.challenge
 					});
 				}
 				this.$.dialog.close();
 			},
 			_addCandidate: function () {
-				this.push('candidates', {'challengeId': this.challenge.id});
+				this.push('candidates', {});
 			},
 			_removeCandidate: function(event){
 				var index = this.candidates.indexOf(event.detail);

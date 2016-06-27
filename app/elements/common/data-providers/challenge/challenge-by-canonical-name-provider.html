@@ -18,6 +18,13 @@
 	<script>
 		Polymer({
 			is: 'challenge-by-canonical-name-provider',
+			properties: {
+				manual: {
+					type: Boolean,
+					notify: true,
+					value: false
+				}
+			},
 			behaviors: [
 				Behaviors.Providers.General
 			],
@@ -25,6 +32,9 @@
 				'_urlChanged(baseUrl, canonicalName)'
 			],
 			_urlChanged: function(){
+				if (this.manual){
+					return;
+				}
 				this.refresh();
 			},
 			refresh: function(){

@@ -1,8 +1,8 @@
-<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid.html">
 <link rel="import" href="../../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../../bower_components/iron-icons/social-icons.html">
 <link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../../../bower_components/paper-datatable/paper-datatable.html">
 
 <dom-module id="tasks-table">
 	<style include="iron-flex">
@@ -15,44 +15,28 @@
 		}
 	</style>
 	<template>
-		<vaadin-grid id="grid" class="fullHeight" items="[[tasks]]" on-selected-items-changed="_selectedItemsChanged">
-			<table>
-				<thead>
-					<tr>
-						<th>Name</th>
-						<th>Tag</th>
-						<th>Duration</th>
-					</tr>
-				</thead>
-				<colgroup>
-					<col name="name"/>
-					<col name="canonicalName"/>
-					<col name="duration"/>
-				</colgroup>
-			</table>
-		</vaadin-grid>
+		<paper-datatable data="[[tasks]]" class="fullHeight" on-cell-tap="_onClick">
+			<paper-datatable-column header="Name" property="name"></paper-datatable-column>
+			<paper-datatable-column header="Tag" property="canonicalName"></paper-datatable-column>
+			<paper-datatable-column header="Duration" property="duration" type="Object">
+				<template>
+					<span>{{_formatDuration(value)}}</span>
+				</template>
+			</paper-datatable-column>
+		</paper-datatable>
 	</template>
 	<script>
 		// NOTE: members needs to be set for data to be shown.
 		Polymer({
 			is: 'tasks-table',
-			observers: [
-				'_dataChanged(tasks)'
-			],
-			_selectedItemsChanged: function(){
-				var selected = this.$.grid.selection.selected();
-				if(!selected || selected.length === 0){
+			_onClick: function(e, d){
+				if(d.column.header === 'Options'){
 					return;
 				}
-				page('/tasks/' + this.tasks[selected[0]].id);
+				page('/tasks/' + d.item.id);
 			},
-			_dataChanged: function(){
-				this.$.grid.columns[2].renderer = function(cell){
-					if(!cell.data){
-						return '0';
-					}
-					cell.element.innerHTML = util.computeDuration(cell.data);
-				};
+			_formatDuration: function(d){
+				return util.computeDuration(d);
 			}
 		});
 	</script>

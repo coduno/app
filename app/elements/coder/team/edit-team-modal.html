@@ -13,7 +13,7 @@
 			@apply(--layout-vertical);
 		}
 		paper-input {
-			width: 250px;
+			width: 500px;
 		}
 	</style>
 	<template>
@@ -32,7 +32,7 @@
 					<paper-input autofocus="true" label="Name" value="{{updatedTeam.name}}"
 						required minlength="6" maxlength="40" auto-validate error-message="Must be between 6 and 40 chars."></paper-input>
 					<paper-input label="Canonical name" value="{{updatedTeam.canonicalName}}"
-						required minlength="6" maxlength="40" auto-validate error-message="Must be between 6 and 40 chars."></paper-input>
+						required minlength="6" maxlength="40" auto-validate error-message="Must be between 6 and 40 chars. Only lowercase letters, numbers and hyphens" pattern="^[a-z0-9]+(-[a-z0-9]+)*"></paper-input>
 				</form>
 			</div>
 			<div class="buttons">

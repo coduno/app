@@ -13,9 +13,9 @@
 	<template>
 		<cookie-service id="cookieService" on-user-error="_onUserError" on-user-ok="_userOk"></cookie-service>
 		<neon-animated-pages id="pages" class="flex fullHeight" selected="[[selected]]" entry-animation="[[entryAnimation]]" exit-animation="[[exitAnimation]]">
-			<login-page-email context="[[context]]" email="{{email}}" on-next="next" on-prev="prev"></login-page-email>
-			<login-page-password email="{{email}}" password="{{password}}" on-next="next" on-prev="prev"></login-page-password>
-			<login-page-u2f on-next="next"></login-page-u2f>
+			<login-page-email id="emailPage" context="[[context]]" email="{{email}}" on-next="next" on-prev="prev"></login-page-email>
+			<login-page-password id="passwordPage" email="{{email}}" password="{{password}}" on-next="next" on-prev="prev"></login-page-password>
+			<login-page-u2f id="u2fPage" on-next="next"></login-page-u2f>
 		</neon-animated-pages>
 		<paper-toast id="toastCredentials" text="Invalid username/e-mail and password combination, please try again."></paper-toast>
 	</template>
@@ -35,7 +35,8 @@ Polymer({
 	properties: {
 		selected: {
 			type: Number,
-			value: 0
+			value: 0,
+			observer: '_selectedChanged'
 		},
 		entryAnimation: String,
 		exitAnimation: String,
@@ -51,9 +52,6 @@ Polymer({
 			type: String,
 			notify: true
 		}
-	},
-	listeners: {
-		'neon-animation-finish': '_afterNeon'
 	},
 	setEmail: function(email){
 		this.email = email;
@@ -105,6 +103,20 @@ Polymer({
 			return;
 		}
 		app.login(user);
+	},
+	_selectedChanged: function(){
+		switch (this.selected) {
+			case pageEmail:
+				this.$.emailPage.focus();
+				break;
+			case pagePassword:
+				this.$.passwordPage.focus();
+				break;
+			case pageU2f:
+				this.$.u2fPage.focus();
+				break;
+		}
+
 	}
 });
 </script>

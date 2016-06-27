@@ -1,0 +1,211 @@
+<link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../../../../bower_components/iron-icon/iron-icon.html">
+
+<dom-module id="file-explorer">
+	<template >
+		<style include="iron-flex">
+			:host {
+				display: block;
+				height: 100%;
+			}
+			#content {
+				padding-left: 20px;
+			}
+		</style>
+
+		<file-exporer-item item="[[rootItem]]" path="/"></file-exporer-item>
+		<file-explorer-node id="content" node="{{tree}}" path="/"></file-explorer-node>
+		<paper-toast id="toast"></paper-toast>
+	</template>
+	<script>
+		Polymer({
+			is: 'file-explorer',
+			properties: {
+				language: {
+					type: String,
+					notify: true,
+					reflectToAttribute: true
+				},
+				tree: {
+					type: Object,
+					notify: true
+				},
+				names: {
+					value: {
+						good: /^[a-zA-Z0-9-_~\.]{1,255}$/,
+						bad: ['.', '..']
+					}
+				},
+				cachedPath:{
+					value: ''
+				}
+			},
+			listeners: {
+				'rename': 'onRename',
+				'delete': 'onDelete',
+				'add-file': 'onAddFile',
+				'add-folder': 'onAddFolder',
+				'file-selected': '_fileSelected'
+			},
+			ready: function(){
+				this.rootItem = {name: '/', value: {}}
+				if(!!localStorage.cachedCode){
+					this.tree = JSON.parse(localStorage.cachedCode);
+					return;
+				}
+				this.tree = {};
+			},
+			clear: function(){
+				this.tree = undefined;
+				this.tree = {};
+			},
+			_fileSelected: function(e, detail){
+				if(detail.item.name.indexOf('.') !== -1){
+					this.language = detail.item.name.substring(detail.item.name.lastIndexOf('.') + 1, detail.item.name.length);
+				}
+			},
+			get: function(path, name){
+				var node = this.getNodeForPath(this.tree, path + name)
+				return node;
+			},
+			update: function(path, name, content){
+				var tree = this.tree;
+				var node = this.getNodeForPath(tree, path);
+				if(!node){
+					return;
+				}
+				node[name] = content;
+				this.tree = tree;
+				localStorage.cachedCode = JSON.stringify(this.tree);
+			},
+			onAddFile: function(e){
+				this.addFile(e.detail.path, '');
+			},
+			onAddFolder: function(e){
+				var tree = this.tree;
+				if(!this.addItem(tree, e.detail.path, {})){
+					return;
+				}
+				this.refreshTree(tree);
+			},
+			onDelete: function(e){
+				var data = e.detail;
+				var tree = this.tree;
+
+				var toRemove = this.getNodeForPath(tree, data.path);
+				delete toRemove[data.name];
+
+				this.refreshTree(tree);
+			},
+			onRename: function(e){
+				var data = e.detail;
+				var tree = this.tree;
+
+				var toRemove = this.getNodeForPath(tree, data.path);
+				if(!this.addItem(tree, data.to, toRemove[data.name])){
+					return;
+				}
+				delete toRemove[data.name];
+
+				this.refreshTree(tree);
+			},
+			addFile: function(path, content) {
+				var tree = this.tree;
+				if(!this.addItem(tree, path, content)){
+					return;
+				}
+				if(path.indexOf('.') !== -1){
+					this.language = path.substring(path.lastIndexOf('.') + 1, path.length);
+				}
+				this.refreshTree(tree);
+			},
+			addItem: function(tree, path, item){
+				var splitValue = path.split('/');
+				var itemName = splitValue[splitValue.length - 1];
+				if(!this.names.good.test(itemName)){
+					this.showToast('Name is not valid.');
+					return false;
+				}
+				if(itemName === ''){
+					this.showToast('Name cannot be empty.');
+					return false;
+				}
+				var path = this.splitPath(path);
+
+
+				var node = this.getNodeForPathArray(tree, path.slice(0, path.length - 1));
+				if(node === undefined){
+					return false;
+				}
+				if(typeof node !== 'object'){
+					this.showToast('You cannot transform files in folders!')
+					return false;
+				}
+				var name = path.pop();
+				if(!!node[name]){
+					this.showToast('Name already exists!')
+					return false;
+				}
+				node[name] = item;
+				return true;
+			},
+			splitPath: function(path){
+				return path.split('/').filter(function(elem){
+					return elem !== '';
+				});
+			},
+			getNodeForPath: function(tree, path){
+				return this.getNodeForPathArray(tree, this.splitPath(path));
+			},
+			getNodeForPathArray: function(tree, path){
+				var node = tree;
+				for(var i = 0; i < path.length; i++){
+					if(!node[path[i]] && node[path[i]] !== ''){
+						if(!this.names.good.test(path[i])){
+							this.showToast('The name ' + path[i] + ' is not valid.');
+							return undefined;
+						}
+						node[path[i]] = {};
+					}
+					node = node[path[i]];
+				}
+				return node;
+			},
+			refreshTree: function(tree){
+				this.tree = undefined;
+				this.tree = tree;
+			},
+			getPathsRecursively: function(node, elements, base){
+				for(var key in node){
+					if(node.hasOwnProperty(key)){
+						var path = base === '' ? key : base + '/' + key;
+						if(typeof node[key] === 'object'){
+							this.getPathsRecursively(node[key], elements, path)
+							continue;
+						}
+						elements.push({
+							path: path,
+							value: node[key]
+						});
+					}
+				}
+			},
+			getFiles: function(){
+				var tree = this.tree;
+
+				var elements = [];
+				this.getPathsRecursively(tree, elements, '');
+				return elements.map(function(it) {
+					var blob = new Blob([it.value]);
+					blob.name = it.path;
+					console.log(blob);
+					return blob;
+				});
+			},
+			showToast: function(message){
+				this.$.toast.text = message;
+				this.$.toast.show();
+			}
+		});
+	</script>
+</dom-module>

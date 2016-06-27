@@ -1,19 +1,54 @@
 <dom-module id="code-editor">
-	<style>
+	<style include="iron-flex">
 		:host {
 			display: block;
 			height: 100%;
 		}
-
 		#editor {
+			height: calc(100% - 36px);
+			z-index: 0;
+		}
+		.container {
 			height: 100%;
-			z-index:0;
+			@apply(--layout-horizontal);
+		}
+		.editor-container {
+			@apply(--layout-flex);
+			height: 100%;
+			@apply(--layout-vertical);
+		}
+		.explorer-container {
+			width: 200px;
+		}
+		file-explorer {
+			height: 100%;
+		}
+		#editorTopNav {
+			@apply(--layout-horizontal);
+		}
+		#togleExplorerButton {
+			@apply(--layout-self-center);
+		}
+		#currentFileName {
+			padding: 0;
+			margin: 0;
+			@apply(--layout-self-center);
 		}
 	</style>
 	<template>
-		<user-submission-service id="submissionService"></user-submission-service>
-		<ws-element url="{{wsUrl}}"></ws-element>
-		<div id="editor"></div>
+		<context-menu id="contextMenu"></context-menu>
+		<div class="container">
+			<div class="explorer-container" style$="{{explorerStyle}}">
+				<file-explorer language="{{language}}"></file-explorer>
+			</div>
+			<div class="editor-container">
+				<div id="editorTopNav">
+					<paper-icon-button id="togleExplorerButton" icon="{{toggleExplorerIcon}}" on-click="_toggle"></paper-icon-button>
+					<p id="currentFileName">{{currentFileName}}</p>
+				</div>
+				<div id="editor"></div>
+			</div>
+		</div>
 	</template>
 	<script src="../../../bower_components/ace-min-noconflict/ace.js" type="application/javascript"></script>
 	<script src="../../../bower_components/ace-min-noconflict/theme-chrome.js" type="application/javascript"></script>
@@ -23,94 +58,168 @@
 		Polymer({
 			is: 'code-editor',
 			properties: {
-				wsUrl: {
-					type: String,
-					notify: true
-				},
-				taskId: {
-					type: String,
-					reflectToAttribute: true
-				},
 				language: {
 					type: String,
+					notify: true,
 					reflectToAttribute: true,
 					observer: '_languageChanged'
 				},
-				filename: String,
-				mimeType: String
+				toggleExplorerIcon: {
+					type: String,
+					notify: true,
+					value: 'chevron-left'
+				},
+				explorerStyle: {
+					type: String,
+					value: ''
+				},
+				selectedFile: {
+					type: Object,
+					notify: true,
+					reflectToAttribute: true
+				}
 			},
-			run: function() {
-				this.$.submissionService.run(this.taskId, this.language, this.getFile());
+			listeners: {
+				'show-menu': '_showMenu',
+				'file-selected': '_fileSelected'
 			},
-			submit: function() {
-				this.$.submissionService.submit(this.taskId, this.language, this.getFile());
-			},
-			ready: function(){
-				this.wsUrl = util.getWSUrl('/ws');
+			ready: function() {
+				this._addContextMenuListener();
 				ace.require('ace/ext/language_tools');
 				this.$.editor = ace.edit(this.$.editor);
 				this.$.editor.setTheme('ace/theme/chrome');
 				this.$.editor.setOptions({
 					enableBasicAutocompletion: true
 				});
-				var self = this;
+				var that = this;
+				this.$.editor.getSession().on('change', function() {
+					var content = that.$.editor.getValue();
+					if(!that.selectedFile){
+						return console.log('no selected file')
+					}
+					that.$$('file-explorer').update(that.selectedFile.path, that.selectedFile.item.name, content);
+				});
 				this.$.editor.commands.addCommand({
 					name: 'run',
 					bindKey: {
-						win: 'Ctrl-Enter',
+						win: 'Ctrl-Enter'
 					},
-					exec: function(){
-						self.runCodeNormal();
-						console.log('loading animation not started');
+					exec: function() {
+						that.fire('run-code');
 					},
 					readOnly: true
 				});
-				this.$.editor.getSession().on('change', function(){
-					self.fire('code-changed', self.$.editor.getValue());
-				});
 				this.$.editor.$blockScrolling = Infinity;
+				this.disableEditor();
 			},
-			getFile: function() {
-				var blob = new Blob([this.$.editor.getValue()], {type: this.mimeType });
-				blob.name = this.filename;
-				return blob;
+			disableEditor: function(){
+				this.$.editor.container.style.opacity = 0.5
+				this.$.editor.setReadOnly(true);
 			},
-			setValue: function(text){
+			enableEditor: function(){
+				this.$.editor.container.style.opacity = 1;
+				this.$.editor.setReadOnly(false);
+			},
+			clear: function(){
+				this.$.editor.getSession().setValue('');
+				this.$$('file-explorer').clear();
+			},
+			_fileSelected: function(e, detail) {
+				if (!!this.selectedFile) {
+					this.selectedFile.unselectFile();
+				}
+				this.selectedFile = detail;
+				this.setValue(this.$$('file-explorer').get(this.selectedFile.path, this.selectedFile.item.name));
+				this.currentFileName = this.selectedFile.item.name;
+				this.enableEditor();
+			},
+			_toggle: function() {
+				if (this.toggleExplorerIcon === 'chevron-left') {
+					this.explorerStyle = 'display: none';
+					this.toggleExplorerIcon = 'chevron-right';
+				} else {
+					this.explorerStyle = '';
+					this.toggleExplorerIcon = 'chevron-left';
+				}
+			},
+			getFiles: function() {
+				return this.$$('file-explorer').getFiles();
+			},
+			setValue: function(text) {
+				if (text === null || text === undefined) {
+					return;
+				}
+				if (!((typeof(text) === 'string' || text instanceof String))) {
+					return;
+				}
 				this.$.editor.getSession().setValue(text);
 			},
-			setFile: function(f) {
-				var that = this;
+			uploadFile: function(f) {
 				var fr = new FileReader();
+				var that = this;
 				fr.onload = function(e) {
-					that.setValue(e.target.result);
+					that.tree.add(f.name, e.target.result);
 				};
 				fr.readAsText(f);
-				this.mimeType = f.type;
-				this.filename = f.name;
 			},
-			_languageChanged: function(){
-				if(this.language){
+			addFile: function(path, content) {
+				this.$$('file-explorer').addFile(path, content);
+			},
+			_languageChanged: function() {
+				if (this.language) {
 					this._setMode(this.language);
 				}
 			},
-			_setMode: function(lang){
+			_setMode: function(lang) {
 				var languageModeMap = {
-					'c': 'c_cpp',
-					'cpp': 'c_cpp',
+					'c':      'c_cpp',
+					'cpp':    'c_cpp',
 					'csharp': 'csharp',
-					'java': 'java',
-					'js': 'javascript',
-					'py': 'python',
-					'go': 'golang',
-					'scala': 'scala',
+					'java':   'java',
+					'js':     'javascript',
+					'py':     'python',
+					'go':     'golang',
+					'scala':  'scala',
 					'groovy': 'groovy',
-					'php': 'php'
+					'php':    'php'
 				};
-				var mode = languageModeMap[lang];
-				if(!mode){
-					mode = 'text';
+				if(!this.$.editor.getSession){
+					return;
 				}
-				this.$.editor.getSession().setMode('ace/mode/' + mode);
+				this.$.editor.getSession().setMode('ace/mode/' + (languageModeMap[lang] || 'text'));
+			},
+			_showMenu: function(event, data) {
+				this.$.contextMenu.showMenu(data);
+			},
+			_addContextMenuListener: function() {
+				var that = this;
+				document.addEventListener('click', function(e) {
+					if (that._clickInsideElement(e, 'context-menu')) {
+						return;
+					}
+					if (that._clickInsideElement(e, 'explorer-folder')) {
+						return;
+					}
+					var cm = document.querySelector('context-menu');
+					if (cm) {
+						cm.hideMenu();
+					}
+				});
+			},
+			_clickInsideElement: function(e, elName) {
+				elName = elName.toLowerCase();
+				var el = e.srcElement || e.target;
+				if (el.tagName.toLowerCase() === elName) {
+					return el;
+				}
+
+				while (!!(el = el.parentNode)) {
+					if (!!el.tagName && el.tagName.toLowerCase() === elName) {
+						return el;
+					}
+				}
+
+				return false;
 			}
 		});
 	</script>

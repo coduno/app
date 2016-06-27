@@ -35,8 +35,7 @@
 				dateTime: {
 					type: Object,
 					notify: true,
-					reflectToAtribute: true,
-					observer: '_dateTimeSet'
+					reflectToAtribute: true
 				},
 				label: {
 					type: String,
@@ -53,12 +52,12 @@
 					value: 'Next'
 				}
 			},
-			_dateTimeSet: function(){
-				if (!this.dateTime){
+			setDate: function(dateToSet){
+				if (!dateToSet){
 					return;
 				}
-				if (!(this.dateTime instanceof Date)){
-					var date = new Date(this.dateTime);
+				if (!(dateToSet instanceof Date)){
+					var date = new Date(dateToSet * 1000);
 					this.$.datePicker.date = date;
 					this.$.timePicker.hour = date.getHours();
 					this.$.timePicker.minute = date.getMinutes();

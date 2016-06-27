@@ -1,5 +1,8 @@
-<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid.html">
 <link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../../../bower_components/paper-datatable/paper-datatable.html">
+<link rel="import" href="../../../bower_components/paper-material/paper-material.html">
+<link rel="import" href="../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../bower_components/iron-icons/iron-icons.html">
 
 <dom-module id="invited-users-table">
 	<style include="iron-flex">
@@ -7,62 +10,60 @@
 			display: block;
 			height: 100%;
 		}
+		paper-material {
+			margin: 16px;
+		}
 		paper-icon-button {
 			@apply(--layout-self-center);
+		}
+		.title-wrapper {
+			@apply(--layout-horizontal);
 		}
 	</style>
 	<template>
 		<invitations-by-challenge-canonical-name-provider canonical-name="[[challenge]]" data="{{invitations}}"></invitations-by-challenge-canonical-name-provider>
-		<vaadin-grid id="invitationsGrid" class="fullHeight" items="[[challenges]]" on-selected-items-changed="_selectedItemsChanged">
-			<table>
-				<thead>
-					<tr>
-						<th>Username</th>
-						<th>Email</th>
-						<th>Token</th>
-						<th>Started</th>
-						<th>Expire</th>
-					</tr>
-				</thead>
-				<colgroup>
-					<col name="username"/>
-					<col name="token"/>
-					<col name="email"/>
-					<col name="started"/>
-					<col name="expire"/>
-				</colgroup>
-			</table>
-		</vaadin-grid>
+		<invite-candidates id="inviteCandidates" challenge="{{challenge}}" on-invitation-sent="refresh"></invite-candidates>
+
+		<paper-material class="card">
+			<div class="title-wrapper">
+				<h3>Invited users</h3>
+				<div class="flex"></div>
+				<paper-icon-button icon="mail" on-click="_inviteCandidates"></paper-icon-button>
+			</div>
+			<paper-datatable data="[[invitations]]" class="fullHeight" on-cell-tap="_onClick">
+				<paper-datatable-column header="Username" property="username"></paper-datatable-column>
+				<paper-datatable-column header="Email" property="email"></paper-datatable-column>
+				<paper-datatable-column header="Token" property="token"></paper-datatable-column>
+				<paper-datatable-column header="Started" property="started">
+					<template>
+						<span>{{_formatDate(value)}}</span>
+					</template>
+				</paper-datatable-column>
+				<paper-datatable-column header="Expire" property="expire">
+					<template>
+						<span>{{_formatDate(value)}}</span>
+					</template>
+				</paper-datatable-column>
+			</paper-datatable>
+		</paper-material>
 	</template>
 	<script>
 		Polymer({
 			is: 'invited-users-table',
-			properties: {
-				isAdmin: {
-					value: true
-				}
+			_formatValue: function(data) {
+				return data;
 			},
-			observers: [
-				'_dataChanged(invitations)'
-			],
-			_selectedItemsChanged: function(){
-				var selected = this.$.invitationsGrid.selection.selected();
-				if(!this.clickedOnOption && !!selected && selected.length > 0){
-					var invitation = this.invitations[selected[0]];
-					page('/u/' + invitation.username);
-				}
+			_onClick: function(e, d){
+				page('/u/' + d.item.username);
 			},
-			_dataChanged: function(){
-				var element = this;
-				this.$.invitationsGrid.columns[3].renderer = element._formatDate;
-				this.$.invitationsGrid.columns[4].renderer = element._formatDate;
-				this.$.invitationsGrid.refreshItems();
+			_formatDate: function(d){
+				return util.formatDate(d);
 			},
-			_formatDate: function(cell){
-				if(!cell.data){
-					return '';
-				}
-				cell.element.innerHTML = util.formatDate(cell.data);
+			refresh: function() {
+				this.$$('invitations-by-challenge-canonical-name-provider').refresh();
+			},
+			_inviteCandidates: function(){
+				this.$.inviteCandidates.toggle();
 			}
 		});
 	</script>

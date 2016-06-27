@@ -2,12 +2,8 @@
 <link rel="import" href="../../../../../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../../../../../bower_components/paper-material/paper-material.html">
 <link rel="import" href="../../../../../../bower_components/paper-toast/paper-toast.html">
-<link rel="import" href="/elements/coder/code-editor/code-editor.html">
-<link rel="import" href="/elements/coder/code-editor/language-selector.html">
-<link rel="import" href="/elements/common/services/template-service.html">
-<link rel="import" href="/elements/tasks/task-display.html">
 <link rel="import" href="../../../../../../bower_components/iron-flex-layout/classes/iron-flex-layout.html">
-
+<!--TODO(victorbalan) adapt this task to our current model-->
 <!-- @deprecated -->
 <dom-module id="canvas-game-task">
 	<style>
@@ -73,6 +69,7 @@
 	</style>
 	<template>
 		<template-service id="templateService" task="{{task}}" on-templates="onTemplates"></template-service>
+		<ws-element url="{{wsUrl}}"></ws-element>
 		<iron-ajax
 			id="getCodeRequest"
 			handle-as="json"
@@ -109,6 +106,10 @@
 			// TODO: Extract canvas into own component
 			is: 'canvas-game-task',
 			properties: {
+				wsUrl: {
+					type: String,
+					notify: true
+				},
 				obstacles: Array,
 				coins: Array,
 				moves: Array,
@@ -136,6 +137,9 @@
 			observers: [
 				'_afterPropertiesSet(task)'
 			],
+			ready: function(){
+				this.wsUrl = util.getWSUrl('/ws');
+			},
 			_onWsOpen: function(){
 				// default action
 				console.log('WS OPENED');
@@ -352,7 +356,7 @@
 			},
 			runCode: function(){
 				this.loadTemplate();
-				this.$.codeEditor.runCode('robot', this.task.Key);
+				this.$.codeEditor.runCode('robot', this.task.id);
 				this.$.codeEditor.setMode('robot');
 			},
 			finishTask: function(){
