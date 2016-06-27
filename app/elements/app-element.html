@@ -1,5 +1,4 @@
 <link rel="import" href="../styles/coduno.html">
-<link rel="import" href="../bower_components/google-apis/google-maps-api.html">
 
 <dom-module id="app-element">
 	<style include="coduno-style">
@@ -12,10 +11,6 @@
 		}
 	</style>
 	<template>
-		<google-maps-api
-			api-key="[[apiConfig.apiKey]]"
-			version="[[apiConfig.version]]">
-		</google-maps-api>
 		<paper-header-panel class="fullHeight">
 			<app-nav id="appNav" user="{{user}}"></app-nav>
 			<div id="sections" class="content">
@@ -38,20 +33,6 @@
 		Polymer({
 			is: 'app-element',
 			properties: {
-				apiConfig: {
-					type : Object,
-					notify: true,
-					value: function() {
-						var val = {version: '3.24'};
-						// This api key for the maps api will only work on our production and staging enviornment
-						// so using it locally(or any other place for that matter) will only result in errors.
-						// No api key is needed for local development.
-						if (location.origin.indexOf('localhost') === -1) {
-							val.apiKey = 'AIzaSyCnqlcAd2M-qW20SDsghrBOOLvs144c3og';
-						}
-						return val;
-					}
-				},
 				selected: {
 					type: String,
 					notify: true,

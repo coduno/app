@@ -8,7 +8,13 @@
 			}
 		</style>
 		<div id="container">
-			<google-map id="map" map="{{map}}" latitude="[[location.latitude]]" longitude="[[location.longitude]]" zoom="16">
+			<google-map id="map"
+						api-key="[[apiConfig.apiKey]]"
+						version="[[apiConfig.version]]"
+						map="{{map}}"
+						latitude="[[location.latitude]]"
+						longitude="[[location.longitude]]"
+						zoom="16">
 				<google-map-marker
 					id="marker"
 					marker="{{marker}}"
@@ -23,6 +29,23 @@
 	<script>
 		Polymer({
 			is: 'google-location-viewer',
+			properties: {
+				apiConfig: {
+					type: Object,
+					notify: true,
+					value: function () {
+						// This api key for the maps api will only work on our production and staging enviornment
+						// so using it locally(or any other place for that matter) will only result in errors.
+						// No api key is needed for local development.
+						if (location.origin.indexOf('localhost') === -1) {
+							return {
+								apiKey: 'AIzaSyCnqlcAd2M-qW20SDsghrBOOLvs144c3og',
+								version: '3.24'
+							};
+						}
+					}
+				}
+			},
 			observers: [
 				'_locationSet(map, location)'
 			],
