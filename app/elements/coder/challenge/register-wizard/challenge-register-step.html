@@ -32,6 +32,7 @@
 	</style>
 	<template>
 		<create-team-modal id="createTeamDialog" on-team-created="refresh"></create-team-modal>
+		<challenge-team-invitation-modal on-members-invited="_onMembersInvited"></challenge-team-invitation-modal>
 		<my-teams-provider data="{{teams}}"></my-teams-provider>
 		<iron-ajax id="registerRequest"
 			method="PUT"
@@ -41,6 +42,14 @@
 			on-response="_onResponse"
 			on-error="_onError">
 		</iron-ajax>
+		<coduno-iron-ajax id="participationInvitationRequest"
+			method="POST"
+			path="participation/invitations"
+			content-type="application/json"
+			with-credentials="true"
+			on-request-finished="_redirectToInfoPage"
+			on-request="_onInvitationError">
+		</coduno-iron-ajax>
 		<base-wizard>
 			<div class="title">
 				<h3>Welcome, <span>[[user.username]]!</span></h3>
@@ -59,6 +68,13 @@
 				<p>You are currently not part of any team, if you wish to participate as a team
 					 click <a on-click="_openTeamModal">here</a> to create one. </p>
 			</template>
+			<template is="dom-if" if="{{registeredAsTeam}}">
+				<p>You can invite more members to join your team and this challenge
+					by clicking <a on-click="_openInviteToTeamModal">here</a> </p>
+				<template is="dom-repeat" items="[[emails]]">
+					<p>{{item}}</p>
+				</template>
+			</template>
 			<div id="buttons">
 				<span class="flex"></span>
 				<paper-button raised on-click="_register">Register</paper-button>
@@ -74,8 +90,12 @@
 				Behaviors.AppConnection
 			],
 			observers: [
-				'_teamsLoaded(teams)'
+				'_teamsLoaded(teams)',
+				'_selectedTeamChanged(selectedTeam)'
 			],
+			_selectedTeamChanged: function(){
+				this.registeredAsTeam = !!this.selectedTeam && this.selectedTeam.value !== '';
+			},
 			_teamsLoaded: function(){
 				if(!this.teams || this.teams.length === 0){
 					this.hasTeams = false;
@@ -87,6 +107,15 @@
 			_openTeamModal: function(){
 				this.$.createTeamDialog.open();
 			},
+			_openInviteToTeamModal: function(){
+				this.$$('challenge-team-invitation-modal').open();
+			},
+			_onMembersInvited: function(e, detail){
+				if(!detail){
+					return;
+				}
+				this.emails = detail.replace(' ', '').split(',');
+			},
 			_register: function(){
 				this.$.registerRequest.body = {
 					team: this.selectedTeam ? this.selectedTeam.value : '',
@@ -96,6 +125,17 @@
 				this.$.registerRequest.generateRequest();
 			},
 			_onResponse: function(){
+				if(!this.emails || this.emails.length === 0){
+					return this._onInvitationResponse();
+				}
+				this.$.participationInvitationRequest.body = {
+					userId: this.user.id,
+					challengeId: this.challenge.id,
+					emails: this.emails
+				};
+				this.$.participationInvitationRequest.generateRequest();
+			},
+			_redirectToInfoPage: function(){
 				this._mainApp.setUser(this.user);
 				page('/contest/' + this.challenge.canonicalName + '/info');
 			},
