@@ -41,6 +41,7 @@
 		}
 	</style>
 	<template>
+		<participation-invitation-by-key-provider username="[[invitingUsername]]" challenge="[[canonicalName]]" data="{{participation}}"></participation-invitation-by-key-provider>
 		<challenge-by-canonical-name-provider canonical-name="[[canonicalName]]" data="{{challenge}}"></challenge-by-canonical-name-provider>
 		<user-status-for-challenge-provider canonical-name="[[challenge.canonicalName]]" data="{{status}}"></user-status-for-challenge-provider>
 
@@ -49,8 +50,8 @@
 		<neon-animated-pages id="pages" class="flex" selected="[[selected]]" entry-animation="[[entryAnimation]]" exit-animation="[[exitAnimation]]">
 			<register-page context="[[context]]" on-redirect-login="_login" on-social-register="onSocialRegister"></register-page>
 			<login-wizard context="[[context]]" on-redirect-register="_register"></login-wizard>
-			<challenge-location-step user="[[user]]" challenge="[[challenge]]" location="{{location}}"></challenge-location-step>
-			<challenge-register-step user="[[user]]" challenge="[[challenge]]" location="[[location]]"></challenge-register-step>
+			<challenge-location-step read-only="[[readOnly]]" user="[[user]]" challenge="[[challenge]]" location="{{location}}" participation="[[participation]]"></challenge-location-step>
+			<challenge-register-step read-only="[[readOnly]]" user="[[user]]" challenge="[[challenge]]" location="[[location]]" participation="[[participation]]"></challenge-register-step>
 		</neon-animated-pages>
 	</template>
 	<script type="application/javascript" src="../../../../scripts/behaviors/app-connection-behavior.js"></script>
@@ -65,6 +66,9 @@
 				challenge: {
 					notify: true,
 					value: {}
+				},
+				readOnly: {
+					value: false
 				},
 				selected: {
 					type: Number,
@@ -82,28 +86,27 @@
 				'prev-step': 'prev'
 			},
 			observers: [
-				'_statusLoaded(status)'
+				'_statusLoaded(status)',
+				'_participationLoaded(participation)'
 			],
+			_participationLoaded: function(participation) {
+				console.log(participation)
+			},
 			_statusLoaded: function(status){
-				if (!status || (status.status !== 'OPEN' && status.status !== 'REGISTERED')){
+				if (!status || status.status !== 'OPEN'){
 					page('/contest/' + this.challenge.canonicalName + '/info')
 					return;
 				}
-				if (status.status === 'REGISTERED') {
-					this.location = status.location;
-					if (status.registeredAs !== this.user.username){
-						this.$$('challenge-register-step').team = status.registeredAs;
-					}
-				}
 			},
-			factoryImpl: function(canonicalName, user){
+			factoryImpl: function(canonicalName, user, invitingUsername){
+				if(!!invitingUsername){
+					this.invitingUsername = invitingUsername;
+					this.readOnly = true;
+				}
 				this.canonicalName = canonicalName;
 				this.set('challenge.canonicalName', canonicalName);
 				if(user){
-					this.$$('user-status-for-challenge-provider').refresh();
-					this.user = user;
-					this.$$('challenge-location-step').refresh();
-					this.selected = pageChallengeLocation;
+					this.setPageChallengeLocation(user);
 					return;
 				}
 				this.selected = 0;
@@ -122,20 +125,30 @@
 				this.selected --;
 			},
 			next: function(e, d) {
+				this.entryAnimation = 'slide-from-right-animation';
+				this.exitAnimation = 'slide-left-animation';
 				if (this.selected === pageLogin || this.selected === pageUserRegister){
-					this.$$('user-status-for-challenge-provider').refresh();
-					this.$$('challenge-location-step').refresh();
-					this.selected = pageChallengeLocation;
-					if(!this.user || !!d){
-						this._mainApp.setUser(d);
-						this.user = d;
-					}
+					this.setPageChallengeLocation(d);
 					return;
 				}
 				if(this.selected === pageChallengeLocation){
 					this.$$('challenge-register-step').refresh();
 				}
 				this.selected++;
+			},
+			setPageChallengeLocation: function(loggedInUser){
+				if(!loggedInUser){
+					return;
+				}
+				this.$$('user-status-for-challenge-provider').refresh();
+				if(!!this.invitingUsername){
+					this.$$('participation-invitation-by-key-provider').refresh();
+				}else{
+					this.$$('challenge-location-step').refresh();
+				}
+				this.selected = pageChallengeLocation;
+				this._mainApp.setUser(loggedInUser);
+				this.user = loggedInUser;
 			},
 			onSocialRegister: function(){
 				localStorage.contextKey = 'challenge-register';

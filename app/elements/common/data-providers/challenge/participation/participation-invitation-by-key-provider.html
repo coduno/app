@@ -1,0 +1,29 @@
+<dom-module id="participation-invitation-by-key-provider">
+	<style>
+		:host {
+			display: none;
+		}
+	</style>
+	<template>
+		<iron-ajax
+			id="request"
+			method="GET"
+			url="[[baseUrl]]/participation/invitations?username=[[username]]&amp;challenge=[[challenge]]"
+			handle-as="json"
+			with-credentials="true"
+			bubbles>
+		</iron-ajax>
+	</template>
+	<script type="application/javascript" src="../../../../../scripts/behaviors/providers/general-provider-behavior.js"></script>
+	<script>
+		Polymer({
+			is: 'participation-invitation-by-key-provider',
+			behaviors: [
+				Behaviors.Providers.General
+			],
+			refresh: function(){
+				this.$.request.generateRequest();
+			}
+		});
+	</script>
+</dom-module>

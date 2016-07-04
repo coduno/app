@@ -29,6 +29,9 @@
 		.italic {
 			font-style: italic;
 		}
+		.inline {
+			display: inline;
+		}
 	</style>
 	<template>
 		<create-team-modal id="createTeamDialog" on-team-created="refresh"></create-team-modal>
@@ -50,29 +53,42 @@
 			on-request-finished="_redirectToInfoPage"
 			on-request="_onInvitationError">
 		</coduno-iron-ajax>
-		<base-wizard>
+		<coduno-iron-ajax id="participationInvitationAcceptRequest"
+			method="POST"
+			path="participation/invitations/accept?username=[[participation.username]]&challenge=[[participation.challenge.canonicalName]]"
+			content-type="application/json"
+			with-credentials="true"
+			on-request-finished="_redirectToInfoPage"
+			on-request="_onInvitationError">
+		</coduno-iron-ajax>
+		<base-wizard show-back-button="true">
 			<div class="title">
 				<h3>Welcome, <span>[[user.username]]!</span></h3>
 			</div>
-			<p>You can register to <span class="italic">[[challenge.name]]</span> alone or with a team.</p>
-			<template is="dom-if" if="{{hasTeams}}">
-				<paper-dropdown-menu label="Team" selected-item="{{selectedTeam}}" >
+			<template is="dom-if" if="{{readOnly}}">
+				<p>The team you will be registering in is <a class="inline" href="/t/[[participation.teamCanonicalName]]">[[participation.teamName]]</a>
+			</template>
+			<template is="dom-if" if="{{!readOnly}}">
+				<p>You can register to <span class="italic">[[challenge.name]]</span> alone or with a team.</p>
+				<template is="dom-if" if="{{hasTeams}}">
+					<paper-dropdown-menu label="Team" selected-item="{{selectedTeam}}">
 					<paper-listbox id="teamList" class="dropdown-content" selected="[[selectedIndex]]">
-						<template is="dom-repeat" items="{{teams}}">
-							<option value="{{item.canonicalName}}">{{item.name}}</option>
-						</template>
-					</paper-listbox>
-				</paper-dropdown-menu>
-			</template>
-			<template is="dom-if" if="{{!hasTeams}}">
-				<p>You are currently not part of any team, if you wish to participate as a team
-					 click <a on-click="_openTeamModal">here</a> to create one. </p>
-			</template>
-			<template is="dom-if" if="{{registeredAsTeam}}">
-				<p>You can invite more members to join your team and this challenge
-					by clicking <a on-click="_openInviteToTeamModal">here</a> </p>
-				<template is="dom-repeat" items="[[emails]]">
-					<p>{{item}}</p>
+							<template is="dom-repeat" items="{{teams}}">
+								<option value="{{item.canonicalName}}">{{item.name}}</option>
+							</template>
+						</paper-listbox>
+					</paper-dropdown-menu>
+				</template>
+				<template is="dom-if" if="{{!hasTeams}}">
+					<p>You are currently not part of any team, if you wish to participate as a team
+						 click <a on-click="_openTeamModal">here</a> to create one. </p>
+				</template>
+				<template is="dom-if" if="{{registeredAsTeam}}">
+					<p>You can invite more members to join your team and this challenge
+						by clicking <a on-click="_openInviteToTeamModal">here</a> </p>
+					<template is="dom-repeat" items="[[emails]]">
+						<p>{{item}}</p>
+					</template>
 				</template>
 			</template>
 			<div id="buttons">
@@ -94,6 +110,12 @@
 				'_selectedTeamChanged(selectedTeam)',
 				'_teamSet(teams, team, hasTeams)'
 			],
+			listeners: {
+				'back': 'prev'
+			},
+			prev: function(){
+				this.fire('prev-step');
+			},
 			_selectedTeamChanged: function(){
 				this.registeredAsTeam = !!this.selectedTeam && this.selectedTeam.value !== '';
 			},
@@ -133,6 +155,10 @@
 				this.emails = detail.replace(' ', '').split(',');
 			},
 			_register: function(){
+				if(!!this.participation){
+					this.$.participationInvitationAcceptRequest.generateRequest();
+					return;
+				}
 				this.$.registerRequest.body = {
 					team: this.selectedTeam ? this.selectedTeam.value : '',
 					location: this.location

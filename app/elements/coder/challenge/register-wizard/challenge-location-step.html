@@ -47,14 +47,20 @@
 			<div class="title">
 				<h3>Welcome <span>[[user.username]]</span></h3>
 			</div>
-			<p>You can register to <span>[[challenge.name]]</span> in <span>[[locations.length]]</span> different locations.</p>
-			<paper-dropdown-menu label="Location" selected-item="{{selectedLocation}}" >
+			<template is="dom-if" if="[[readOnly]]">
+				<p>The challenge will take place <span>{{readOnlyLocation}}</span>.</p>
+				<p>If you want to change this either speak with the team leader or register on your own</p>
+			</template>
+			<template is="dom-if" if="[[!readOnly]]">
+				<p>You can register to <span>[[challenge.name]]</span> in <span>[[locations.length]]</span> different locations.</p>
+				<paper-dropdown-menu label="Location" selected-item="{{selectedLocation}}">
 				<paper-listbox class="dropdown-content" selected="[[selectedIndex]]">
-					<template is="dom-repeat" items="{{locations}}">
-						<option value="{{item.id}}">{{item.name}}</option>
-					</template>
-				</paper-listbox>
-			</paper-dropdown-menu>
+						<template is="dom-repeat" items="{{locations}}">
+							<option value="{{item.id}}">{{item.name}}</option>
+						</template>
+					</paper-listbox>
+				</paper-dropdown-menu>
+			</template>
 			<template is="dom-if" if="[[showNameEdit]]">
 				<p>If you want to participate on site you must input your first and last name</p>
 				<form is="iron-form" id="form">
@@ -111,10 +117,24 @@
 			observers: [
 				'_locationsLoaded(locations)',
 				'_selectedLocationChanged(selectedLocation)',
-				'_locationSet(location, locations)'
+				'_locationSet(location, locations)',
+				'_participationSet(participation)'
 			],
 			listeners: {
-				'keyup': '_updateNextDisabled'
+				'keyup': '_updateNextDisabled',
+				'back': 'prev'
+			},
+			prev: function(){
+				this.fire('prev-step');
+			},
+			_participationSet: function(participation){
+				if(!participation.location){
+					this.readOnlyLocation =  'online';
+					this.selectedLocation = {value: 'online'};
+					return;
+				}
+				this.readOnlyLocation = 'in ' + participation.location.name;
+				this.selectedLocation = {value: participation.location.id};
 			},
 			_locationSet: function() {
 				if (!this.location || !this.locations) {

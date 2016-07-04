@@ -49,12 +49,7 @@ window.addEventListener('WebComponentsReady', function() {
 			if(!ctx.querystring){
 				app.swapContent(document.createElement('password-forgot-page'));
 			}
-			var qs = ctx.querystring.split('&');
-			for(var i=0;i<qs.length;i++) {
-				if(qs[i].indexOf('token=')===0) {
-					page.token = qs[i].split('=')[1];
-				}
-			}
+			page.token = getQueryParam(ctx, 'token');
 			if (!page.token) {
 				return;
 			}
@@ -202,10 +197,12 @@ window.addEventListener('WebComponentsReady', function() {
 
 	page('/contest/:canonicalName/register', base(
 		function(ctx) {
-			app.swapContent(new ChallengeRegisterWizard(ctx.params.canonicalName, app.user));
+			var invitingUser = getQueryParam(ctx, 'invitingUser');
+			app.swapContent(new ChallengeRegisterWizard(ctx.params.canonicalName, app.user, invitingUser));
 		},
 		function(ctx){
-			app.swapContent(new ChallengeRegisterWizard(ctx.params.canonicalName));
+			var invitingUser = getQueryParam(ctx, 'invitingUser');
+			app.swapContent(new ChallengeRegisterWizard(ctx.params.canonicalName, undefined, invitingUser));
 		})
 	);
 
@@ -237,5 +234,15 @@ window.addEventListener('WebComponentsReady', function() {
 	page({
 		hashbang: false
 	});
+
+	function getQueryParam(ctx, name){
+		var qs = ctx.querystring.split('&');
+		for(var i=0;i<qs.length;i++) {
+			if(qs[i].indexOf(name + '=')===0) {
+				return qs[i].split('=')[1];
+			}
+		}
+		return undefined;
+	}
 });
 </script>
