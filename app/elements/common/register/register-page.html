@@ -108,7 +108,8 @@ Polymer({
 		Polymer.NeonAnimatableBehavior
 	],
 	observers: [
-		'_contextSet(context)'
+		'_contextSet(context)',
+		'_emailSet(email)'
 	],
 	listeners: {
 		'keyup': '_keyup'
@@ -120,6 +121,9 @@ Polymer({
 				self.fire('social-register');
 			}
 		}
+	},
+	_emailSet: function(email){
+		this.set('user.email', email)
 	},
 	_keyup: function(){
 		this.saveDisabled = !this.$.form.validate();

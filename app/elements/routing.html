@@ -195,14 +195,24 @@ window.addEventListener('WebComponentsReady', function() {
 		})
 	);
 
+	function getChallengeRegisterParams(ctx){
+		var invitingUser = getQueryParam(ctx, 'invitingUser');
+		if(!invitingUser){
+			return undefined;
+		}
+		return {
+			invitingUser: invitingUser,
+			invitedUser: getQueryParam(ctx, 'invitedUser'),
+			context: getQueryParam(ctx, 'context')
+		}
+	}
+
 	page('/contest/:canonicalName/register', base(
 		function(ctx) {
-			var invitingUser = getQueryParam(ctx, 'invitingUser');
-			app.swapContent(new ChallengeRegisterWizard(ctx.params.canonicalName, app.user, invitingUser));
+			app.swapContent(new ChallengeRegisterWizard(ctx.params.canonicalName, app.user, getChallengeRegisterParams(ctx)));
 		},
 		function(ctx){
-			var invitingUser = getQueryParam(ctx, 'invitingUser');
-			app.swapContent(new ChallengeRegisterWizard(ctx.params.canonicalName, undefined, invitingUser));
+			app.swapContent(new ChallengeRegisterWizard(ctx.params.canonicalName, undefined, getChallengeRegisterParams(ctx)));
 		})
 	);
 

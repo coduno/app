@@ -48,8 +48,8 @@
 		<challenge-register-wizard-nav first-step-state="[[firstStepState]]"
 		second-step-state="[[secondStepState]]" third-step-state="[[thirdStepState]]"></challenge-register-wizard-nav>
 		<neon-animated-pages id="pages" class="flex" selected="[[selected]]" entry-animation="[[entryAnimation]]" exit-animation="[[exitAnimation]]">
-			<register-page context="[[context]]" on-redirect-login="_login" on-social-register="onSocialRegister"></register-page>
-			<login-wizard context="[[context]]" on-redirect-register="_register"></login-wizard>
+			<register-page email="[[invitedEmail]]" context="[[context]]" on-redirect-login="_login" on-social-register="onSocialRegister"></register-page>
+			<login-wizard email="[[invitedEmail]]" context="[[context]]" on-redirect-register="_register"></login-wizard>
 			<challenge-location-step read-only="[[readOnly]]" user="[[user]]" challenge="[[challenge]]" location="{{location}}" participation="[[participation]]"></challenge-location-step>
 			<challenge-register-step read-only="[[readOnly]]" user="[[user]]" challenge="[[challenge]]" location="[[location]]" participation="[[participation]]"></challenge-register-step>
 		</neon-animated-pages>
@@ -98,9 +98,11 @@
 					return;
 				}
 			},
-			factoryImpl: function(canonicalName, user, invitingUsername){
-				if(!!invitingUsername){
-					this.invitingUsername = invitingUsername;
+			factoryImpl: function(canonicalName, user, params){
+				console.log(params)
+				if(!!params && !!params.invitingUser){
+					this.invitingUsername = params.invitingUser;
+					this.invitedEmail = params.invitedUser;
 					this.readOnly = true;
 				}
 				this.canonicalName = canonicalName;
@@ -109,7 +111,12 @@
 					this.setPageChallengeLocation(user);
 					return;
 				}
-				this.selected = 0;
+				if(!!params && params.context === 'login'){
+					this.selected = pageLogin;
+					this.$$('login-wizard').next();
+					return;
+				}
+				this.selected = pageUserRegister;
 			},
 			ready: function(){
 				this.entryAnimation = 'slide-from-right-animation';
