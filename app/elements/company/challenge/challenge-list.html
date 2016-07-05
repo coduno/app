@@ -57,7 +57,7 @@
 				}
 			},
 			_createChallenge: function(){
-				page('/challenge-template/'+ this.challengeTemplate.id + '/create');
+				page('/challenge-template/'+ this.challengeTemplate.canonicalName + '/create');
 			},
 			_inviteCandidates: function (e) {
 				this.$.inviteCandidatesModal.challenge = e.model.__data__.item;

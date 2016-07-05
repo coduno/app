@@ -37,8 +37,8 @@
 		}
 	</style>
 	<template>
-		<challenge-template-by-id-provider template-id="[[challengeTemplateId]]" data="{{challengeTemplate}}"></challenge-template-by-id-provider>
-		<tasks-for-challenge-template-provider challenge-template-id="[[challengeTemplate.id]]" data="{{tasks}}"></tasks-for-challenge-template-provider>
+		<challenge-template-by-canonical-name-provider canonical-name="[[canonicalName]]" data="{{challengeTemplate}}"></challenge-template-by-canonical-name-provider>
+		<tasks-for-challenge-template-provider canonical-name="[[canonicalName]]" data="{{tasks}}"></tasks-for-challenge-template-provider>
 
 		<div id="wrapper" class="grid mainContent">
 			<div id="descriptionWrapper">

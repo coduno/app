@@ -85,7 +85,7 @@
 				if (this.editMode) {
 					this.$.updateChallenge.generateRequest();
 				} else {
-					this.challenge.templateId = this.challengeTemplate;
+					this.challenge.templateCanonicalName = this.challengeTemplate;
 					this.$.saveChallenge.generateRequest();
 				}
 			},

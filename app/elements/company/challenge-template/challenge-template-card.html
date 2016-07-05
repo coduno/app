@@ -80,7 +80,8 @@
 				return util.computeDuration(challengeTemplate.duration);
 			},
 			_viewChallengeTemplateDetail: function () {
-				page('/challenge-template/' + this.challengeTemplate.id);
+				console.log(this.challengeTemplate)
+				page('/challenge-template/' + this.challengeTemplate.canonicalName);
 			}
 		});
 	</script>

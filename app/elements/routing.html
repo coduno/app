@@ -113,12 +113,6 @@ window.addEventListener('WebComponentsReady', function() {
 	);
 
 	// COMPANY
-	page('/challenge/create', base(function() {
-			var page = document.createElement('task-list');
-			page.startChallengeCreation();
-			app.swapContent(page);
-		})
-	);
 
 	page('/challenge/:canonicalName', base(function(ctx) {
 			var page;
@@ -152,16 +146,23 @@ window.addEventListener('WebComponentsReady', function() {
 		})
 	);
 
-	page('/challenge-template/:id', base(function(ctx) {
-			var page = document.createElement('challenge-template-detail');
-			page.challengeTemplateId = ctx.params.id;
+	page('/challenge-template/create', base(function() {
+			var page = document.createElement('task-list');
+			page.startChallengeCreation();
 			app.swapContent(page);
 		})
 	);
 
-	page('/challenge-template/:templateId/create', base(function(ctx) {
+	page('/challenge-template/:canonicalName', base(function(ctx) {
+			var page = document.createElement('challenge-template-detail');
+			page.canonicalName = ctx.params.canonicalName;
+			app.swapContent(page);
+		})
+	);
+
+	page('/challenge-template/:canonicalName/create', base(function(ctx) {
 			var page = document.createElement('challenge-create');
-			page.challengeTemplate = ctx.params.templateId;
+			page.challengeTemplate = ctx.params.canonicalName;
 			app.swapContent(page);
 		})
 	);
