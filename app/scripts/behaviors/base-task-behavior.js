@@ -1,6 +1,5 @@
-<script>
-window.Behaviors = window.Behaviors || {};
-window.BaseTaskBehavior = {
+var Behaviors = Behaviors || {};
+Behaviors.BaseTaskBehavior = {
 	listeners: {
 		'ws-message': '_onMessage',
 		'require-data': '_onDataRequired'
@@ -17,4 +16,3 @@ window.BaseTaskBehavior = {
 		this.setResult(result);
 	}
 };
-</script>

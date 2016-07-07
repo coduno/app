@@ -42,7 +42,7 @@
 
 			<iron-pages id="pages" selected="{{tab}}" class="tabCard item">
 				<template is="dom-repeat" items="{{tabs}}">
-					<simple-component id="{{item.id}}" item="[[item]]" class="fullHeight"></simple-component>
+					<simple-component id="{{item.id}}" item="[[item]]" class="fullHeight" on-require-data="_reqData"></simple-component>
 				</template>
 			</iron-pages>
 	</template>
@@ -56,6 +56,9 @@
 					observer: '_selectedTabChanged',
 					value: 0
 				}
+			},
+			_reqData: function(e, element){
+				this.fire('require-data', element);
 			},
 			passDown: function(elementId, eventName, data){
 				this.$$('#' + elementId).process(eventName, data);

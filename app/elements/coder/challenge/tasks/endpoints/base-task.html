@@ -22,13 +22,14 @@
 			<tabbed-component id="right" tabs="[[rightTabs]]" class="halfScreen"></tabbed-component>
 		</div>
 	</template>
+	<script type="application/javascript" src="../../../../../../scripts/behaviors/base-task-behavior.js"></script>
 	<script>
 		/*global Behaviors:false */
 		Polymer({
 			is: 'base-task',
 			behaviors: [Behaviors.BaseTaskBehavior],
 			listeners: {
-				'start-loading': '_startLoading',
+				'start-loading': '_startLoading'
 			},
 			ready: function(){
 				this.rightTabs = [
