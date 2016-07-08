@@ -93,13 +93,18 @@
 				console.log(participation)
 			},
 			_statusLoaded: function(status){
-				if (!status || status.status !== 'OPEN'){
-					page('/challenge/' + this.challenge.canonicalName + '/info')
+				if (!status || (status.status !== 'OPEN' && status.status !== 'REGISTERED')){
+					page('/challenge/' + this.challenge.canonicalName + '/info');
 					return;
+				}
+				if (status.status === 'REGISTERED') {
+					this.location = status.location;
+					if (status.registeredAs !== this.user.username){
+						this.$$('challenge-register-step').team = status.registeredAs;
+					}
 				}
 			},
 			factoryImpl: function(canonicalName, user, params){
-				console.log(params)
 				if(!!params && !!params.invitingUser){
 					this.invitingUsername = params.invitingUser;
 					this.invitedEmail = params.invitedUser;
