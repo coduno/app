@@ -1,6 +1,9 @@
 <link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 <link rel="import" href="../../../bower_components/paper-datatable/paper-datatable.html">
 <link rel="import" href="../../../bower_components/paper-material/paper-material.html">
+<link rel="import" href="../../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../../../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../../../bower_components/paper-item/paper-item.html">
 
 <dom-module id="participants-table">
 	<style include="iron-flex">
@@ -14,14 +17,36 @@
 		paper-icon-button {
 			@apply(--layout-self-center);
 		}
+		.title-wrapper {
+			@apply(--layout-horizontal);
+		}
+		.title-wrapper span {
+			@apply(--layout-flex);
+		}
+
+		paper-dropdown-menu paper-listbox {
+			width: 300px;
+		}
 	</style>
 	<template>
 		<participants-by-challenge-canonical-name-provider canonical-name="[[challenge]]" data="{{participants}}"></participants-by-challenge-canonical-name-provider>
+		<locations-by-challenge-canonical-name-provider canonical-name="[[challenge]]" data="{{locations}}" auto="true"></locations-by-challenge-canonical-name-provider>
+
 		<paper-material class="card">
-			<h3>Participants</h3>
-			<paper-datatable data="{{participants}}" style="overflow-y: auto;" on-row-tap="_onClick">
-				<paper-datatable-column header="Username" property="username" sortable>
-				</paper-datatable-column>
+			<div class="title-wrapper">
+				<h3>Participants</h3>
+				<span></span>
+				<paper-dropdown-menu label="Location">
+					<paper-listbox class="dropdown-content" selected="{{selectedIndex}}">
+						<template is="dom-repeat" items="[[locations]]">
+							<paper-item locationId="[[item.id]]">[[item.name]]</paper-item>
+						</template>
+					</paper-listbox>
+				</paper-dropdown-menu>
+			</div>
+			<paper-datatable data="[[filteredParticipants]]" style="overflow-y: auto;" on-row-tap="_onClick">
+				<paper-datatable-column header="Username" property="username" sortable></paper-datatable-column>
+				<paper-datatable-column header="Email" property="email" sortable></paper-datatable-column>
 				<paper-datatable-column header="Team" property="teamName" type="String">
 					<template>
 						<span>{{value}}</span>
@@ -38,12 +63,35 @@
 					value: true
 				}
 			},
+			observers: [
+				'_locationsLoaded(locations)',
+				'_participantsLoaded(participants, selectedIndex)'
+			],
 			_onClick: function(e, d){
 				if(!!d.item.teamCanonicalName){
 					page('/t/' + d.item.teamCanonicalName);
 					return;
 				}
 				page('/u/' + d.item.username)
+			},
+			_locationsLoaded: function(locations) {
+				if(!this.locations){
+					this.locations = [];
+				}
+				this.unshift('locations', {id: 'online', name: 'Online'});
+				this.unshift('locations', {id: null, name: 'All'});
+				this.selectedIndex = 0;
+			},
+			_participantsLoaded: function() {
+				var selectedLocationId = this.locations[this.selectedIndex].id;
+				this.filteredParticipants = [];
+				for (var i = 0; i < this.participants.length; i++) {
+					if (selectedLocationId === null ||
+						(selectedLocationId === 'online' && this.participants[i].location === null) ||
+						(!!this.participants[i].location && selectedLocationId === this.participants[i].location.id)) {
+						this.push('filteredParticipants', this.participants[i]);
+					}
+				}
 			}
 		});
 	</script>

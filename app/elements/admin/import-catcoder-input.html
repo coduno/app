@@ -53,7 +53,7 @@
 				e.stopPropagation();
 				this.$.uploadButton.disabled = false;
 				app.stopLoading();
-				page('/challenges/template/' + this.savedTemplate);
+				page('/challenge-template/' + this.savedTemplate);
 			},
 			_onError: function(e, req) {
 				app.stopLoading();

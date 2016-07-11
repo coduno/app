@@ -16,14 +16,14 @@ window.addEventListener('WebComponentsReady', function() {
 	// COMMON
 	page('/', base(function() {
 			if (app.user.activeOrganization) {
-				return page('/challengetemplates');
+				return page('/challenge-templates');
 			}
 			if (localStorage.contextKey === 'challenge-register') {
 				localStorage.removeItem('contextKey');
 				localStorage.removeItem('contextValue');
-				return page('/contest/' + localStorage.contextValue + '/register');
+				return page('/challenge/' + localStorage.contextValue + '/register');
 			}
-			page('/contests');
+			page('/challenges');
 		})
 	);
 
@@ -49,12 +49,7 @@ window.addEventListener('WebComponentsReady', function() {
 			if(!ctx.querystring){
 				app.swapContent(document.createElement('password-forgot-page'));
 			}
-			var qs = ctx.querystring.split('&');
-			for(var i=0;i<qs.length;i++) {
-				if(qs[i].indexOf('token=')===0) {
-					page.token = qs[i].split('=')[1];
-				}
-			}
+			page.token = getQueryParam(ctx, 'token');
 			if (!page.token) {
 				return;
 			}
@@ -94,12 +89,13 @@ window.addEventListener('WebComponentsReady', function() {
 			if (!ctx.querystring) {
 				return;
 			}
-			var qs = ctx.querystring.split('&');
-			for (var i = 0; i < qs.length; i++) {
-				if (qs[i].indexOf('teamCreate=') === 0 && qs[i].split('=')[1] === 'true') {
-					page.createTeam();
-					return;
-				}
+			if (getQueryParam(ctx, 'teamCreate') === true) {
+				return page.createTeam();
+			}
+			var invitedBy = getQueryParam(ctx, 'invitedby');
+			var teamName = getQueryParam(ctx, 'teamname');
+			if (!!invitedBy && !!teamName) {
+				return page.acceptTeamInvitation(invitedBy, teamName);
 			}
 		})
 	);
@@ -118,21 +114,20 @@ window.addEventListener('WebComponentsReady', function() {
 	);
 
 	// COMPANY
-	page('/challenge/create', base(function() {
-			var page = document.createElement('task-list');
-			page.startChallengeCreation();
-			app.swapContent(page);
-		})
-	);
 
-	page('/challenges/:canonicalName', base(function(ctx) {
-			var page = document.createElement('challenge-detail');
+	page('/challenge/:canonicalName', base(function(ctx) {
+			var page;
+			if(!app.user.activeOrganization){
+				page = document.createElement('challenge-page');
+			}else{
+				page = document.createElement('challenge-detail');
+			}
 			page.canonicalName = ctx.params.canonicalName;
 			app.swapContent(page);
 		})
 	);
 
-	page('/challenges/:canonicalName/info/edit', base(function(ctx) {
+	page('/challenge/:canonicalName/info/edit', base(function(ctx) {
 			var page = document.createElement('challenge-create');
 			page.canonicalName = ctx.params.canonicalName;
 			page.editMode = true;
@@ -140,28 +135,35 @@ window.addEventListener('WebComponentsReady', function() {
 		})
 	);
 
-	page('/challenges/:canonicalName/locations/edit', base(function(ctx) {
+	page('/challenge/:canonicalName/locations/edit', base(function(ctx) {
 			var page = document.createElement('challenge-edit-locations');
 			page.canonicalName = ctx.params.canonicalName;
 			app.swapContent(page);
 		})
 	);
 
-	page('/challengetemplates', base(function() {
+	page('/challenge-templates', base(function() {
 			app.swapContent(document.createElement('challenge-template-list'));
 		})
 	);
 
-	page('/challenges/template/:id', base(function(ctx) {
-			var page = document.createElement('challenge-template-detail');
-			page.challengeTemplateId = ctx.params.id;
+	page('/challenge-template/create', base(function() {
+			var page = document.createElement('task-list');
+			page.startChallengeCreation();
 			app.swapContent(page);
 		})
 	);
 
-	page('/challenge/template/:templateId/create', base(function(ctx) {
+	page('/challenge-template/:canonicalName', base(function(ctx) {
+			var page = document.createElement('challenge-template-detail');
+			page.canonicalName = ctx.params.canonicalName;
+			app.swapContent(page);
+		})
+	);
+
+	page('/challenge-template/:canonicalName/create', base(function(ctx) {
 			var page = document.createElement('challenge-create');
-			page.challengeTemplate = ctx.params.templateId;
+			page.challengeTemplate = ctx.params.canonicalName;
 			app.swapContent(page);
 		})
 	);
@@ -171,20 +173,20 @@ window.addEventListener('WebComponentsReady', function() {
 		})
 	);
 
-	page('/tasks/:id', base(function(ctx) {
-			var page = document.createElement('task-detail');
-			page.taskId = ctx.params.id;
-			app.swapContent(page);
-		})
-	);
-
 	page('/task/create', base(function() {
 			app.swapContent(document.createElement('task-form'));
 		})
 	);
 
-	page('/task/edit/:id', base(function(ctx) {
+	page('/task/:id/edit', base(function(ctx) {
 			var page = document.createElement('task-form');
+			page.taskId = ctx.params.id;
+			app.swapContent(page);
+		})
+	);
+
+	page('/task/:id', base(function(ctx) {
+			var page = document.createElement('task-detail');
 			page.taskId = ctx.params.id;
 			app.swapContent(page);
 		})
@@ -195,28 +197,33 @@ window.addEventListener('WebComponentsReady', function() {
 		app.inviteByToken(ctx.params.token);
 	});
 
-	page('/contests', base(function() {
+	page('/challenges', base(function() {
 			app.swapContent(document.createElement('available-challenges-page'));
 		})
 	);
 
-	page('/contest/:canonicalName/register', base(
+	function getChallengeRegisterParams(ctx){
+		var invitingUser = getQueryParam(ctx, 'invitingUser');
+		if(!invitingUser){
+			return undefined;
+		}
+		return {
+			invitingUser: invitingUser,
+			invitedUser: getQueryParam(ctx, 'invitedUser'),
+			context: getQueryParam(ctx, 'context')
+		}
+	}
+
+	page('/challenge/:canonicalName/register', base(
 		function(ctx) {
-			app.swapContent(new ChallengeRegisterWizard(ctx.params.canonicalName, app.user));
+			app.swapContent(new ChallengeRegisterWizard(ctx.params.canonicalName, app.user, getChallengeRegisterParams(ctx)));
 		},
 		function(ctx){
-			app.swapContent(new ChallengeRegisterWizard(ctx.params.canonicalName));
+			app.swapContent(new ChallengeRegisterWizard(ctx.params.canonicalName, undefined, getChallengeRegisterParams(ctx)));
 		})
 	);
 
-	page('/contest/:canonicalName', base(function(ctx) {
-			var page = document.createElement('challenge-page');
-			page.canonicalName = ctx.params.canonicalName;
-			app.swapContent(page);
-		})
-	);
-
-	page('/contest/:canonicalName/info', base(function(ctx) {
+	page('/challenge/:canonicalName/info', base(function(ctx) {
 			var page = document.createElement('challenge-info-page');
 			page.canonicalName = ctx.params.canonicalName;
 			app.swapContent(page);
@@ -227,7 +234,7 @@ window.addEventListener('WebComponentsReady', function() {
 		})
 	);
 
-	page('/contest/:id/result', base(function(ctx) {
+	page('/challenge/:id/result', base(function(ctx) {
 			var page = document.createElement('contest-result');
 			page.challengeId = ctx.params.id;
 			app.swapContent(page);
@@ -237,5 +244,15 @@ window.addEventListener('WebComponentsReady', function() {
 	page({
 		hashbang: false
 	});
+
+	function getQueryParam(ctx, name){
+		var qs = ctx.querystring.split('&');
+		for(var i=0;i<qs.length;i++) {
+			if(qs[i].indexOf(name + '=')===0) {
+				return qs[i].split('=')[1];
+			}
+		}
+		return undefined;
+	}
 });
 </script>

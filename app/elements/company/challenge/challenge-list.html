@@ -16,6 +16,9 @@
 				@apply(--layout-horizontal);
 				@apply(--layout-center-center);
 			}
+			.row span {
+				@apply(--layout-flex);
+			}
 			.row-item {
 				@apply(--layout-flex);
 			}
@@ -26,24 +29,27 @@
 		</style>
 
 		<paper-material class="card">
-			<h4>Challenges for this template</h4>
+			<div class="row">
+				<h3>Challenges for this template</h3>
+				<span></span>
+				<paper-button class="primary" raised id="createChallengeButton" on-click="_createChallenge">
+					<iron-icon icon="add"></iron-icon>
+					New challenge
+				</paper-button>
+			</div>
 			<div class="rows">
 				<template is="dom-repeat" items="{{challengeTemplate.challenges}}">
+					<hr>
 					<div class="row">
 						<div class="row-item" style="cursor: pointer" on-click="_viewDetail">{{item.name}}</div>
 						<div class="row-item">{{_formatDate(item.startDate)}}</div>
-						<paper-button on-click="_inviteCandidates">
+						<paper-button class="secondary" on-click="_inviteCandidates">
 							<iron-icon icon="mail"></iron-icon>
 							Invite candidates
 						</paper-button>
 					</div>
-					<hr>
 				</template>
 			</div>
-			<paper-button id="createChallengeButton" raised on-click="_createChallenge">
-				<iron-icon icon="add"></iron-icon>
-				New challenge
-			</paper-button>
 		</paper-material>
 		<invite-candidates id="inviteCandidatesModal"></invite-candidates>
 	</template>
@@ -57,7 +63,7 @@
 				}
 			},
 			_createChallenge: function(){
-				page('/challenge/template/'+ this.challengeTemplate.id + '/create');
+				page('/challenge-template/'+ this.challengeTemplate.canonicalName + '/create');
 			},
 			_inviteCandidates: function (e) {
 				this.$.inviteCandidatesModal.challenge = e.model.__data__.item;
@@ -69,7 +75,7 @@
 				}
 			},
 			_viewDetail: function(e){
-				page('/challenges/' + e.model.__data__.item.canonicalName);
+				page('/challenge/' + e.model.__data__.item.canonicalName);
 			}
 		});
 	</script>

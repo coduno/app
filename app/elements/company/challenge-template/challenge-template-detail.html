@@ -37,21 +37,22 @@
 		}
 	</style>
 	<template>
-		<challenge-template-by-id-provider template-id="[[challengeTemplateId]]" data="{{challengeTemplate}}"></challenge-template-by-id-provider>
-		<tasks-for-challenge-template-provider challenge-template-id="[[challengeTemplate.id]]" data="{{tasks}}"></tasks-for-challenge-template-provider>
+		<challenge-template-by-canonical-name-provider canonical-name="[[canonicalName]]" data="{{challengeTemplate}}"></challenge-template-by-canonical-name-provider>
+		<tasks-for-challenge-template-provider canonical-name="[[canonicalName]]" data="{{tasks}}"></tasks-for-challenge-template-provider>
 
 		<div id="wrapper" class="grid mainContent">
 			<div id="descriptionWrapper">
 				<paper-material class="card grid-element" elevation="1">
-					<h1>{{challengeTemplate.name}}</h1>
-					<dl class="dl-horizontal">
-						<dt>Duration</dt>
-						<dd>{{duration}}</dd>
-						<dt>Description</dt>
-						<dd>{{challengeTemplate.description}}</dd>
-						<dt>Instructions</dt>
-						<dd>{{challengeTemplate.instructions}}</dd>
-					</dl>
+					<h2>{{challengeTemplate.name}}</h2>
+					<description-list>
+						<description-list-item label="Duration" value="[[duration]]"></description-list-item>
+						<description-list-item label="Description" content>
+							<render-markdown markdown="[[challengeTemplate.description]]"></render-markdown>
+						</description-list-item>
+						<description-list-item label="Instructions" content>
+							<render-markdown markdown="[[challengeTemplate.instructions]]"></render-markdown>
+						</description-list-item>
+					</description-list>
 				</paper-material>
 				<!--TODO: skills?-->
 				<!--<paper-material class="card grid-element">-->

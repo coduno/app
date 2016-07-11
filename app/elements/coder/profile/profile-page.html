@@ -113,6 +113,7 @@
 			<paper-material class="right" elevation="1">
 			</paper-material>
 		</div>
+		<accept-team-invitation-modal id="acceptTeamInvModal" on-invitation-accepted="_refreshTeams"></accept-team-invitation-modal>
 	</template>
 	<script>
 		// NOTE: username needs to be set for data to be shown.
@@ -127,6 +128,9 @@
 			},
 			_refreshTeams: function(){
 				this.$$('#teamsGrid').refresh();
+			},
+			acceptTeamInvitation: function(invitedBy, teamName) {
+				this.$.acceptTeamInvModal.toggle(invitedBy, teamName);
 			}
 		});
 	</script>

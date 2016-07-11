@@ -47,14 +47,20 @@
 			<div class="title">
 				<h3>Welcome <span>[[user.username]]</span></h3>
 			</div>
-			<p>You can register to <span>[[challenge.name]]</span> in <span>[[locations.length]]</span> different locations.</p>
-			<paper-dropdown-menu label="Location" selected-item="{{selectedLocation}}" >
-				<paper-listbox class="dropdown-content" selected="0">
-					<template is="dom-repeat" items="{{locations}}">
-						<option value="{{item.id}}">{{item.name}}</option>
-					</template>
-				</paper-listbox>
-			</paper-dropdown-menu>
+			<template is="dom-if" if="[[readOnly]]">
+				<p>The challenge will take place <span>{{readOnlyLocation}}</span>.</p>
+				<p>If you want to change this either speak with the team leader or register on your own</p>
+			</template>
+			<template is="dom-if" if="[[!readOnly]]">
+				<p>You can register to <span>[[challenge.name]]</span> in <span>[[locations.length]]</span> different locations.</p>
+				<paper-dropdown-menu label="Location" selected-item="{{selectedLocation}}">
+				<paper-listbox class="dropdown-content" selected="[[selectedIndex]]">
+						<template is="dom-repeat" items="{{locations}}">
+							<option value="{{item.id}}">{{item.name}}</option>
+						</template>
+					</paper-listbox>
+				</paper-dropdown-menu>
+			</template>
 			<template is="dom-if" if="[[showNameEdit]]">
 				<p>If you want to participate on site you must input your first and last name</p>
 				<form is="iron-form" id="form">
@@ -97,7 +103,7 @@
 			],
 			properties: {
 				showNameEdit: {
-					value: false
+					value: true
 				},
 				nextDisabled: {
 					value: false,
@@ -110,10 +116,39 @@
 			},
 			observers: [
 				'_locationsLoaded(locations)',
-				'_selectedLocationChanged(selectedLocation)'
+				'_selectedLocationChanged(selectedLocation)',
+				'_locationSet(location, locations)',
+				'_participationSet(participation)'
 			],
 			listeners: {
-				'keyup': '_updateNextDisabled'
+				'keyup': '_updateNextDisabled',
+				'back': 'prev'
+			},
+			prev: function(){
+				this.fire('prev-step');
+			},
+			_participationSet: function(participation){
+				if(!participation.location){
+					this.readOnlyLocation =  'online';
+					this.selectedLocation = {value: 'online'};
+					return;
+				}
+				this.readOnlyLocation = 'in ' + participation.location.name;
+				this.selectedLocation = {value: participation.location.id};
+			},
+			_locationSet: function() {
+				if (!this.location || !this.locations) {
+					return;
+				}
+				var index = -1;
+				for (var i = 0; i < this.locations.length; i++) {
+					if (this.locations[i].id === this.location.id) {
+						index = i;
+					}
+				}
+				if (index > -1){
+					this.selectedIndex = index;
+				}
 			},
 			_updateNextDisabled: function(){
 				var formValid = !!this.$$('#form') && this.$$('#form').validate() && this.user.firstName !== null && this.user.lastName !== null;
@@ -124,6 +159,7 @@
 					this.locations = [];
 				}
 				this.unshift('locations', {id: 'online', name: 'Online'});
+				this.selectedIndex = 0;
 			},
 			_selectedLocationChanged(selectedLocation){
 				this.showNameEdit = (!!selectedLocation && selectedLocation.value !== 'online');

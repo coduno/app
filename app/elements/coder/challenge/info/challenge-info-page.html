@@ -2,6 +2,7 @@
 <link rel="import" href="../../../../bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="../../../../bower_components/iron-icons/communication-icons.html">
 <link rel="import" href="../../../../bower_components/iron-icons/device-icons.html">
+<link rel="import" href="../../../../bower_components/paper-dialog/paper-dialog.html">
 <dom-module id="challenge-info-page">
 	<style include="iron-flex">
 		:host{
@@ -19,6 +20,10 @@
 			@apply(--layout-horizontal);
 			@apply(--layout-end);
 		}
+
+		.vertical-layout {
+			@apply(--layout-vertical);
+		}
 		.icon-text {
 			padding: 0 32px 0px 4px;
 		}
@@ -26,53 +31,100 @@
 			@apply(--layout-self-center);
 		}
 
-		#zoomIcon {
-			position: relative;
-			bottom: -10px;
+		.title-wrapper {
+			@apply(--layout-horizontal);
+		}
+		.title-wrapper span {
+			@apply(--layout-flex);
+		}
+		#infoIcons div {
+			padding: 7px 0;
+			@apply(--layout-horizontal);
+			@apply(--layout-end);
+		}
+
+		#infoIcons div:hover {
+			background-color: #f1f1f1;
+		}
+
+		.icon-button:hover {
+			cursor: pointer;
+		}
+
+		paper-dialog {
+			max-width: 40%;
+		}
+		#buttons {
+			@apply(--layout-horizontal);
 		}
 	</style>
 	<template>
+		<coduno-iron-ajax
+				id="request"
+				method="DELETE"
+				on-request-finished="_onResponse"
+				error="{{error}}">
+		</coduno-iron-ajax>
+
 		<challenge-by-canonical-name-provider canonical-name="[[canonicalName]]" data="{{challenge}}"></challenge-by-canonical-name-provider>
 		<user-status-for-challenge-provider auto="true" canonical-name="[[canonicalName]]" data="{{status}}"></user-status-for-challenge-provider>
 
 		<paper-material id="wrapper" elevation="1" class="mainContent">
-			<h1>{{challenge.name}}</h1>
-			<div id="infoIcons" class="horizontal-layout">
-				<iron-icon icon="communication:business"></iron-icon>
-				<span class="icon-text">{{challenge.organization.name}}</span>
-				<template is="dom-if" if="[[showStartDate]]">
-					<iron-icon icon="event"></iron-icon>
-					<span class="icon-text">{{startDate}}</span>
+			<div class="title-wrapper">
+				<h3>{{challenge.name}}</h3>
+				<span></span>
+				<template is="dom-if" if="[[displayConfig.showPrimaryAction]]">
+					<paper-button raised class$="[[primaryActionClass]]" on-click="_onPrimaryAction">[[primaryAction]]</paper-button>
 				</template>
-				<template is="dom-if" if="[[showStartDate]]">
-					<iron-icon icon="device:access-time"></iron-icon>
-					<span class="icon-text">{{startTime}}</span>
+				<template is="dom-if" if="[[displayConfig.showSecondaryAction]]">
+					<paper-button raised class$="[[secondaryActionClass]]" on-click="_onSecondaryAction">[[secondaryAction]]</paper-button>
 				</template>
-				<template is="dom-if" if="[[showDuration]]">
-					<iron-icon icon="alarm"></iron-icon>
-					<span class="icon-text">{{duration}}</span>
-				</template>
-				<iron-icon icon="{{statusIcon}}"></iron-icon>
-				<span class="icon-text">{{statusText}}</span>
-				<div class="flex"></div>
-				<template is="dom-if" if="{{showActions}}">
-					<paper-button raised on-click="_onAction">{{actionText}}</paper-button>
-					<template is="dom-if" if="{{statusInvited}}">
-						<paper-button raised on-click="_onSecondaryAction">Decline</paper-button>
-					</template>
-				</template>
-				<template is="dom-if" if="{{showStart}}">
-					<paper-button raised on-click="_onStart">Start</paper-button>
+				<template is="dom-if" if="[[displayConfig.showEditButton]]">
+					<paper-button on-click="_editParticipation">
+						<iron-icon icon="create"></iron-icon>
+						Edit
+					</paper-button>
 				</template>
 			</div>
-			<template is="dom-if" if="[[showLocation]]">
-				<div class="horizontal-layout">
-					<iron-icon icon="communication:location-on"></iron-icon>
-					<span class="icon-text">{{status.location.name}}</span>
-					<div class="flex"></div>
-					<paper-icon-button id="zoomIcon" icon="[[locationIcon]]" on-click="_toggleLocation"></paper-icon-button>
+			<div id="infoIcons" class="vertical-layout">
+				<div>
+					<iron-icon icon="communication:business"></iron-icon>
+					<span class="icon-text">{{challenge.organization.name}}</span>
+					<template is="dom-if" if="[[displayConfig.showStartDate]]">
+						<iron-icon icon="event"></iron-icon>
+						<span class="icon-text">{{startDate}}</span>
+						<iron-icon icon="device:access-time"></iron-icon>
+						<span class="icon-text">{{startTime}}</span>
+					</template>
+					<template is="dom-if" if="[[displayConfig.showDuration]]">
+						<iron-icon icon="alarm"></iron-icon>
+						<span class="icon-text">{{duration}}</span>
+					</template>
 				</div>
-			</template>
+				<div>
+					<iron-icon icon="{{statusIcon}}"></iron-icon>
+					<span class="icon-text">{{statusText}}</span>
+				</div>
+				<template is="dom-if" if="[[displayConfig.showLocation]]">
+					<div>
+						<iron-icon icon="communication:location-on"></iron-icon>
+						<span class="icon-text">{{status.location.name}}</span>
+						<div class="flex"></div>
+						<iron-icon id="zoomIcon" class="icon-button" icon="[[locationIcon]]" on-click="_toggleLocation"></iron-icon>
+					</div>
+				</template>
+			</div>
+
+			<paper-dialog id="confirmDialog" modal>
+				<p>Are you sure you want to [[confirmMessageTail]]?</p>
+				<div id="buttons">
+					<div class="flex"></div>
+					<paper-button class="primary" raised on-click="_confirm" dialog-confirm>Yes</paper-button>
+					<paper-button class="secondary" raised dialog-dismiss>No</paper-button>
+					<div class="flex"></div>
+				</div>
+			</paper-dialog>
+
 			<google-location-viewer id="locationViewer" location="[[status.location]]"></google-location-viewer>
 			<render-markdown markdown="{{challenge.description}}"></render-markdown>
 		</paper-material>
@@ -81,6 +133,13 @@
 	<script>
 		Polymer({
 			is: 'challenge-info-page',
+			properties: {
+				displayConfig: {
+					type: Object,
+					notify: true,
+					value: {}
+				}
+			},
 			behaviors: [
 				Behaviors.DateTimeBehavior
 			],
@@ -88,83 +147,118 @@
 				'_dataLoaded(challenge, status)'
 			],
 			_dataLoaded: function(challenge, status){
+				this.displayConfig = {};
 				this.timeUntilChallenge = (challenge.startDate * 1000 - new Date().getTime())/1000;
-				this.duration = this._computeDuration(challenge.endDate - challenge.startDate)
-				if(this.duration > 0){
-					this.showDuration = true;
+				if(challenge.endDate - challenge.startDate > 0){
+					this.duration = util.computeDuration(challenge.endDate - challenge.startDate);
+					this.set('displayConfig.showDuration',true);
 				}
 				if(!!challenge.startDate){
 					this.startTime = this._getTime(challenge.startDate);
 					this.startDate = this._getDate(challenge.startDate);
-					this.showStartDate = true;
+					this.set('displayConfig.showStartDate', true);
 				}
-				this.showActions = true;
+
 				switch(status.status){
 					case 'OPEN':
-						this.statusIcon = 'radio-button-unchecked';
-						this.statusText = 'Open for registration';
-						this.actionText = 'Register';
+						this._setStatusAndPrimaryAction('radio-button-unchecked', 'Open for registration', 'Register');
 						break;
 					case 'INVITED':
-						this.statusIcon = 'communication:mail-outline';
-						this.statusText = 'Invited';
-						this.actionText = 'Accept';
-						this.statusInvited = true;
-						this.showActions = false;
+						this._setStatusAndPrimaryAction('communication:mail-outline', 'Invited', 'Accept');
+						this._setSecondaryAction('Decline', 'secondary');
 						break;
 					case 'REGISTERED':
-						this.statusIcon = 'notification:event-available';
-						this.statusText = 'Registered as ' + status.registeredAs;
-						this.actionText = 'Unregister';
-						this.showActions = false;
+						this._setStatus('notification:event-available', 'Registered as ' + status.registeredAs);
+						this._setSecondaryAction('Unregister', 'secondary');
 						if(!challenge.startDate || challenge.startDate * 1000 < new Date().getTime()){
-							this.showStart = true;
+							this._setPrimaryAction('Start', 'primary');
+						}
+						if (!challenge.startDate || challenge.startDate * 1000 > new Date().getTime()) {
+							this.set('displayConfig.showEditButton', true);
 						}
 						break;
 					case 'ENDED':
-						this.statusIcon = 'clear';
-						this.statusText = 'Ended';
-						this.showActions = false;
+						this._setStatus('clear', 'Ended');
 						break;
 					case 'IN_PROGRESS':
-						this.statusIcon = 'hourglass-empty';
-						this.statusText = 'In progress';
-						this.actionText = 'Resume';
+						this._setStatusAndPrimaryAction('hourglass-empty', 'In progress', 'Resume');
 						break;
 					case 'COMPLETED':
-						this.statusIcon = 'done-all';
-						this.statusText = 'Finished';
-						this.actionText = 'See results';
+						this._setStatusAndPrimaryAction('done-all', 'Finished', 'See results');
 						break;
 				}
 				this.$.locationViewer.hide();
 				if (!!status.location) {
-					this.showLocation = true;
+					this.set('displayConfig.showLocation', true);
 					this.locationIcon = 'zoom-in';
 				}
 			},
-			_onAction: function(){
+			_setStatusAndPrimaryAction: function(statusIcon, statusText, primaryAction, primaryActionClass){
+				this._setPrimaryAction(primaryAction, primaryActionClass);
+				this._setStatus(statusIcon, statusText);
+			},
+			_setPrimaryAction: function(primaryAction, primaryActionClass) {
+				this.set('displayConfig.showPrimaryAction',true);
+				this.primaryAction = primaryAction;
+				this.primaryActionClass = !!primaryActionClass ? primaryActionClass : 'primary';
+			},
+			_setSecondaryAction: function(secondaryAction, secondaryActionClass) {
+				this.set('displayConfig.showSecondaryAction', true);
+				this.secondaryAction = secondaryAction;
+				this.secondaryActionClass = !!secondaryActionClass ? secondaryActionClass : 'secondary';
+			},
+			_setStatus: function(statusIcon, statusText) {
+				this.statusIcon = statusIcon;
+				this.statusText = statusText;
+			},
+			_onPrimaryAction: function(){
 				switch(this.status.status){
 					case 'OPEN':
-						page('/contest/' + this.challenge.canonicalName + '/register')
+						page('/challenge/' + this.challenge.canonicalName + '/register');
 						break;
 					case 'INVITED':
 						break;
 					case 'REGISTERED':
+						page('/challenge/' + this.challenge.canonicalName);
 						break;
 					case 'IN_PROGRESS':
-						page('/contest/' + this.challenge.canonicalName);
+						page('/challenge/' + this.challenge.canonicalName);
 						break;
 					case 'COMPLETED':
-						page('/contest/' + this.challenge.id + '/result');
+						page('/challenge/' + this.challenge.id + '/result');
 						break;
 				}
 			},
 			_onSecondaryAction: function(){
-				// decline invitation
+				switch(this.status.status){
+					case 'INVITED':
+						this._openConfirmModal('decline the invitation to '+ this.challenge.name);
+						break;
+					case 'REGISTERED':
+						this._openConfirmModal('cancel your registration to '+ this.challenge.name);
+						break;
+				}
 			},
-			_onStart: function(){
-				page('/contest/' + this.challenge.canonicalName);
+			_openConfirmModal: function(messageTail) {
+				this.confirmMessageTail = messageTail;
+				this.$.confirmDialog.open();
+			},
+			_confirm: function() {
+				switch(this.status.status){
+					case 'INVITED':
+						//TODO: decline invitation
+						break;
+					case 'REGISTERED':
+						this.$.request.path = 'challenges/' + this.challenge.canonicalName + '/participation';
+						this.$.request.generateRequest();
+						break;
+				}
+			},
+			_editParticipation: function() {
+				page('/challenge/' + this.challenge.canonicalName + '/register');
+			},
+			_onResponse: function() {
+				this.refresh();
 			},
 			refresh: function(){
 				this.$$('user-status-for-challenge-provider').refresh();

@@ -45,12 +45,12 @@
 							<paper-tab link><a href="/admin" class="tablink">Admin</a></paper-tab>
 						</template>
 						<template is="dom-if" if="{{isCompany}}">
-							<paper-tab link><a href="/challengetemplates" class="tablink">Challenges</a></paper-tab>
+							<paper-tab link><a href="/challenge-templates" class="tablink">Challenges</a></paper-tab>
 							<paper-tab link><a href="/tasks" class="tablink">Tasks</a></paper-tab>
 						</template>
 						<template is="dom-if" if="{{isCoder}}">
 							<paper-tab link><a href="{{myProfileLink}}" class="tablink">Profile</a></paper-tab>
-							<paper-tab link><a href="/contests" class="tablink">Public contests</a></paper-tab>
+							<paper-tab link><a href="/challenges" class="tablink">Public contests</a></paper-tab>
 						</template>
 						<span></span>
 					</paper-tabs>

@@ -1,6 +1,7 @@
 <link rel="import" href="../../../bower_components/iron-icons/av-icons.html">
 <link rel="import" href="../../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../../bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="../../../bower_components/paper-tooltip/paper-tooltip.html">
 <link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 
@@ -81,12 +82,18 @@
 				</div>
 				<code-editor id="codeEditor" language="{{language}}" on-code-changed="_setCachedCode" selected-file="{{selectedFile}}"></code-editor>
 				<div id="actions">
-					<paper-fab mini on-click="_goToInstructions" icon="chrome-reader-mode"></paper-fab>
+					<paper-fab mini id="instructionsFab" on-click="_goToInstructions" icon="chrome-reader-mode"></paper-fab>
+					<paper-tooltip for="instructionsFab" position="top" animation-delay="0">View instructions</paper-tooltip>
+
 					<template is="dom-if" if="{{showDownload}}">
-						<paper-fab mini on-click="_download" icon="file-download"></paper-fab>
+						<paper-fab id="downloadFab" mini on-click="_download" icon="file-download"></paper-fab>
+						<paper-tooltip for="downloadFab" position="top" animation-delay="0">Download resources</paper-tooltip>
 					</template>
-					<paper-fab mini on-click="_addFile" icon="file-upload"></paper-fab>
-					<paper-fab mini on-click="submit" icon="av:play-arrow"></paper-fab>
+					<paper-fab id="uploadFileFab" mini on-click="_addFile" icon="file-upload"></paper-fab>
+					<paper-tooltip for="uploadFileFab" position="top" animation-delay="0">Upload source code</paper-tooltip>
+
+					<paper-fab mini id="submitFab" on-click="submit" icon="av:play-arrow"></paper-fab>
+					<paper-tooltip for="submitFab" position="top" animation-delay="0">Run code</paper-tooltip>
 				</div>
 				<input type="file" name="fileToRun" id="fileToRun" on-change="_filesUploaded" style="display: none;">
 			</div>

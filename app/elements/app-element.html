@@ -109,7 +109,7 @@
 				invitationRequest.withCredentials = true;
 				invitationRequest.url = util.build('/invite/auth/' + token);
 				invitationRequest.addEventListener('response', function(r){
-					page('/contest/' + r.detail.response);
+					page('/challenge/' + r.detail.response);
 				});
 				invitationRequest.generateRequest();
 			},

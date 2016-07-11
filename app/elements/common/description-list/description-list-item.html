@@ -18,14 +18,19 @@
 		}
 	</style>
 	<template>
-		<template is="dom-if" if="{{showMe}}">
+		<template is="dom-if" if="[[showMe]]">
 			<div class="list-item">
-				<div class="item-label">{{label}}</div>
-				<template is="dom-if" if="{{date}}">
-					<div class="item-value">{{formattedValue}}</div>
+				<div class="item-label">[[label]]</div>
+				<template is="dom-if" if="[[rawValue]]">
+					<div class="item-value">[[value]]</div>
 				</template>
-				<template is="dom-if" if="{{!date}}">
-					<div class="item-value">{{value}}</div>
+				<template is="dom-if" if="[[date]]">
+					<div class="item-value">[[formattedDate]]</div>
+				</template>
+				<template is="dom-if" if="[[content]]">
+					<div class="item-value">
+						<content></content>
+					</div>
 				</template>
 			</div>
 		</template>
@@ -42,31 +47,37 @@
 					type: String,
 					notify: true
 				},
-				formattedValue: {
+				formattedDate: {
 					type: String,
 					notify: true
 				},
 				showMe: {
 					type: Boolean,
 					notify: true,
-					value: false
+					value: true
 				},
 				date: {
+					type: Boolean,
+					notify: true,
+					value: false
+				},
+				content: {
 					type: Boolean,
 					notify: true,
 					value: false
 				}
 			},
 			observers: [
-				'_set(value, date)'
+				'_set(value, date, content)'
 			],
 			_set: function(){
-				this.showMe = !!this.value;
+				this.showMe = !!this.value || !!this.content;
 
 				if (!!this.value && this.date){
-					this.formattedValue = util.formatDate(this.value);
-					console.log(this.formattedValue);
+					this.formattedDate = util.formatDate(this.value);
+					return;
 				}
+				this.rawValue = true;
 			}
 		});
 	</script>

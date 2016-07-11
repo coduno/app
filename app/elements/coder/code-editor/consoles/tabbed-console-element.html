@@ -1,7 +1,9 @@
 <link rel="import" href="../../../../bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="../../../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 
 <dom-module id="tabbed-console-element">
-	<style>
+	<style include="iron-flex">
 		:host {
 			display: block;
 			height: 100%;
@@ -14,20 +16,48 @@
 		.stderr {
 			color: red;
 		}
+		.output {
+			padding: 5px;
+		}
 		paper-spinner {
 			position: absolute;
 			left: 50%;
 			top: 40%;
 		}
+		.empty-state-icon {
+			--iron-icon-height: 25%;
+			--iron-icon-width: 25%;
+			--iron-icon-fill-color: rgba(128, 128, 128, 0.45);
+			margin: 15% auto 10px;
+		}
+		.empty-state-wrapper {
+			@apply(--layout-vertical);
+		}
+		.empty-state-wrapper h3 {
+			margin: 10px auto;
+			color: rgba(128, 128, 128, 0.45);
+			font-weight: bolder;
+			max-width: 70%;
+			text-align: center;
+		}
+		paper-spinner {
+			--paper-spinner-stroke-width: 3px;
+		}
 	</style>
 	<template>
 		<div class="fullHeight">
-			<h4>Standard output</h4>
-			<p>{{result.stdout}}</p>
-			<h4>Standard error</h4>
-			<p class="stderr">{{result.stderr}}</p>
-			<h4>Status</h4>
-			<p>{{result.status}}</p>
+			<template is="dom-if" if="[[emptyState]]">
+				<div class="fullHeight empty-state-wrapper">
+					<iron-icon icon="info-outline" class="empty-state-icon"></iron-icon>
+					<h3>After you run your code the results will be displayed here.</h3>
+				</div>
+			</template>
+			<template is="dom-if" if="[[showStdout]]">
+				<p class="output">[[result.stdout]]</p>
+			</template>
+			<template is="dom-if" if="[[showStderr]]">
+				<p class="output stderr">[[result.stderr]]</p>
+			</template>
 			<paper-spinner id="spinner" alt="Loading results"></paper-spinner>
 		</div>
 	</template>
@@ -40,8 +70,15 @@
 			 },
 			 result: {
 				 type: Object
+			 },
+			 emptyState: {
+				 type: Boolean,
+				 value: true
 			 }
 		 },
+		 observers: [
+			 '_resultSet(result)'
+		 ],
 		 refresh: function(){
 			 this.stopLoading();
 			 this.divClass = 'circle gray';
@@ -54,7 +91,14 @@
 	 		this.$.spinner.active = false;
 		 },
 		 startLoading: function(){
+			 this.emptyState = false;
+			 this.showStdout = false;
+			 this.showStderr = false;
 			 this.$.spinner.active = true;
+		 },
+		 _resultSet: function() {
+			 this.showStdout = !!this.result.stdout;
+			 this.showStderr = !!this.result.stderr;
 		 }
 	 });
  </script>

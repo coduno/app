@@ -24,6 +24,10 @@ var util = {
 			prefix = 'ws://localhost:8080';
 		}
 
+		if (location.origin.indexOf('coduno-lab') !== -1) {
+			prefix = 'wss://ws.cod.uno:8085';
+		}
+
 		return prefix + suffix;
 	},
 	getSockWSUrl: function(suffix) {
@@ -31,6 +35,10 @@ var util = {
 
 		if (location.origin.indexOf('localhost') !== -1) {
 			prefix = 'http://localhost:8080';
+		}
+		
+		if (location.origin.indexOf('coduno-lab') !== -1) {
+			prefix = 'wss://ws.cod.uno:8085';
 		}
 
 		return prefix + suffix;
