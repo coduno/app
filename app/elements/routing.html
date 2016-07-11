@@ -209,16 +209,6 @@ window.addEventListener('WebComponentsReady', function() {
 		})
 	);
 
-	// TODO: remove after HTT hackathon
-	page('/contests/:canonicalName/register', base(
-		function(ctx) {
-			app.swapContent(new ChallengeRegisterWizard(ctx.params.canonicalName, app.user));
-		},
-		function(ctx){
-			app.swapContent(new ChallengeRegisterWizard(ctx.params.canonicalName));
-		})
-	);
-
 	page('/contest/:canonicalName', base(function(ctx) {
 			var page = document.createElement('challenge-page');
 			page.canonicalName = ctx.params.canonicalName;
