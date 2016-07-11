@@ -66,9 +66,11 @@
 					</paper-datatable-column>
 				</template>
 			</paper-datatable>
-			<div id="buttonWrapper">
-				<paper-icon-button icon="add" on-click="_createTeam"></paper-icon-button>
-			</div>
+			<template is="dom-if" if="[[isCurrentUser]]">
+				<div id="buttonWrapper">
+					<paper-icon-button icon="add" on-click="_createTeam"></paper-icon-button>
+				</div>
+			</template>
 		</template>
 		<template is="dom-if" if="{{!hasTeams}}">
 			<iron-image src="/images/team.png" sizing="contain" class="placeholder"></iron-image>
