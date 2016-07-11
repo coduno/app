@@ -52,14 +52,19 @@
 				<p>If you want to change this either speak with the team leader or register on your own</p>
 			</template>
 			<template is="dom-if" if="[[!readOnly]]">
-				<p>You can register to <span>[[challenge.name]]</span> in <span>[[locations.length]]</span> different locations.</p>
-				<paper-dropdown-menu label="Location" selected-item="{{selectedLocation}}">
-				<paper-listbox class="dropdown-content" selected="[[selectedIndex]]">
-						<template is="dom-repeat" items="{{locations}}">
-							<option value="{{item.id}}">{{item.name}}</option>
-						</template>
-					</paper-listbox>
-				</paper-dropdown-menu>
+				<template is="dom-if" if="[[singleLocation]]">
+					<p>You will register to <span>[[challenge.name]]</span> and the location is <span>[[selectedLocation.value]]</span>.<p>
+				</template>
+				<template is="dom-if" if="[[!singleLocation]]">
+					<p>You can register to <span>[[challenge.name]]</span> in <span>[[locations.length]]</span> different locations.</p>
+					<paper-dropdown-menu label="Location" selected-item="{{selectedLocation}}">
+					<paper-listbox class="dropdown-content" selected="[[selectedIndex]]">
+							<template is="dom-repeat" items="{{locations}}">
+								<option value="{{item.id}}">{{item.name}}</option>
+							</template>
+						</paper-listbox>
+					</paper-dropdown-menu>
+				</template>
 			</template>
 			<template is="dom-if" if="[[showNameEdit]]">
 				<p>If you want to participate on site you must input your first and last name</p>
@@ -112,6 +117,10 @@
 				location: {
 					notify: true,
 					reflectToAttribute: true
+				},
+				singleLocation: {
+					notify: true,
+					value: false
 				}
 			},
 			observers: [
@@ -157,6 +166,9 @@
 			_locationsLoaded: function(){
 				if(!this.locations){
 					this.locations = [];
+				}
+				if(this.locations.length === 0){
+					this.singleLocation = true;
 				}
 				this.unshift('locations', {id: 'online', name: 'Online'});
 				this.selectedIndex = 0;
