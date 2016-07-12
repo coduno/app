@@ -74,6 +74,7 @@ paper-input {
 					error-message="Password must be between 6 and 40 characters."
 					required>
 				</paper-input>
+
 				<paper-input type="password" label="Repeat password" value="{{repeatedPassword}}" autofocus="[[!externalWidget]]" on-keydown="onKeydown" required></paper-input>
 			</form>
 			<div id="socialSignInWrapper">
@@ -102,7 +103,7 @@ Polymer({
 		},
 		externalWidget: {
 			value: false
-		}
+		},
 	},
 	behaviors: [
 		Polymer.NeonAnimatableBehavior
@@ -152,6 +153,9 @@ Polymer({
 			this.$.toast.show();
 			return;
 		}
+		this.user.challengeCanonicalName = this.challenge.canonicalName;
+		this.userEmail = user.email;
+		console.log(this.challenge.canonicalName);
 		this.$.userService.save(this.user);
 	},
 	onKeydown: function(e) {

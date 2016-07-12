@@ -101,6 +101,7 @@
 				this.app.startLoading();
 				this.$.postUser.body = user;
 				this.$.postUser.url = util.build('/users');
+				console.log("this should call the invite self api")
 				this.$.postUser.generateRequest();
 			},
 			updateMe: function(user){
