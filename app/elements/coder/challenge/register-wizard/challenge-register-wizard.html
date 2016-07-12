@@ -48,7 +48,10 @@
 		<challenge-register-wizard-nav first-step-state="[[firstStepState]]"
 		second-step-state="[[secondStepState]]" third-step-state="[[thirdStepState]]"></challenge-register-wizard-nav>
 		<neon-animated-pages id="pages" class="flex" selected="[[selected]]" entry-animation="[[entryAnimation]]" exit-animation="[[exitAnimation]]">
-			<register-page email="[[invitedEmail]]" context="[[context]]" on-redirect-login="_login" on-social-register="onSocialRegister"></register-page>
+			<register-page userEmail = "{{userEmail}}" email="[[invitedEmail]]" context="[[context]]" challenge="[[challenge]]" on-redirect-login="_login" on-social-register="onSocialRegister"></register-page>
+			<base-wizard style="text-align: center">
+				We've sent a confirmation email to {{userEmail}}
+			</base-wizard>
 			<login-wizard email="[[invitedEmail]]" context="[[context]]" on-redirect-register="_register"></login-wizard>
 			<challenge-location-step read-only="[[readOnly]]" user="[[user]]" challenge="[[challenge]]" location="{{location}}" participation="[[participation]]"></challenge-location-step>
 			<challenge-register-step read-only="[[readOnly]]" user="[[user]]" challenge="[[challenge]]" location="[[location]]" participation="[[participation]]"></challenge-register-step>
@@ -78,7 +81,8 @@
 					value: 'challenge-register'
 				},
 				entryAnimation: String,
-				exitAnimation: String
+				exitAnimation: String,
+				userEmail: String
 			},
 			listeners: {
 				'neon-animation-finish': '_afterNeon',
