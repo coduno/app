@@ -104,6 +104,10 @@ Polymer({
 		externalWidget: {
 			value: false
 		},
+		userEmail: {
+			type: String,
+			notify: true
+		}
 	},
 	behaviors: [
 		Polymer.NeonAnimatableBehavior
@@ -133,7 +137,9 @@ Polymer({
 		this.externalWidget = (context === 'challenge-register');
 	},
 	_onResponse: function(){
-		this.$.cookieService.login('Basic ' + btoa(this.user.nick + ':' + this.user.password));
+		// this.$.cookieService.login('Basic ' + btoa(this.user.nick + ':' + this.user.password));
+
+		this.fire('next-step', this.user);
 	},
 	_login: function(){
 		if (this.externalWidget) {
@@ -154,8 +160,7 @@ Polymer({
 			return;
 		}
 		this.user.challengeCanonicalName = this.challenge.canonicalName;
-		this.userEmail = user.email;
-		console.log(this.challenge.canonicalName);
+		console.log(this.user.email);
 		this.$.userService.save(this.user);
 	},
 	onKeydown: function(e) {
