@@ -21,32 +21,21 @@
 		.icon-text {
 			padding: 0 32px 0px 4px;
 		}
-		#steps {
-			background: white;
-			height: 30px;
-			margin: 16px auto;
-			padding: 24px;
-			text-align: center;
-			width: calc(70% - 48px);
-		}
 		neon-animated-pages {
 			height: calc(100% - 96px);
 		}
-		#steps-title {
-			padding: 0;
-			margin: 0;
-		}
-		#stepElements {
-			@apply(--layout-horizontal);
+		#progressBar {
+			margin-top: -16px;
+			padding-bottom: 20px;
+			width: 100%;
 		}
 	</style>
 	<template>
+		<paper-progress id="progressBar" min="0" max="3"></paper-progress>
 		<participation-invitation-by-key-provider username="[[invitingUsername]]" challenge="[[canonicalName]]" data="{{participation}}"></participation-invitation-by-key-provider>
 		<challenge-by-canonical-name-provider canonical-name="[[canonicalName]]" data="{{challenge}}"></challenge-by-canonical-name-provider>
 		<user-status-for-challenge-provider canonical-name="[[challenge.canonicalName]]" data="{{status}}"></user-status-for-challenge-provider>
 
-		<challenge-register-wizard-nav first-step-state="[[firstStepState]]"
-		second-step-state="[[secondStepState]]" third-step-state="[[thirdStepState]]"></challenge-register-wizard-nav>
 		<neon-animated-pages id="pages" class="flex" selected="[[selected]]" entry-animation="[[entryAnimation]]" exit-animation="[[exitAnimation]]">
 			<register-page email="[[invitedEmail]]" context="[[context]]" on-redirect-login="_login" on-social-register="onSocialRegister"></register-page>
 			<login-wizard email="[[invitedEmail]]" context="[[context]]" on-redirect-register="_register"></login-wizard>
@@ -177,19 +166,7 @@
 				this.selected = pageUserRegister;
 			},
 			updateNavElements: function(){
-				if(this.selected === pageUserRegister || this.selected === pageLogin){
-					this.firstStepState = 'current';
-					this.secondStepState = 'default';
-					this.thirdStepState = 'default';
-				}else if (this.selected === pageChallengeLocation){
-					this.firstStepState = 'completed';
-					this.secondStepState = 'current';
-					this.thirdStepState = 'default';
-				}else {
-					this.firstStepState = 'completed';
-					this.secondStepState = 'completed';
-					this.thirdStepState = 'current';
-				}
+				this.$.progressBar.value = Math.max(1, this.selected);
 			}
 		});
 	</script>
