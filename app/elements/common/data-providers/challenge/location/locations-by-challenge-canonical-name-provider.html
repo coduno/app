@@ -21,21 +21,21 @@
 			properties: {
 				auto: {
 					value: false
+				},
+				canonicalName: {
+					type: String,
+					observer: 'canonicalNameChanged'
 				}
 			},
 			behaviors: [
 				Behaviors.Providers.General
 			],
-			observers: [
-				'_urlChanged(baseUrl, canonicalName)'
-			],
-			_urlChanged: function(){
-				if(!this.auto){
-					return;
+			canonicalNameChanged: function() {
+				if (!!this.auto) {
+					this.refresh();
 				}
-				this.refresh();
 			},
-			refresh: function(){
+			refresh: function() {
 				this.$.request.generateRequest();
 			}
 		});
