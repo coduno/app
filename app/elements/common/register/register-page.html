@@ -160,7 +160,6 @@ Polymer({
 			return;
 		}
 		this.user.challengeCanonicalName = this.challenge.canonicalName;
-		console.log(this.user.email);
 		this.$.userService.save(this.user);
 	},
 	onKeydown: function(e) {
