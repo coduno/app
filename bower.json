@@ -1,6 +1,19 @@
 {
-  "name": "app",
+  "name": "Coduno",
+  "authors": [
+    "Dominic Rogetzer",
+    "Jakob Englisch",
+    "Lorenz Leutgeb",
+    "Paul Bochis",
+    "Victor Balan"
+  ],
+  "homepage": "https://cod.uno/",
   "private": true,
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/foo/bar.git"
+  },
   "dependencies": {
     "paper-elements": "PolymerElements/paper-elements#^1.0.7",
     "iron-elements": "PolymerElements/iron-elements#^1.0.10",
@@ -22,7 +35,7 @@
     "google-map": "GoogleWebComponents/google-map#~1.1.10"
   },
   "devDependencies": {
-    "web-component-tester": "*",
+    "web-component-tester": "^4.0.0",
     "test-fixture": "PolymerElements/test-fixture#^1.0.0"
   },
   "resolutions": {

@@ -1,0 +1,5 @@
+{
+  "entrypoint": "index.html",
+  "shell": "src/coduno-app.html",
+  "fragments": []
+}

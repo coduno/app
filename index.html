@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="charset" content="UTF-8">
+	<meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+	<meta name="generator" content="Coduno"/>
+	<title>Coduno</title>
+	<!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+	<link rel="icon" href="images/logo-64.png" type="image/png" sizes="64x64" />
+	<link rel="icon" href="images/logo-32.png" type="image/png" sizes="32x32" />
+	<link rel="icon" href="images/logo-16.png" type="image/png" sizes="16x16" />
+	<link rel="icon" href="images/logo.svg" type="image/svg+xml" />
+
+	<!-- Chrome for Android theme color -->
+	<meta name="theme-color" content="#e5e5e5">
+
+	<!-- Web Application Manifest -->
+	<link rel="manifest" href="/manifest.json">
+
+	<!-- Tile color for Win8 -->
+	<meta name="msapplication-TileColor" content="#e5e5e5">
+
+	<!-- Add to homescreen for Chrome on Android -->
+	<meta name="mobile-web-app-capable" content="yes">
+	<meta name="application-name" content="Coduno">
+
+	<!-- Add to homescreen for Safari on iOS -->
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<meta name="apple-mobile-web-app-title" content="Coduno">
+
+	<meta name="keywords" content="programming hiring coding interview process hr hacking puzzles skills">
+	<meta name="copyright" content="Copyright © 2016 Coduno">
+	<meta name="email" content="team@cod.uno">
+	<meta name="robots" content="index, follow">
+	<meta name="googlebot" content="index, follow">
+	<meta http-equiv="content-language" content="EN">
+	<meta name="Rating" content="General">
+	<meta name="Distribution" content="Global">
+
+	<link rel="import" href="/src/coduno-app.html" async>
+
+	<style>
+
+	body {
+		margin: 0;
+		font-family: 'Roboto', 'Noto', sans-serif;
+		font-size: 13px;
+		line-height: 1.5;
+		min-height: 100vh;
+	}
+
+	/* styling for render while resources are loading */
+	coduno-app[unresolved] {
+		display: block;
+		min-height: 101vh;
+		line-height: 68px;
+		text-align: center;
+		font-size: 16px;
+		font-weight: 600;
+		letter-spacing: 0.3em;
+		color: #202020;
+		padding: 0 16px;
+		overflow: visible;
+	}
+
+	</style>
+</head>
+
+<body>
+	<coduno-app unresolved>Coduno</coduno-app>
+
+	<script>
+	window.performance && performance.mark && performance.mark('index.html');
+
+	Polymer = {lazyRegister: true, dom: 'shadow'};
+
+	(function() {
+	if ('registerElement' in document
+		&& 'import' in document.createElement('link')
+		&& 'content' in document.createElement('template')) {
+		// platform is good!
+	} else {
+		// polyfill the platform!
+		var e = document.createElement('script');
+		e.src = '/bower_components/webcomponentsjs/webcomponents-lite.min.js';
+		document.body.appendChild(e);
+	}
+	})();
+	</script>
+</body>
+</html>
