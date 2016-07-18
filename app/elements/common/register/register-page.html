@@ -137,8 +137,6 @@ Polymer({
 		this.externalWidget = (context === 'challenge-register');
 	},
 	_onResponse: function(){
-		// this.$.cookieService.login('Basic ' + btoa(this.user.nick + ':' + this.user.password));
-
 		this.fire('next-step', this.user);
 	},
 	_login: function(){
