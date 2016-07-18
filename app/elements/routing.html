@@ -65,23 +65,20 @@ window.addEventListener('WebComponentsReady', function() {
 		function() {
 			page('/');
 		}, function(ctx) {
-
 				var token = getQueryParam(ctx, 'token');
 				var challengeCanonicalName = getQueryParam(ctx, 'challengeCanonicalName');
 
 				if (!!token) {
 					var authRequest = document.createElement('iron-ajax');
 					authRequest.withCredentials = true;
-
-					if (!!challengeCanonicalName && false) {
-						authRequest.url = util.build('/challenges/' + challengeCanonicalName + '/register');
-					} else {
-						authRequest.url = util.build('/user');
-					}
-
+					authRequest.url = util.build('/user');
 					authRequest.headers['Authorization'] = 'Token ' + token;
 					authRequest.addEventListener('response', function(r){
-						page('/challenge/' + challengeCanonicalName + '/register');
+						if (!!challengeCanonicalName) {
+							page('/challenge/' + challengeCanonicalName + '/register');
+						} else {
+							page('/');
+						}
 					});
 					authRequest.generateRequest();
 				} else {
