@@ -107,8 +107,9 @@
 			inviteByToken: function(token){
 				var invitationRequest = document.createElement('iron-ajax');
 				invitationRequest.withCredentials = true;
+				invitationRequest.handleAs = 'text';
 				invitationRequest.url = util.build('/invite/auth/' + token);
-				invitationRequest.addEventListener('response', function(r){
+				invitationRequest.addEventListener('response', function(r) {
 					page('/challenge/' + r.detail.response);
 				});
 				invitationRequest.generateRequest();

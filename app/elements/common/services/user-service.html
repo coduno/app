@@ -100,7 +100,7 @@
 			save: function(user){
 				this.app.startLoading();
 				this.$.postUser.body = user;
-				this.$.postUser.url = util.build('/users');
+				this.$.postUser.url = util.build('/activation_tokens');
 				this.$.postUser.generateRequest();
 			},
 			updateMe: function(user){

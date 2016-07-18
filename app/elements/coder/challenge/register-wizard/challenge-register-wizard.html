@@ -31,13 +31,16 @@
 		}
 	</style>
 	<template>
-		<paper-progress id="progressBar" min="0" max="3"></paper-progress>
+		<paper-progress id="progressBar" min="0" max="5"></paper-progress>
 		<participation-invitation-by-key-provider username="[[invitingUsername]]" challenge="[[canonicalName]]" data="{{participation}}"></participation-invitation-by-key-provider>
 		<challenge-by-canonical-name-provider canonical-name="[[canonicalName]]" data="{{challenge}}"></challenge-by-canonical-name-provider>
 		<user-status-for-challenge-provider canonical-name="[[challenge.canonicalName]]" data="{{status}}"></user-status-for-challenge-provider>
 
 		<neon-animated-pages id="pages" class="flex" selected="[[selected]]" entry-animation="[[entryAnimation]]" exit-animation="[[exitAnimation]]">
-			<register-page email="[[invitedEmail]]" context="[[context]]" on-redirect-login="_login" on-social-register="onSocialRegister"></register-page>
+			<register-page email="[[invitedEmail]]" context="[[context]]" challenge="[[challenge]]" on-redirect-login="_login" on-social-register="onSocialRegister"></register-page>
+			<base-wizard style="text-align: center">
+				We've sent a confirmation email to [[userEmail]]
+			</base-wizard>
 			<login-wizard email="[[invitedEmail]]" context="[[context]]" on-redirect-register="_register"></login-wizard>
 			<challenge-location-step read-only="[[readOnly]]" user="[[user]]" challenge="[[challenge]]" location="{{location}}" participation="[[participation]]"></challenge-location-step>
 			<challenge-register-step read-only="[[readOnly]]" user="[[user]]" challenge="[[challenge]]" location="[[location]]" participation="[[participation]]"></challenge-register-step>
@@ -45,7 +48,7 @@
 	</template>
 	<script type="application/javascript" src="../../../../scripts/behaviors/app-connection-behavior.js"></script>
 	<script>
-		var pageUserRegister = 0, pageLogin = 1, pageChallengeLocation = 2, pageChallengeRegister = 3;
+		var pageUserRegister = 0, pageRegisterVerify = 1, pageLogin = 2, pageChallengeLocation = 3, pageChallengeRegister = 4;
 		ChallengeRegisterWizard = Polymer({
 			is: 'challenge-register-wizard',
 			behaviors: [
@@ -67,7 +70,11 @@
 					value: 'challenge-register'
 				},
 				entryAnimation: String,
-				exitAnimation: String
+				exitAnimation: String,
+				userEmail: {
+					type: String,
+					notify: true
+				}
 			},
 			listeners: {
 				'neon-animation-finish': '_afterNeon',
@@ -128,7 +135,10 @@
 			next: function(e, d) {
 				this.entryAnimation = 'slide-from-right-animation';
 				this.exitAnimation = 'slide-left-animation';
-				if (this.selected === pageLogin || this.selected === pageUserRegister){
+				if(this.selected === pageUserRegister) {
+					this.userEmail = d.email;
+				}
+				if (this.selected === pageLogin){
 					this.setPageChallengeLocation(d);
 					return;
 				}
@@ -165,7 +175,8 @@
 				this.exitAnimation = 'slide-right-animation';
 				this.selected = pageUserRegister;
 			},
-			updateNavElements: function(){
+			updateNavElements: function(selected, oldSelected) {
+				console.log("Selected changed from", oldSelected, "to", selected);
 				this.$.progressBar.value = Math.max(1, this.selected);
 			}
 		});
