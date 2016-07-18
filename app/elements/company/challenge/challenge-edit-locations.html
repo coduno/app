@@ -86,7 +86,7 @@
 			_locationExists: function(location){
 				for (var i = 0; i < this.locations.length; i++){
 					var existingLocation = this.locations[i];
-					if (existingLocation.hasOwnProperty('placeId') && existingLocation.placeId === location.placeId){
+					if (existingLocation.hasOwnProperty('id') && existingLocation.id === location.id){
 						return true;
 					}
 				}

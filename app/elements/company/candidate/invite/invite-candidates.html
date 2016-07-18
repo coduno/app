@@ -77,7 +77,7 @@
 				for (var i = 0; i < this.candidates.length; i++) {
 					this.$.userService.invite({
 						'email': this.candidates[i].email,
-						'canonicalName': this.challenge
+						'canonicalName': this.challenge.canonicalName
 					});
 				}
 				this.$.dialog.close();
