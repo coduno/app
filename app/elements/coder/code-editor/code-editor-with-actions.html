@@ -227,8 +227,8 @@
 				this.set('language', detail);
 
 				this.$.templateService.getTemplates(this.task.id, this.task.languages.filter(function(it) {
-					return it.tag === detail;
-				}).pop(0).tag);
+					return it.canonicalName === detail;
+				}).pop(0).canonicalName);
 			},
 			handleTemplateFetched: function(e, detail) {
 				this.$$('#codeEditor').addFile(detail.path, detail.content);

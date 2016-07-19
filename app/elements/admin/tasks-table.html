@@ -18,7 +18,7 @@
 		<tasks-provider data="{{tasks}}"></tasks-provider>
 		<paper-datatable data="[[tasks]]" class="fullHeight">
 			<paper-datatable-column header="Name" property="name"></paper-datatable-column>
-			<paper-datatable-column header="Tag" property="canonicalName"></paper-datatable-column>
+			<paper-datatable-column header="CN" property="canonicalName"></paper-datatable-column>
 			<paper-datatable-column header="Endpoint" property="endpoint" type="Object">
 				<template>
 					<span>{{value.component}}</span>

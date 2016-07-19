@@ -17,7 +17,7 @@
 		<paper-dropdown-menu selected-item="{{language}}">
 			<paper-menu id="languageMenu" class="dropdown-content">
 				<template is="dom-repeat" items="{{languages}}">
-					<option value="{{item.tag}}">{{item.name}}</option>
+					<option value="{{item.canonicalName}}">{{item.name}}</option>
 				</template>
 			</paper-menu>
 		</paper-dropdown-menu>

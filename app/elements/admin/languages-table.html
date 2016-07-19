@@ -18,7 +18,7 @@
 		<languages-provider data="{{languages}}"></languages-provider>
 		<paper-datatable data="[[languages]]" class="fullHeight">
 			<paper-datatable-column header="Name" property="name"></paper-datatable-column>
-			<paper-datatable-column header="Tag" property="tag"></paper-datatable-column>
+			<paper-datatable-column header="CN" property="canonicalName"></paper-datatable-column>
 			<!-- TODO(vbalan): enable when we have the backend for it -->
 			<!-- <paper-datatable-column header="Options" property="id" width="200">
 				<template>
@@ -31,10 +31,10 @@
 	<script>
 		Polymer({
 			is: 'languages-table',
-			_edit: function (e) {
+			_edit: function(e) {
 				console.log('edit', e.model.__data__.item);
 			},
-			_delete: function (e) {
+			_delete: function(e) {
 				console.log('delete', e.model.__data__.item);
 			}
 		});
