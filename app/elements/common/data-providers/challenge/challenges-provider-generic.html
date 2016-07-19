@@ -1,4 +1,4 @@
-<dom-module id="challenges-provider-invite-only">
+<dom-module id="challenges-provider-generic">
 	<style>
 		:host {
 			display: none;
@@ -9,7 +9,7 @@
 			id="request"
 			auto
 			method="GET"
-			url="[[baseUrl]]/challenges/invite_only"
+			url="[[baseUrl]]/challenges/[[publicOrInvite]]"
 			handle-as="json"
 			with-credentials="true"
 			bubbles>
@@ -18,10 +18,15 @@
 	<script type="application/javascript" src="../../../../scripts/behaviors/providers/general-provider-behavior.js"></script>
 	<script>
 		Polymer({
-			is: 'challenges-provider-invite-only',
+			is: 'challenges-provider-generic',
 			behaviors: [
 				Behaviors.Providers.General
 			],
+			properties: {
+				publicOrInvite: {
+					type: String
+				}
+			},
 			refresh: function(){
 				this.$.request.generateRequest();
 			}
