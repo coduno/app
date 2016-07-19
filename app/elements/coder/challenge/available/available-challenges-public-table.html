@@ -1,0 +1,117 @@
+<link rel="import" href="../../../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../../../bower_components/iron-icons/notification-icons.html">
+<link rel="import" href="../../../../bower_components/iron-icons/communication-icons.html">
+<link rel="import" href="../../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../../../../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../../../../bower_components/paper-datatable/paper-datatable.html">
+<link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout-classes.html"/>
+
+<dom-module id="available-challenges-public-table">
+	<style include="iron-flex">
+		:host {
+			display: block;
+		}
+		paper-icon-button {
+			@apply(--layout-self-center);
+		}
+		paper-material {
+			background: white;
+			margin-top: 0;
+		}
+	</style>
+	<template>
+		<challenges-provider-public show-progress data="{{challenges}}"></challenges-provider-public>
+		<template is="dom-if" if="[[hasChallenges]]">
+			<paper-material class="mainContent" elevation="1" style="margin-bottom: 20px">
+				<div style="padding: 20px">Public challenges</div>
+				<register-to-challenge-dialog id="registerToChallengeDialog" on-challenge-registered="refresh"></register-to-challenge-dialog>
+
+				<paper-datatable data="{{challenges}}" style="height: 100%; overflow-y: auto;" on-row-tap="_onClick">
+					<paper-datatable-column header="Name" property="challenge" type="Object" sortable>
+						<template>
+							<p>{{value.name}}</p>
+						</template>
+					</paper-datatable-column>
+					<paper-datatable-column header="Organization" property="challenge" type="Object" sortable>
+						<template>
+							<p>{{value.organization.name}}</p>
+						</template>
+					</paper-datatable-column>
+					<paper-datatable-column header="Start date" property="challenge" type="Object" sortable>
+						<template>
+							<p>{{_formatDate(value.startDate)}}</p>
+						</template>
+					</paper-datatable-column>
+					<paper-datatable-column header="End date" property="challenge" type="Object" sortable>
+						<template>
+							<p>{{_formatDate(value.endDate)}}</p>
+						</template>
+					</paper-datatable-column>
+					<paper-datatable-column header="Status" property="status" type="Object" sortable>
+						<template>
+							<paper-icon-button icon="{{_iconForStatus(value)}}"></paper-icon-button>
+						</template>
+					</paper-datatable-column>
+				</paper-datatable>
+				<paper-toast id="toast" text="{{toastText}}"></paper-toast>
+			</paper-material>
+		</template>
+	</template>
+	<script>
+		Polymer({
+			is: 'available-challenges-public-table',
+			properties: {
+				isAdmin: {
+					value: true
+				},
+				challenges: {
+					type: Array,
+					notify: true
+				},
+				hasChallenges: {
+					type: Boolean,
+					value: false,
+					computed: 'computeHasChallenges(challenges)',
+					reflectToAttribute: true,
+					notify: true
+				}
+			},
+			_onClick: function(e, d){
+				page('/challenge/' + d.item.challenge.canonicalName + '/info');
+			},
+			_iconForStatus: function(status){
+				switch(status){
+					case 'OPEN':
+						return 'radio-button-unchecked';
+					case 'INVITED':
+						return 'communication:mail-outline';
+					case 'REGISTERED':
+						return 'notification:event-available';
+					case 'IN_PROGRESS':
+						return 'hourglass-empty';
+					case 'COMPLETED':
+						return 'done-all';
+					case 'ENDED':
+						return 'clear';
+				}
+				return '';
+			},
+			_formatDate: function(date){
+				return util.formatDate(date);
+			},
+			refresh: function(){
+				this.$$('challenges-provider-public').refresh();
+			},
+			computeHasChallenges: function(challenges) {
+				console.log(!!challenges && challenges.length > 0);
+				return !!challenges && challenges.length > 0;
+			},
+			foo: function(a, b) {
+				console.log("challenges changed value from", a, "to", b);
+			}
+		});
+	</script>
+</dom-module>

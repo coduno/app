@@ -1,0 +1,30 @@
+<dom-module id="challenges-provider-public">
+	<style>
+		:host {
+			display: none;
+		}
+	</style>
+	<template>
+		<iron-ajax
+			id="request"
+			auto
+			method="GET"
+			url="[[baseUrl]]/challenges/public"
+			handle-as="json"
+			with-credentials="true"
+			bubbles>
+		</iron-ajax>
+	</template>
+	<script type="application/javascript" src="../../../../scripts/behaviors/providers/general-provider-behavior.js"></script>
+	<script>
+		Polymer({
+			is: 'challenges-provider-public',
+			behaviors: [
+				Behaviors.Providers.General
+			],
+			refresh: function(){
+				this.$.request.generateRequest();
+			}
+		});
+	</script>
+</dom-module>
