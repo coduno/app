@@ -1,6 +1,8 @@
 <link rel="import" href="../../../bower_components/google-map/google-map.html">
 <link rel="import" href="../../../bower_components/iron-selector/iron-selector.html">
-<link rel="import" href="../../../bower_components/polymer/polymer.html">
+
+
+<dom-module id="google-multiple-location-viewer">
 	<template>
 		<style>
 			google-map {
@@ -13,21 +15,34 @@
 						version="[[apiConfig.version]]"
 						map="{{map}}"
 						latitude="48.20817"
-						longitude="16.37794"
+						longitude="16.37382"
 						zoom="16">
 
 				<iron-selector
-					activate-event="google-map-marker-open">
+						activate-event="google-map-marker-open">
 					<google-map-marker
-						id="marker"
-						map="{{map}}"
-						click-events="true"
-						title="the location name"
-						latitude="48.20817"
-						longitude="16.37794">
+							id="marker"
+							map="{{map}}"
+							click-events="true"
+							title="the location name"
+							latitude="48.20817"
+							longitude="16.37382">
 						a description here
 					</google-map-marker>
 				</iron-selector>
+
+
+				<!--<iron-selector
+						activate-event="google-map-marker-open">
+					<google-map-marker
+							id="marker2"
+							click-events="true"
+							title="the location name 2"
+							latitude="48.21293"
+							longitude="16.37382">
+						a description here
+					</google-map-marker>
+				</iron-selector>-->
 
 			</google-map>
 		</div>
@@ -35,7 +50,7 @@
 	<script type="application/javascript" src="../../../scripts/behaviors/google-maps-host-behavior.js"></script>
 	<script>
 		Polymer({
-			is: 'google-location-viewer',
+			is: 'google-multiple-location-viewer',
 			behaviors: [
 				Behaviors.GoogleMapsHostBehavior
 			],
@@ -48,9 +63,10 @@
 				}
 
 				this.$.marker.map = Object.create(this.map);
-				this.map.setCenter({lat: 48.20817, lng: 16.37794});
-				this.show();
-			},
+				this.map.setCenter({lat: 48.20817, lng: 16.37382});
+				console.log(this.map);
+				//this.show();
+			}/*,
 			toggleVisibility: function() {
 				if (!!this.visible) {
 					this.show();
@@ -66,13 +82,13 @@
 				console.log("maps show");
 			},
 			hide: function() {
-				//this.$.container.style.display = 'none';
-				//this.visible = !this.visible;
+				this.$.container.style.display = 'none';
+				this.visible = !this.visible;
 				console.log("maps hide");
 			},
 			ready: function() {
-				console.log("location", [[location]]);
-			}
+				console.log("I am ready!");
+			}*/
 		});
 	</script>
 </dom-module>
