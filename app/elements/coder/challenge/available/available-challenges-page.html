@@ -13,20 +13,16 @@
 			text-align: center;
 			background: white;
 		}
-
 	</style>
 	<template>
 		<available-challenges-generic-table
 			title="Challenges you are invited to"
 			has-challenges="{{hasChallengesInvite}}"
 			public-or-invite="invite_only"></available-challenges-generic-table>
-
 		<available-challenges-generic-table
 			title="Public challenges"
 			has-challenges="{{hasChallengesPublic}}"
 			public-or-invite="public"></available-challenges-generic-table>
-
-
 		<template is="dom-if" if="[[challengesEmpty]]">
 			<paper-material class="noChallenge">
 				<h2>
@@ -45,10 +41,10 @@
 				challengesEmpty: {
 					type: Boolean,
 					value: false,
-					computed: 'computeAreChallengesEmpty(hasChallengesInvite, hasChallengesPublic)'
+					computed: 'computeChallengesEmpty(hasChallengesInvite, hasChallengesPublic)'
 				}
 			},
-			computeAreChallengesEmpty: function(a, b) {
+			computeChallengesEmpty: function(a, b) {
 				return !(a || b);
 			}
 		});
