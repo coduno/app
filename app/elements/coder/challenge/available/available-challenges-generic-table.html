@@ -30,7 +30,6 @@
             <paper-material class="mainContent" elevation="1" style="margin-bottom: 20px">
                 <div style="padding: 20px">[[title]]</div>
                 <register-to-challenge-dialog id="registerToChallengeDialog" on-challenge-registered="refresh"></register-to-challenge-dialog>
-
                 <paper-datatable data="{{challenges}}" style="height: 100%; overflow-y: auto;" on-row-tap="_onClick">
                     <paper-datatable-column header="Name" property="challenge" type="Object" sortable>
                         <template>
@@ -83,7 +82,6 @@
                 publicOrInvite: {
                     type: String
                 }
-
             },
             _onClick: function(e, d){
                 page('/challenge/' + d.item.challenge.canonicalName + '/info');
