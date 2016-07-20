@@ -1,6 +1,4 @@
-<link rel="import" href="../../../../bower_components/iron-ajax/iron-ajax.html">
-
-<dom-module id="user-challenges-provider">
+<dom-module id="challenges-provider-generic">
 	<style>
 		:host {
 			display: none;
@@ -11,7 +9,7 @@
 			id="request"
 			auto
 			method="GET"
-			url="[[baseUrl]]/user/challenges"
+			url="[[baseUrl]]/challenges/[[publicOrInvite]]"
 			handle-as="json"
 			with-credentials="true"
 			bubbles>
@@ -20,10 +18,15 @@
 	<script type="application/javascript" src="../../../../scripts/behaviors/providers/general-provider-behavior.js"></script>
 	<script>
 		Polymer({
-			is: 'user-challenges-provider',
+			is: 'challenges-provider-generic',
 			behaviors: [
 				Behaviors.Providers.General
 			],
+			properties: {
+				publicOrInvite: {
+					type: String
+				}
+			},
 			refresh: function(){
 				this.$.request.generateRequest();
 			}

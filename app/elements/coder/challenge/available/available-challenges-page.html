@@ -6,20 +6,47 @@
 			height: 100%;
 			display: block;
 		}
-		paper-material {
+		.noChallenge {
+			width: 50%;
+			margin: 0 auto;
+			padding: 20px;
+			text-align: center;
 			background: white;
-			margin-top: 0;
 		}
 	</style>
 	<template>
-		<paper-material class="mainContent" elevation="1">
-			<available-challenges-table></available-challenges-table>
-		</paper-material>
-		</div>
+		<available-challenges-generic-table
+			title="Challenges you are invited to"
+			has-challenges="{{hasChallengesInvite}}"
+			public-or-invite="invite_only"></available-challenges-generic-table>
+		<available-challenges-generic-table
+			title="Public challenges"
+			has-challenges="{{hasChallengesPublic}}"
+			public-or-invite="public"></available-challenges-generic-table>
+		<template is="dom-if" if="[[challengesEmpty]]">
+			<paper-material class="noChallenge">
+				<h2>
+					No challenges!
+				</h2>
+				<div>
+					Currently, there are no public challenges and you are not invited to any private one.
+				</div>
+			</paper-material>
+		</template>
 	</template>
 	<script>
 		Polymer({
-			is: 'available-challenges-page'
+			is: 'available-challenges-page',
+			properties: {
+				challengesEmpty: {
+					type: Boolean,
+					value: false,
+					computed: 'computeChallengesEmpty(hasChallengesInvite, hasChallengesPublic)'
+				}
+			},
+			computeChallengesEmpty: function(a, b) {
+				return !(a || b);
+			}
 		});
 	</script>
 </dom-module>
