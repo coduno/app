@@ -1,0 +1,90 @@
+<link rel="import" href="../../../bower_components/google-map/google-map.html">
+<link rel="import" href="../../../bower_components/iron-selector/iron-selector.html">
+
+
+<dom-module id="google-multiple-location-viewer">
+	<template>
+		<style>
+			google-map {
+				height: 600px;
+				border: 1px solid lightgray;
+			}
+		</style>
+
+		<div id="container">
+			<google-map id="googleMap"
+						fit-to-markers
+						api-key="[[apiConfig.apiKey]]"
+						version="[[apiConfig.version]]"
+						map="{{map}}">
+
+				<template is="dom-repeat" items="[[locations]]">
+
+					<iron-selector
+							activate-event="google-map-marker-open">
+						<google-map-marker
+								map="{{map}}"
+								click-events="true"
+								title="[[item.name]]"
+								latitude="[[item.latitude]]"
+								longitude="[[item.longitude]]">
+							<div>[[item.address]]</div>
+							<div>[[item.description]]</div>
+						</google-map-marker>
+					</iron-selector>
+
+					<!--Hidden markers not wrapped into iron-selectors; makes them direct children of the google-map-element;
+					are needed to make use of the fit-to-markers-attribute -->
+					<google-map-marker latitude="[[item.latitude]]" longitude="[[item.longitude]]" hidden></google-map-marker>
+				</template>
+
+			</google-map>
+		</div>
+	</template>
+	<script type="application/javascript" src="../../../scripts/behaviors/google-maps-host-behavior.js"></script>
+	<script>
+		Polymer({
+			is: 'google-multiple-location-viewer',
+			behaviors: [
+				Behaviors.GoogleMapsHostBehavior
+			],
+			properties: {
+				locations: {
+					type: Array,
+					value: [],
+					reflectToAttribute: true,
+					observer: '_locChanged'
+				}
+			},
+			listeners: {
+				'google-map-marker-close': 'markerClosed'
+			},
+
+			markerClosed: function() {
+				this.$.googleMap.resize();
+			},
+
+			_locChanged() {
+				console.log("Locations loaded.")
+			},
+			toggleVisibility: function() {
+				if (!!this.visible) {
+					this.show();
+				} else {
+					this.hide();
+				}
+			},
+			show: function() {
+				this.$.container.style.display = '';
+				this.$.googleMap.resize();
+				this.visible = !this.visible;
+				console.log("maps show");
+			},
+			hide: function() {
+				this.$.container.style.display = 'none';
+				this.visible = !this.visible;
+				console.log("maps hide");
+			}
+		});
+	</script>
+</dom-module>
