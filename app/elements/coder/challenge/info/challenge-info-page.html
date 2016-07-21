@@ -129,7 +129,7 @@
 
 			<template is="dom-if" if="[[hasLocations(challenge.locations)]]">
 				<h4 style="margin-top: 20px; margin-bottom: 10px">Locations</h4>
-				<google-multiple-location-viewer id="locationViewer" locations="{{challenge.locations}}"></google-multiple-location-viewer>
+				<google-multiple-location-viewer id="locationViewer" locations="{{displayedLocations}}"></google-multiple-location-viewer>
 			</template>
 
 			<template is="dom-if" if="[[!hasLocations(challenge.locations)]]">
@@ -149,6 +149,10 @@
 					type: Object,
 					notify: true,
 					value: {}
+				},
+				displayedLocations: {
+					type: Array,
+					value: []
 				}
 			},
 			behaviors: [
@@ -161,6 +165,7 @@
 				return !!locations && locations.length > 0;
 			},
 			_dataLoaded: function(challenge, status){
+				this.displayedLocations = challenge.locations;
 				this.displayConfig = {};
 				this.timeUntilChallenge = (challenge.startDate * 1000 - new Date().getTime())/1000;
 				if(challenge.endDate - challenge.startDate > 0){
@@ -203,7 +208,8 @@
 				}
 				if (!!status.location) {
 					this.set('displayConfig.showLocation', true);
-					this.locationIcon = 'zoom-in';
+					this.locationIcon = 'zoom-out';
+					this.displayedLocations = [ status.location ];
 				}
 			},
 			_setStatusAndPrimaryAction: function(statusIcon, statusText, primaryAction, primaryActionClass){
@@ -279,10 +285,10 @@
 			_toggleLocation: function() {
 				if (this.locationIcon === 'zoom-in') {
 					this.locationIcon = 'zoom-out';
-					this.$.locationViewer.show();
+					this.displayedLocations = [ this.status.location ];
 				} else {
 					this.locationIcon = 'zoom-in';
-					this.$.locationViewer.hide();
+					this.displayedLocations = this.challenge.locations;
 				}
 			}
 		});
