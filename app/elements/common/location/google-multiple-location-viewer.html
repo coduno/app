@@ -7,42 +7,39 @@
 		<style>
 			google-map {
 				height: 600px;
+				border: 1px solid lightgray;
 			}
 		</style>
+
 		<div id="container">
-			<google-map id="map"
+			<google-map id="googleMap"
+						fit-to-markers
 						api-key="[[apiConfig.apiKey]]"
 						version="[[apiConfig.version]]"
 						map="{{map}}"
-						latitude="48.20817"
-						longitude="16.37382"
-						zoom="16">
+						latitude="[[avgLatitude]]"
+						longitude="[[avgLongitude]]"
+						zoom="{{zoomLevel}}">
 
-				<iron-selector
-						activate-event="google-map-marker-open">
-					<google-map-marker
-							id="marker"
-							map="{{map}}"
-							click-events="true"
-							title="the location name"
-							latitude="48.20817"
-							longitude="16.37382">
-						a description here
-					</google-map-marker>
-				</iron-selector>
+				<template is="dom-repeat" items="[[locations]]">
 
+					<iron-selector
+							activate-event="google-map-marker-open">
+						<google-map-marker
+								map="{{map}}"
+								click-events="true"
+								title="[[item.name]]"
+								latitude="[[item.latitude]]"
+								longitude="[[item.longitude]]">
+							<div>[[item.address]]</div>
+							<div>[[item.description]]</div>
+						</google-map-marker>
+					</iron-selector>
 
-				<!--<iron-selector
-						activate-event="google-map-marker-open">
-					<google-map-marker
-							id="marker2"
-							click-events="true"
-							title="the location name 2"
-							latitude="48.21293"
-							longitude="16.37382">
-						a description here
-					</google-map-marker>
-				</iron-selector>-->
+					<!--Hidden markers not wrapped into iron-selectors; makes them direct children of the google-map-element;
+					are needed to make use of the fit-to-markers-attribute -->
+					<google-map-marker latitude="[[item.latitude]]" longitude="[[item.longitude]]" hidden></google-map-marker>
+				</template>
 
 			</google-map>
 		</div>
@@ -54,19 +51,29 @@
 			behaviors: [
 				Behaviors.GoogleMapsHostBehavior
 			],
-			observers: [
-				'_locationSet(map, location)'
-			],
-			_locationSet(map, location) {
-				if (!map || !location){
-					return;
+			properties: {
+				locations: {
+					type: Array,
+					value: [],
+					reflectToAttribute: true,
+					observer: '_locChanged'
+				},
+				zoomLevel: {
+					type: Number,
+					value: 6
 				}
+			},
+			listeners: {
+				'google-map-marker-close': 'markerClosed'
+			},
 
-				this.$.marker.map = Object.create(this.map);
-				this.map.setCenter({lat: 48.20817, lng: 16.37382});
-				console.log(this.map);
-				//this.show();
-			}/*,
+			markerClosed: function() {
+				this.$.googleMap.resize();
+			},
+
+			_locChanged() {
+				console.log("Locations loaded.")
+			},
 			toggleVisibility: function() {
 				if (!!this.visible) {
 					this.show();
@@ -76,8 +83,7 @@
 			},
 			show: function() {
 				this.$.container.style.display = '';
-				this.$.map.resize();
-				this.$.marker.open = true;
+				this.$.googleMap.resize();
 				this.visible = !this.visible;
 				console.log("maps show");
 			},
@@ -85,10 +91,7 @@
 				this.$.container.style.display = 'none';
 				this.visible = !this.visible;
 				console.log("maps hide");
-			},
-			ready: function() {
-				console.log("I am ready!");
-			}*/
+			}
 		});
 	</script>
 </dom-module>

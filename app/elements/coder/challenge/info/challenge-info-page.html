@@ -59,18 +59,18 @@
 		}
 	</style>
 	<template>
-		<!--<coduno-iron-ajax
+		<coduno-iron-ajax
 				id="request"
 				method="DELETE"
 				on-request-finished="_onResponse"
 				error="{{error}}">
-		</coduno-iron-ajax>-->
+		</coduno-iron-ajax>
 
 		<challenge-by-canonical-name-provider canonical-name="[[canonicalName]]" data="{{challenge}}"></challenge-by-canonical-name-provider>
 		<user-status-for-challenge-provider auto="true" canonical-name="[[canonicalName]]" data="{{status}}"></user-status-for-challenge-provider>
 
 		<paper-material id="wrapper" elevation="1" class="mainContent">
-			<!--<div class="title-wrapper">
+			<div class="title-wrapper">
 				<h3>{{challenge.name}}</h3>
 				<span></span>
 				<template is="dom-if" if="[[displayConfig.showPrimaryAction]]">
@@ -123,13 +123,21 @@
 					<paper-button class="secondary" raised dialog-dismiss>No</paper-button>
 					<div class="flex"></div>
 				</div>
-			</paper-dialog>-->
+			</paper-dialog>
 
-			<div>hello maps</div>
-			<google-multiple-location-viewer id="locationViewer" location="[[getMyLocation()]]"></google-multiple-location-viewer>
+			<render-markdown markdown="{{challenge.description}}"></render-markdown>
+
+			<template is="dom-if" if="[[hasLocations(challenge.locations)]]">
+				<h4 style="margin-top: 20px; margin-bottom: 10px">Locations</h4>
+				<google-multiple-location-viewer id="locationViewer" locations="{{challenge.locations}}"></google-multiple-location-viewer>
+			</template>
+
+			<template is="dom-if" if="[[!hasLocations(challenge.locations)]]">
+				<div style="margin-top: 20px; margin-bottom: 10px">The challenge is taking place online.</div>
+			</template>
 
 
-			<!--<render-markdown markdown="{{challenge.description}}"></render-markdown>-->
+
 		</paper-material>
 	</template>
 	<script type="application/javascript" src="../../../../scripts/behaviors/datetime-behavior.js"></script>
@@ -143,17 +151,15 @@
 					value: {}
 				}
 			},
-			getMyLocation: function() {
-				var myLoc = new Object();
-				myLoc.longitude = 16.37093;
-				myLoc.latitude = 48.20710;
-			},
 			behaviors: [
 				Behaviors.DateTimeBehavior
 			],
 			observers: [
 				'_dataLoaded(challenge, status)'
 			],
+			hasLocations: function(locations) {
+				return !!locations && locations.length > 0;
+			},
 			_dataLoaded: function(challenge, status){
 				this.displayConfig = {};
 				this.timeUntilChallenge = (challenge.startDate * 1000 - new Date().getTime())/1000;
