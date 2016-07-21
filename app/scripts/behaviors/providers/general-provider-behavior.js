@@ -22,7 +22,6 @@ var NewBehavior = {
 		this.appConnection = document.getElementById('app');
 	},
 	_requestFinished: function(e, d){
-		console.log(d);
 		this.data = d;
 		if(this.showProgress){
 			this.appConnection.stopLoading();

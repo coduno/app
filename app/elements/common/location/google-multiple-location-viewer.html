@@ -16,10 +16,7 @@
 						fit-to-markers
 						api-key="[[apiConfig.apiKey]]"
 						version="[[apiConfig.version]]"
-						map="{{map}}"
-						latitude="[[avgLatitude]]"
-						longitude="[[avgLongitude]]"
-						zoom="{{zoomLevel}}">
+						map="{{map}}">
 
 				<template is="dom-repeat" items="[[locations]]">
 
@@ -57,10 +54,6 @@
 					value: [],
 					reflectToAttribute: true,
 					observer: '_locChanged'
-				},
-				zoomLevel: {
-					type: Number,
-					value: 6
 				}
 			},
 			listeners: {
