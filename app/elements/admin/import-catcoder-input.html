@@ -14,6 +14,7 @@
 			method="POST"
 			body="[[body]]"
 			path="/contestgameupload"
+			handle-as="text"
 			content-type=""
 			response="{{savedTemplate}}"
 			on-request-finished="_onRequestFinished"
@@ -58,6 +59,8 @@
 			_onError: function(e, req) {
 				app.stopLoading();
 				this.$.uploadButton.disabled = false;
+				this.toastText = e.detail.request.xhr.response.message;
+				this.$.toast.show();
 			}
 		});
 	</script>
