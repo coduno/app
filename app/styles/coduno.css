@@ -55,7 +55,7 @@ paper-icon-button.error:hover, paper-icon-button.btn-error:hover, paper-icon-but
 paper-checkbox #checkmark.paper-checkbox, paper-checkbox /deep/, paper-checkbox::shadow #checkmark.paper-checkbox { border-color: #fff !important; }
 
 paper-dialog { color: #2d2d2d; background-color: #fafafa; font-family: 'Oxygen', sans-serif; font-weight: 400; }
-paper-dialog h1, paper-dialog h2, paper-dialog h3, paper-dialog h4, paper-dialog h5, paper-dialog h6 { overflow: visible; padding: 0 1em; text-align: center; }
+paper-dialog h1, paper-dialog h2, paper-dialog h3, paper-dialog h4, paper-dialog h5, paper-dialog h6 { overflow: visible;  }
 
 paper-fab { --text-primary-color: white; }
 

@@ -85,10 +85,9 @@
 					<paper-fab mini id="instructionsFab" on-click="_goToInstructions" icon="chrome-reader-mode"></paper-fab>
 					<paper-tooltip for="instructionsFab" position="top" animation-delay="0">View instructions</paper-tooltip>
 
-					<template is="dom-if" if="{{showDownload}}">
-						<paper-fab id="downloadFab" mini on-click="_download" icon="file-download"></paper-fab>
-						<paper-tooltip for="downloadFab" position="top" animation-delay="0">Download resources</paper-tooltip>
-					</template>
+					<paper-fab id="downloadFab" mini on-click="_download" icon="file-download"></paper-fab>
+					<paper-tooltip for="downloadFab" position="top" animation-delay="0">Download resources</paper-tooltip>
+
 					<paper-fab id="uploadFileFab" mini on-click="_addFile" icon="file-upload"></paper-fab>
 					<paper-tooltip for="uploadFileFab" position="top" animation-delay="0">Upload source code</paper-tooltip>
 
@@ -151,7 +150,7 @@
 				window.open(this.task.instructions, '', '_blank');
 			},
 			_download: function(){
-				window.open(this.task.description, '', '_blank');
+				this.fire('show-challenge-instructions');
 			},
 			run: function(){
 				//todo: submission service

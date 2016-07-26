@@ -23,6 +23,27 @@
 			width:35%;
 			@apply(--layout-horizontal);
 		}
+
+		paper-dialog {
+			width: 35%;
+			color: #2d2d2d;
+			background-color: #e5e5e5;
+			font-family: 'Open Sans', sans-serif;
+			font-weight: 400;
+		}
+
+		.challengeDisplayModal {
+			padding: 20px 50px 0 50px
+		}
+
+		.challengeDisplayPreview {
+			padding: 0 20px 20px 20px
+		}
+
+		.paperButtonModal {
+			text-align: right;
+			margin-right: -20px
+		}
 	</style>
 	<template>
 		<challenge-by-canonical-name-provider canonical-name="[[canonicalName]]" data="{{challenge}}"></challenge-by-canonical-name-provider>
@@ -36,12 +57,21 @@
 		</div>
 		<div id="challenge" style$="{{contentStyle}}">
 			<paper-material id="startChallengeCard" elevation="1" class="card">
-				<div class="flex">
+				<div class="flex challengeDisplayPreview">
 					<challenge-display challenge="{{challengeTemplate}}"></challenge-display>
 					<paper-button raised on-click="startChallenge">Go</paper-button>
 				</div>
 			</paper-material>
 		</div>
+
+		<paper-dialog id="challengeOverviewModal" modal>
+			<div class="challengeDisplayModal">
+				<challenge-display challenge="{{challengeTemplate}}"></challenge-display>
+				<div class="paperButtonModal">
+					<paper-button dialog-confirm autofocus>Close</paper-button>
+				</div>
+			</div>
+		</paper-dialog>
 	</template>
 	<script type="application/javascript" src="../../../../scripts/behaviors/loading-behavior.js"></script>
 	<script>
@@ -71,6 +101,9 @@
 					type: String,
 					value: 'display: none;'
 				}
+			},
+			listeners: {
+				'show-challenge-instructions' : 'showChallengeInstructions'
 			},
 			observers: [
 				'afterPropertiesSet(canonicalName)'
@@ -105,6 +138,9 @@
 			},
 			startChallenge: function() {
 				this.$.resultService.post(this.challenge.id);
+			},
+			showChallengeInstructions: function() {
+				this.$.challengeOverviewModal.open();
 			},
 			replaceContent: function(){
 				var webInterface = document.createElement(this.challengeTemplate.endpoint.component);

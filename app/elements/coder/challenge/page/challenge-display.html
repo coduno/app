@@ -3,13 +3,17 @@
 		p{
 			white-space: pre-wrap;
 		}
+
+		h1 h2 h3 h4 h5 {
+			text-align: left;
+		}
 	</style>
 	<template>
 		<h1>{{challenge.name}}</h1>
 		<h3>Description</h3>
-		<p>{{challenge.description}}</p>
+		<render-markdown markdown="{{challenge.description}}"></render-markdown>
 		<h3>Instructions</h3>
-		<p>{{challenge.instructions}}</p>
+		<render-markdown markdown="{{challenge.instructions}}"></render-markdown>
 	</template>
 	<script>
 		Polymer({
