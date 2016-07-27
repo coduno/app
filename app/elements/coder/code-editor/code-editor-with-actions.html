@@ -147,7 +147,7 @@
 				'template-fetched': 'handleTemplateFetched'
 			},
 			_goToInstructions: function(){
-				window.open(this.task.instructions, '', '_blank');
+				this.fire('show-task-instructions', this.task);
 			},
 			_download: function(){
 				this.fire('show-challenge-instructions');

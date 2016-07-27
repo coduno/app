@@ -32,7 +32,7 @@
 			font-weight: 400;
 		}
 
-		.challengeDisplayModal {
+		.modalPadding {
 			padding: 20px 50px 0 50px
 		}
 
@@ -65,8 +65,17 @@
 		</div>
 
 		<paper-dialog id="challengeOverviewModal" modal>
-			<div class="challengeDisplayModal">
+			<div class="modalPadding">
 				<challenge-display challenge="{{challengeTemplate}}"></challenge-display>
+				<div class="paperButtonModal">
+					<paper-button dialog-confirm autofocus>Close</paper-button>
+				</div>
+			</div>
+		</paper-dialog>
+
+		<paper-dialog id="taskInstructionsModal" modal>
+			<div class="modalPadding">
+				<task-display task="{{task}}"></task-display>
 				<div class="paperButtonModal">
 					<paper-button dialog-confirm autofocus>Close</paper-button>
 				</div>
@@ -100,10 +109,14 @@
 				remainingTimeStyle:{
 					type: String,
 					value: 'display: none;'
+				},
+				task: {
+					type: Object
 				}
 			},
 			listeners: {
-				'show-challenge-instructions' : 'showChallengeInstructions'
+				'show-challenge-instructions' : 'showChallengeInstructions',
+				'show-task-instructions' : 'showTaskInstructions'
 			},
 			observers: [
 				'afterPropertiesSet(canonicalName)'
@@ -141,6 +154,10 @@
 			},
 			showChallengeInstructions: function() {
 				this.$.challengeOverviewModal.open();
+			},
+			showTaskInstructions: function(e) {
+				this.task = e.detail;
+				this.$.taskInstructionsModal.open();
 			},
 			replaceContent: function(){
 				var webInterface = document.createElement(this.challengeTemplate.endpoint.component);
