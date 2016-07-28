@@ -10,10 +10,15 @@
 			overflow-y: auto;
 			height: 100%;
 		}
+
+		h1 {
+			margin-bottom: 60px;
+			font-size: 32px;
+		}
 	</style>
 	<template>
 		<div>
-			<h2>{{task.name}}</h2>
+			<h1>{{task.name}}</h1>
 			<render-markdown markdown="{{task.description}}"></render-markdown>
 			<render-markdown markdown="{{task.instructions}}"></render-markdown>
 		</div>
