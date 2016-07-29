@@ -11,11 +11,20 @@
 		}
 	</style>
 	<template>
+		<app-location route="{{route}}"></app-location>
+		<app-route
+				route="{{route}}"
+				pattern="/:page"
+				data="{{routeData}}"
+				tail="{{subroute}}"></app-route>
+
 		<paper-header-panel class="fullHeight">
 			<app-nav id="appNav" user="{{user}}"></app-nav>
-			<div id="sections" class="content">
-			</div>
 		</paper-header-panel>
+
+		<iron-pages role="main" selected="[[page]]" attr-for-selected="name" selected-attribute="visible">
+			<admin-page name="admin"></admin-page>
+		</iron-pages>
 
 		<!-- TODO(victorbalan): enable cache in production -->
 		<!--
@@ -33,6 +42,11 @@
 		Polymer({
 			is: 'app-element',
 			properties: {
+				page: {
+					type: String,
+					reflectToAttribute: true,
+					observer: '_pageChanged'
+				},
 				selected: {
 					type: String,
 					notify: true,
@@ -45,7 +59,7 @@
 				user: {
 					type: Object,
 					notify: true,
-					redlectToAttribute: true,
+					reflectToAttribute: true,
 					value: {}
 				},
 				inProgressRequests: {
